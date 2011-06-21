@@ -1,0 +1,316 @@
+#ifndef __GradSoft_FixedBigNumber
+#define __GradSoft_FixedBigNumber
+/**
+ * Big numbers class implemented as array of long.
+ *
+ * (C) GradSoft, 2001
+ * @author Alexander Yanovetz
+ */
+
+#ifdef _MSC_VER
+#define HAVE_NAMESPACES
+
+
+#ifndef HAVE_BOOL
+#define HAVE_BOOL
+#endif
+
+#endif
+
+
+#include <iostream>
+
+#ifdef HAVE_NAMESPACES
+namespace GradSoft {
+#endif
+
+
+class FixedBigNumber {
+
+friend std::ostream& operator<<(std::ostream& out, const FixedBigNumber& x);
+
+
+    unsigned long* data_;
+    const short dim_;
+    bool sign_;
+
+public:
+    FixedBigNumber(const FixedBigNumber& x):dim_(x.dim_), sign_(x.sign_) {
+        data_ = new unsigned long[dim_];
+        for (short i = 0; i < dim_; ++i) data_[i] = x.data_[i];
+    }
+
+    FixedBigNumber(const FixedBigNumber& x, short dim):dim_(dim), sign_(x.sign_)
+    {
+        data_ = new unsigned long[dim_];
+        short min = (dim_ < x.dim_) ? dim_ : x.dim_;
+        short i;
+        for (i = 0; i < min; ++i) data_[i] = x.data_[i];
+        for (; i < dim_; ++i) data_[i] = 0;
+    }
+
+    FixedBigNumber& operator=(const FixedBigNumber& x) {
+        short rest = (x.dim_ < dim_) ? x.dim_ : dim_;
+        for (short i = 0; i < rest; ++i) data_[i] = x.data_[i];
+        if (dim_ > x.dim_) {
+            for (; rest < dim_; ++rest) data_[rest] = 0UL;
+        }
+        sign_ = x.sign_;
+        return *this;
+    }
+
+    FixedBigNumber(unsigned long l, short dim):dim_(dim), sign_(true) {
+        data_ = new unsigned long[dim_];
+        for (--dim; dim > 0; --dim) {
+            data_[dim] = 0;
+        }
+        data_[0] = l;
+    }
+
+    virtual ~FixedBigNumber() {
+        delete [] data_;
+    }
+
+    FixedBigNumber& operator= (unsigned long l) {
+        data_[0] = l;
+        for (short i = 1; i < dim_; ++i) {
+            data_[i] = 0;
+        }
+        sign_ = true;
+        return *this;
+    }
+
+    short dimention() const {
+        return dim_;
+    }
+
+    short size() const {
+        return dim_*sizeof(unsigned long)*8;
+    }
+
+    bool positive() const {
+        return sign_;
+    }
+
+    unsigned long getLong() const {
+        return data_[0];
+    }
+
+    class reference {
+        friend class FixedBigNumber;
+        unsigned long& data_;
+        const unsigned long mask_;
+    public:
+        reference(unsigned long& data, unsigned long mask): data_(data),
+                mask_(mask) {}
+        reference& operator= (bool x) {
+            if (x) {
+                data_ |= mask_;
+            } else {
+                data_ &= ~mask_;
+            }
+            return *this;
+        }
+		operator bool() const {
+            return ((data_ & mask_) != 0);
+        }
+    };
+
+private:
+    static const unsigned long* getMasks() {
+        static unsigned long m[sizeof(unsigned long)*8];
+        m[0] = 1UL;
+        for (short i = 1; i < sizeof(unsigned long)*8; ++i) {
+            m[i] = m[i-1] << 1;
+        }
+        return m;
+    }
+
+public:
+    static const unsigned long& mask(short i) {
+        static const unsigned long* m = getMasks();
+        return m[i];
+    }
+
+    reference operator[](short i) {
+        return reference((data_[i/(sizeof(unsigned long)*8)]),
+                mask(i%(sizeof(unsigned long)*8)));
+    }
+
+    bool operator[](short i) const {
+        return ((data_[i/(sizeof(unsigned long)*8)]
+               & mask(i%(sizeof(unsigned long)*8))) != 0);
+    }
+
+    FixedBigNumber operator-() const {
+        FixedBigNumber ret(*this);
+        ret.sign_ = !sign_;
+        return ret;
+    }
+
+    FixedBigNumber& operator-=(unsigned long y);
+    FixedBigNumber& operator-=(const FixedBigNumber& y);
+
+    FixedBigNumber& operator+=(unsigned long y);
+    FixedBigNumber& operator+=(const FixedBigNumber& y);
+
+    FixedBigNumber& operator*=(unsigned long y);
+    FixedBigNumber& operator*=(const FixedBigNumber& y);
+
+    FixedBigNumber& operator%=(unsigned long y);
+    FixedBigNumber& operator%=(const FixedBigNumber& yc);
+
+    FixedBigNumber& operator/=(unsigned long y);
+    FixedBigNumber& operator/=(const FixedBigNumber& yc);
+
+    FixedBigNumber& operator>>= (short sh);
+    FixedBigNumber& operator<<= (short sh);
+
+    bool notEqual(unsigned long y) const;
+    bool notEqual(const FixedBigNumber& y) const;
+
+    bool less(unsigned long y) const;
+    bool less(const FixedBigNumber& y) const;
+
+    bool greater(unsigned long y) const;
+    bool greater(const FixedBigNumber& y) const;
+
+    bool operator!=(unsigned long y) const;
+    bool operator!=(const FixedBigNumber& y) const;
+
+    bool operator<(unsigned long y) const;
+    bool operator<(const FixedBigNumber& y) const;
+
+    bool operator>(unsigned long y) const;
+    bool operator>(const FixedBigNumber& y) const;
+
+    static short maxSignificantBit(unsigned long x);
+    short maxSignificantBit() const;
+
+    void leftShiftNoised();
+
+};
+
+
+
+FixedBigNumber operator-(FixedBigNumber x, unsigned long y);
+FixedBigNumber operator-(unsigned long x, const FixedBigNumber& y);
+FixedBigNumber operator-(FixedBigNumber x, const FixedBigNumber& y);
+
+FixedBigNumber operator+(FixedBigNumber x, unsigned long y);
+FixedBigNumber operator+(unsigned long x, const FixedBigNumber& y);
+FixedBigNumber operator+(FixedBigNumber x, const FixedBigNumber& y);
+
+FixedBigNumber operator*(const FixedBigNumber& x, unsigned long y);
+FixedBigNumber operator*(unsigned long x, const FixedBigNumber& y);
+FixedBigNumber operator*(const FixedBigNumber& x, const FixedBigNumber& y);
+
+unsigned long operator%(FixedBigNumber x, unsigned long y);
+FixedBigNumber operator%(unsigned long x, const FixedBigNumber& y);
+FixedBigNumber operator%(FixedBigNumber x, const FixedBigNumber& y);
+
+FixedBigNumber operator/(FixedBigNumber x, unsigned long y);
+FixedBigNumber operator/(unsigned long x, const FixedBigNumber& y);
+FixedBigNumber operator/(FixedBigNumber x, const FixedBigNumber& y);
+
+std::ostream& operator<<(std::ostream& out, const FixedBigNumber& x);
+
+
+inline bool equal(const FixedBigNumber& x, unsigned long y)
+{
+    return !x.notEqual(y);
+}
+
+inline bool equal(unsigned long x, const FixedBigNumber& y)
+{
+    return !y.notEqual(x);
+}
+
+inline bool equal(const FixedBigNumber& x, const FixedBigNumber& y)
+{
+    return !x.notEqual(y);
+}
+
+
+inline bool lessEqual(const FixedBigNumber& x, const FixedBigNumber& y)
+{
+    return !x.greater(y);
+}
+
+inline bool lessEqual(const FixedBigNumber& x, unsigned long y)
+{
+    return !x.greater(y);
+}
+
+inline bool lessEqual(unsigned long x, const FixedBigNumber& y)
+{
+    return !y.less(x);
+}
+
+inline bool greaterEqual(const FixedBigNumber& x, const FixedBigNumber& y)
+{
+    return !x.less(y);
+}
+
+inline bool greaterEqual(const FixedBigNumber& x, unsigned long y)
+{
+    return !x.less(y);
+}
+
+inline bool greaterEqual(unsigned long x, const FixedBigNumber& y)
+{
+    return !y.greater(x);
+}
+
+inline bool operator==(const FixedBigNumber& x, unsigned long y)
+{
+    return !(x != y);
+}
+
+inline bool operator==(unsigned long x, const FixedBigNumber& y)
+{
+    return !(y != x);
+}
+
+inline bool operator==(const FixedBigNumber& x, const FixedBigNumber& y)
+{
+    return !(x != y);
+}
+
+inline bool operator>=(const FixedBigNumber& x, const FixedBigNumber& y)
+{
+    return !(x < y);
+}
+
+inline bool operator>=(const FixedBigNumber& x, unsigned long y)
+{
+    return !(x < y);
+}
+
+inline bool operator>=(unsigned long x, const FixedBigNumber& y)
+{
+    return !(y > x);
+}
+
+inline bool operator<=(const FixedBigNumber& x, const FixedBigNumber& y)
+{
+    return !(x > y);
+}
+
+inline bool operator<=(const FixedBigNumber& x, unsigned long y)
+{
+    return !(x > y);
+}
+
+inline bool operator<=(unsigned long x, const FixedBigNumber& y)
+{
+    return !(y < x);
+}
+
+#ifdef HAVE_NAMESPACES
+}
+#endif
+
+
+
+#endif

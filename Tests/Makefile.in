@@ -1,0 +1,20 @@
+#
+#
+#
+@SET_MAKE@
+#
+SUBDIRS=Threading
+
+default: build
+
+build:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) build); done
+
+clean:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) clean); done
+
+check:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) check); done
+
+reconfigure:
+	autoconf -l ../config

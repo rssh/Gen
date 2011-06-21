@@ -1,0 +1,19 @@
+PROJECT_ROOT=@project_root@
+include $(PROJECT_ROOT)/../config/entry.mak
+
+DeleteThis: DeleteThis.o
+	$(CXX) $(CXXFLAGS) -o DeleteThis DeleteThis.o -L../../src -lThreading $(LIBS)
+	
+DeleteThis.o: DeleteThis.cpp
+	$(CXX) $(CXXFLAGS) -c DeleteThis.cpp
+
+default: build
+
+build: DeleteThis 
+
+install:
+uninstall:
+
+clean:
+	-rm *.o DeleteThis 
+	-rm -rf Templates.DB

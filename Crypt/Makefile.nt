@@ -1,0 +1,32 @@
+## Main Makefile for Crypt project for Windows NT
+## $Id: Makefile.nt,v 1.1 2001-04-10 11:34:24 yad Exp $
+
+include ..\config\env_inc.nt.mak
+include .\config\env_inc.nt.mak
+
+
+SUBDIRS=$(PROJECT_ROOT)\src
+
+INSTALL_DIRS=$(PROJECT_ROOT)\src $(PROJECT_ROOT)\include
+
+
+
+default: build
+
+
+build::
+	@for %i in ( $(SUBDIRS) ) do \
+		@cd %i && $(MAKE) /F Makefile.nt build
+
+install:: 
+	@for %i in ( $(INSTALL_DIRS) ) do \
+		@cd %i && $(MAKE) /F Makefile.nt install
+
+uninstall:: 
+	@for %i in ( $(INSTALL_DIRS) ) do \
+		@cd %i && $(MAKE) /F Makefile.nt uninstall
+
+clean:: 
+	@for %i in ($(SUBDIRS)) do \
+		@cd %i && $(MAKE) /F Makefile.nt clean
+

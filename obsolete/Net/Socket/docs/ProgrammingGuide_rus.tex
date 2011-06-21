@@ -1,0 +1,158 @@
+\documentclass[10pt]{article}
+%\usepackage{tex4ht}
+\usepackage[OT1,T2A]{fontenc}
+\usepackage[koi8-u]{inputenc}
+\usepackage{graphicx}
+\usepackage{verbatim}
+
+%\Contribute{TITLE}{\def\LaTeX{LaTeX}}
+\title{Socket: руководство программирования.}
+
+\begin{document}
+
+\maketitle{}
+
+\tableofcontents
+
+\section{ Введение }
+  Socket - полезный класс, который используется как надстройка для 
+  стандартного API  BSD socket. Главной задачей данного класса является 
+  упрощение работы с сетью.
+\section{ Общее описание. }
+ 
+  Этот документ является неформальным описанием документа. Полная спецификация
+  находится по адресу (www.gradsoft.kiev.ua/techdocs/Socket/API).\\
+
+\newpage
+\section{ Создания клиентского приложения. }
+ { Для использования клиентской части необходимо  включить файл 
+   \verb|Client.h|. }
+  \begin{itemize}
+	\item {\bf void Socket(int domain,\ int type,\ int protocol)} \\
+           Создание объекта \verb|Socket| с параметрами \verb|domain| 
+           и \verb|type|.\\
+           Параметр \verb|domain| определяет семейство протоколов, которые 
+           будут использованы для соединения. \\ 
+           Параметр \verb|type| определяет семантику соединения.\\
+           Параметр \verb|protocol| определяет конкретный протокол 
+           для использования с сокетом.
+	\item {\bf void Socket::connect(const char* hostname,\ int port)}\\ 
+            Для инициализации соединения вызывается метод 
+            \verb|Socket::connect()|. \\ Параметр \verb|hostname| 
+            идентифицирует сервер в сети. В \verb|hostname| может 
+            передавться как IP адрес так и доменный адрес сервера.\\
+            Параметр \verb|port| определяет порт, который прослушивает 
+            сервер.
+	\item {\bf void Socket::write(const char* buf,\ int len,\ int flag) }\\
+           Для отправления сообщений из сокета вызывается метод   
+	   \verb|Socket::write()|.\\
+           Параметр \verb|buf| задает адрес источника.\\
+           Параметр \verb|len|  задает размер \verb|buf|. \\
+           Параметр \verb|flag| (см. Socket API).
+        \item {\bf void Socket::read(char* buf, int len, int flag)}\\
+           Метод \verb|Socket::read()| используется для принятия сообщения.\\ 
+	   Параметр \verb|buf| задает адрес места назначения.\\
+           Параметр \verb|len|  задает размер \verb|buf|. \\
+           Параметр \verb|flag| (см. Socket API).
+        \item { \bf const char* Socket::name()  }
+           Возвращает имя машины, на которой запущено приложение.
+        \item {\bf void Socket::shutdown(int mode) } \\
+           Метод \verb|Socket::shutdown()| закрывает связь с клиентом. 
+           Связь с клиентом может быть прекращена на чтение, запись или 
+           одновременно и на  чтение и запись. Тип закрытия связи с клиентом 
+           определяется аргументом \verb|mode|. По умолчанию 
+           \verb|Socket::shutdown()| закрывает связь и на запись и на чтение.
+  \end{itemize} 
+  { \sl (для более детальной информации смотрите socket API). } \\
+\newpage
+\section{ Рисунок взаемодействия клиентского приложения.}
+  \vspace{2ex}
+  \begin{center}
+  {
+    \begin{picture}(100,200)(10,10)
+        \put(50,200){\framebox(80,20)[c]{SOCKET}}
+        \put(90,200){\vector(0,-1){30}}
+        \put(50,150){\framebox(80,20)[c]{CONNECT}}
+        \put(90,150){\vector(0,-1){15}}
+        \put(45,135){\line(1,0){87}}
+        \put(45,135){\vector(0,-1){15}}
+        \put(132,135){\vector(0,-1){15}}
+        \put(5,100){\framebox(80,20)[c]{WRITE}}
+        \put(100,100){\framebox(80,20)[c]{READ}}
+        \put(45,85){\line(1,0){87}}
+        \put(45,85){\vector(0,1){15}}
+        \put(132,85){\vector(0,1){15}}
+        \put(90,85){\vector(0,-1){15}}
+        \put(50,50){\framebox(80,20)[c]{SHUTDOWN}}
+    \end{picture}
+  }
+  \end{center}
+\newpage
+\section{ Создания серверного приложения. }
+ { Для использования серверной части необходимо  включить файл 
+   \verb|Server.h|. }
+  \begin{itemize}
+	\item {\bf void Socket(int domain,\ int type,\ int protocol)} \\
+              ( см. выше ).
+        \item { \bf void bind( int port ) } \\
+           Метод \verb|Socket::bind()| связывает сокет с портом,  который 
+           будет прослушиваться для соединения.\\
+           Параметр \verb|port|  задает номер порта для прослушивания.
+        \item {\bf void Socket::listen( int backlog ) } \\
+           Метод \verb|Socket::listen()| устанавливает глубину очереди для 
+           ожидания соединения с серверной частью. По умолчанию глубина 
+           очередь равна 5.\\
+           Параметр \verb|backlog| задает глубину очереди.
+        \item  { \bf Socket Socket::accept() } \\
+           Метод \verb|Socket::accept()| возвращает екземпляр класса Socket 
+           для "общения" с клиентом. Через этот Socket 
+           можно передавать и принимать данные от клиента.
+        \item { \bf void Socket::client\_info(char* hostnm, 
+                    size\_t size, int\& port) } \\
+           Метод \verb|Socket::client_info()| возвращает информацию о клиенте :
+           имя host-а и номер порта. \\
+           В параметр \verb|hostnm| передается имя host-а клиента.\\
+           Параметр \verb|size| задает размер области для \verb|hostnm|.\\
+           В параметр \verb|port| передается номер порта клиента. 
+        \item Метод \verb|Socket::name()| (см. выше).
+        \item Метод \verb|Socket::shutdown()| (см. выше).
+        \item Метод \verb|Socket::write()| (см. выше).
+        \item Метод \verb|Socket::read()| (см. выше).
+  \end{itemize} 
+\newpage
+\section{ Рисунок взаемодействия серверного приложения.}
+  \vspace{2ex}
+  \begin{center}
+  { 
+    \begin{picture}(200,400)(10,10)
+        \put(50,400){\framebox(80,20)[c]{SOCKET}}
+        \put(90,400){\vector(0,-1){30}}
+        \put(50,350){\framebox(80,20)[c]{BIND}}
+        \put(90,350){\vector(0,-1){30}}
+        \put(50,300){\framebox(80,20)[c]{LISTEN}}
+        \put(90,300){\vector(0,-1){30}}
+        \put(90,285){\line(1,0){60}}
+        \put(150,285){\line(0,1){25}}
+        \put(150,310){\vector(-1,0){20}}
+        \put(50,250){\framebox(80,20)[c]{ACCEPT}}
+        \put(90,250){\vector(0,-1){15}}
+        \put(45,235){\line(1,0){87}}
+        \put(45,235){\vector(0,-1){15}}
+        \put(132,235){\vector(0,-1){15}}
+        \put(5,200){\framebox(80,20)[c]{WRITE}}
+        \put(100,200){\framebox(80,20)[c]{READ}}
+        \put(45,185){\line(1,0){87}}
+        \put(45,185){\vector(0,1){15}}
+        \put(132,185){\vector(0,1){15}}
+        \put(90,185){\vector(0,-1){15}}
+        \put(50,150){\framebox(80,20)[c]{SHUTDOWN}}
+    \end{picture}
+  } 
+  \end{center}
+\newpage
+\section{ Изменения }
+  \begin{itemize}
+       \item { \bf 11.06.2001 } 
+        Добавлена серверная часть.
+  \end{itemize} 
+\end{document}

@@ -1,0 +1,215 @@
+
+\documentclass[10pt]{article}
+%\usepackage{tex4ht}
+\usepackage[OT1,T2A]{fontenc}
+\usepackage[koi8-u]{inputenc}
+\usepackage{graphicx}
+\usepackage{verbatim}
+
+\bibliographystyle{plain} 
+
+\title{ ptrs-s: Руководство программиста  
+       \newline
+       \small{DocumentId:GradSoft-PR-07.03.2002}
+      }
+
+% $Id: ProgrammingGuide_rus.tex,v 1.6 2002-04-08 19:35:42 kav Exp $
+
+\begin{document}
+
+\maketitle{}
+
+\tableofcontents
+
+\section{ Введение }
+
+ Пакет \verb|ptrs| предназначен для организации техникой управления памятью
+ в C++ программох.
+ Он включает в себя набор шаблонов т. н. умных указателей 
+ (\verb|smart_pointes|), 
+ с помощью которых можно обеспечить эффективную 
+ и удобную технологию управления памятью. 
+ 
+ В этом документе подразумевается знакомство с основными концепциями
+ C++, необходимое введение можно найти в \cite{CPP-std}, \cite{Harvey}
+
+\subsection{ Об этом пакете }
+
+ Данное ПО разработанно и поддерживается компанией GradSoft, Киев, Украина.
+ Последняя версия этого пакета доступна на www-сайте: \verb|http://www.gradsoft.com.ua|.
+ Вы можете свободно использовать этот пакет и включать его в свои программы,
+ в соответствии с лицензией, находящейся в файле \verb|docs/LICENSE|  (либо \verb|docs/LICENSE.rus| в дистрибутиве пакета GradSoft C++ ToolBox.
+ При необходимости возможно коммерческое сопровождение пакета.
+
+\subsection{ Об этом документе }
+
+ Данное Руководство Программиста написанно для версии ptrs,
+ входящей в состав GradC++ToolBox версии 1.5.0.
+ Тут описано использование API с точки зрения программиста.
+ Порядок инсталляции пакета описан в Руководстве Администратора пакета 
+  GradSoft C++ ToolBox \cite{AD}
+
+\section{ Описание классов }
+
+
+\subsection{ Шаблоны указателей: общее место }
+
+ Если Вы знакомы с концепцией ``умных указателей'', то Вы знаете, что 
+\verb|умный указатель| это класс С++ который содержит в себе собственно
+указатель, возможно вместе с некоторой дополнительноф инфрастуктурой, в
+котором перегуржены операторы разименования: \verb|*, ->, ->*|.
+
+ В дополнение, для всех типов шаблонов указателей мы определяем метод 
+\verb|get()|, который возвращает нам указатель на внутренний объект.
+
+\subsection{ Исключения }
+
+ Пакет \verb|ptrs| определяет еще одно исключение в стандартной иерархии
+исключений С++. Это \verb|NullPointerException|, возникающее в том случае,
+когда мы пытаемся разъименовать пустой указатель во время работы с 
+так-назывемыми безопасными (safe) классами указателей.
+
+Схема:
+\begin{verbatim}
+ std::runtime_exception
+  |
+  *->NullPointerException
+\end{verbatim}
+
+\subsection{ safe\_ptr }
+
+ \verb|safe_ptr| это просто оболочка вокруг указателя, который при попытке
+доступа к нулевому указателю генерирует исключение \verb|NullPointerException|
+вместо переключения программы в режим неопределенного поведения.
+
+ Типичное его использование - использовать его как замену простого указателя
+для данных, который не принадлежат текущей подсистеме.
+
+Пример:
+\begin{verbatim}
+void myFun(Something* x) throw(std::exception)
+{
+ safe_ptr<Somethins> sx(x);
+ sx->do();
+}
+\end{verbatim}
+вместо
+\begin{verbatim}
+void myFun(Something* x) throw(std::exception)
+{
+ if (x==NULL) throw std::runtime_exception(string("x is null"));
+ x->do();
+}
+\end{verbatim}
+
+\subsection{ safe\_auto\_ptr }
+
+ Это полный аналог \verb|std::auto_ptr|, только безопасный.
+
+Заметим, что мы не включаем в состав \verb|safe_auto_ptr| стандартный
+методы-шаблоны, так как в настоящее время их поддерживают не все 
+компиляторы C++.
+
+\subsection{ owned\_ptr }
+
+ Как вы можете определить из имени, \verb|owned_ptr| - это указатель, 
+'принадлежащий' чему-либо. Что это означает - в \verb|owned_ptr| мы
+храним указатель вместе с логическим флагом 'принадлежности'. Если этот
+флаг установлен в \verb|true|, то при разрушении \verb|owned_ptr| удаляется
+и внутренний объект.
+
+'Безопасность' \verb|owned_ptr| определяется вторым параметром шаблона, который
+должен быть одной из структур свойств: \verb|ptr::safe| или \verb|ptr::unsafe|.
+\begin{itemize}
+ \item \verb|owned_ptr<T,ptr::safe>| - безопасный \verb|owned_ptr|
+ \item \verb|owned_ptr<T,ptr::unsafe>| - соответственно, опасный ;)
+\end{itemize}
+ 
+ В отличие от других шаблонов указателя для \verb|owned_ptr| не определен
+оператор присваивания и конструктор копирования, вместо этого используется
+метод \verb|set| с двумя параметрами: первый параметр это объект для 
+копирования, второй - флаг передачи ответственности за освобождение памяти.
+
+Примеры:
+\begin{verbatim}
+ MyClass* px = new MyClass();
+ owned_ptr<MyClass,ptr::safe> a(px,true);
+ MyClass* py = new MyClass();
+ owned_ptr<MyClass,ptr::safe> b(py,true);
+ a.set(b,true); 
+\end{verbatim}
+ \verb|py| сейчас принадлежит \verb|a|, \verb|b| указывает на \verb|py|,
+но его разрушение никак не повлияет на \verb|py|. а вот \verb|px| удален
+при вызове \verb|set|.
+
+\begin{verbatim}
+ owned_ptr<MyClass,ptr::safe> a;
+ MyClass* px = new MyClass();
+ owned_ptr<MyClass,ptr::safe> b(px, true);
+ a.set(b,false); 
+\end{verbatim}
+ \verb|a| сейчас указывает на \verb|px|, хозяин \verb|px| по-прежнему \verb|b|. 
+
+\begin{verbatim}
+ owned_ptr<MyClass,ptr::safe> a;
+ MyClass* px = new MyClass();
+ owned_ptr<MyClass,ptr::safe> b(px, false);
+ a.set(b,false); 
+\end{verbatim}
+ \verb|a| и \verb|b| сейчас указывают на \verb|px|, но \verb|px| никому не принадлежит.
+
+\begin{verbatim}
+ MyClass* px = new MyClass();
+ owned_ptr<MyClass,ptr::safe> a(px,false);
+ MyClass* py = new MyClass();
+ a.set(py,false); 
+\end{verbatim}
+ утечка памяти (\verb|px|).
+
+\subsection{ counted\_ptr }
+
+\subsubsection{ Теория }
+
+ \verb|counted_ptr| инкапсулирует известную идиому подсчета ссылок:
+объект существует до тех пор, пока на него ссылается, поэтому:
+\begin{itemize}
+ \item давайте держать в каком-то месте пару из объекта и значения счетчика.
+ \item когда мы создаем указатель на объект, увеличим значения счетчика.
+ \item при уничтожении указателя будем уменьшать счетчик.
+ \item при значении счетчика равным нулю на объект никто не ссылается, следовательно его можно удалять.
+\end{itemize}
+
+ Эта идиома сильно упрощает управление памятью для ациклических структур.
+
+\subsubsection{ Использование }
+
+ Наш шаблон \verb|counted_ptr| имеет два параметра: тип объекта и класс безопасности, как и \verb|owned_ptr|.
+
+ В дополнение к обычным методам умных указателей, \verb|counted_ptr| предоставляет еще метод \verb|assign|, позволяющий изменить значение внутреннего указателя.
+
+Пример:
+\begin{verbatim}
+counted_ptr<MyClass,ptr::safe> a(pA); 
+counted_ptr<MyClass,ptr::safe> b=a;
+b.assign(pB);
+\end{verbatim}
+
+ \verb|*pA| разрушен, как \verb|a|, так и \verb|b| указывают на \verb|*pB|.
+
+\subsubsection{ Ограничения }
+
+ \begin{itemize}
+   \item шаблон \verb|counted_ptr| не рассчитан на многопоточность. Для многопоточных приложений в \verb|Threading| есть \verb|counted_mt_ptr|.
+   \item подсчет ссылок работает только на ациклических структурах, для работы с циклическими ссылками в памяти вы должны применять какую-то технику сбора мусора.
+ \end{itemize}
+
+\section{ Перечень изменений }
+
+ \begin{itemize}
+   \item[19.03.2002] - закончена первая версия.
+   \item[07.03.2002] - создан.
+ \end{itemize}
+
+\bibliography{Bib}
+
+\end{document}

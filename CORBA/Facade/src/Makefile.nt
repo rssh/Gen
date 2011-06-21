@@ -1,0 +1,36 @@
+# Makefile for ServiceOptions project for WinNT
+# $Id: Makefile.nt,v 1.2 2000-08-03 09:41:13 alik Exp $
+
+include ../env_inc.nt.mak
+
+OBJS=PersistentServantBase.obj CORBAFacade.obj
+
+default-build: lib
+build: lib
+lib: $(LIB) 
+
+$(LIB): $(OBJS)
+	$(AR) $(AR_FLAGS) $(OBJS)
+
+install: install-libs
+
+install-libs:: lib
+	if  not exist $(PREFIX)\lib mkdir $(PREFIX)\lib
+	$(INSTALL_DATA) $(LIB) $(PREFIX)\lib
+
+clean::
+	@for %i in ( $(LIB) $(OBJS) ) do \
+		@if exist %i $(RM) %i
+
+distclean: clean
+
+.SUFFIXES: .obj .c .cpp
+
+.c.obj:
+	$(CC) $(CFLAGS) $<
+
+.cpp.obj:
+	$(CXX) $(CXXFLAGS) $<
+
+PersistentServantBase.obj: PersistentServantBase.cpp
+CORBAFacade.obj: CORBAFacade.cpp

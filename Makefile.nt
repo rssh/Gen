@@ -1,0 +1,27 @@
+## Main Makefile for Gen project Windows NT
+# part of GradSoft C++ ToolBox
+# (C) GradSoft 2000,2001
+# http://www.gradsoft.com.ua
+## $Id: Makefile.nt,v 1.13 2002-04-09 04:49:58 kav Exp $
+
+
+SUBDIRS=ptrs ProgOptions Threading Logger DirectoryContainer DynamicModules
+!ifdef WITH_CORBA
+SUBDIRS=$(SUBDIRS) CORBA
+!endif
+
+build:;
+
+  @for %i in ( $(SUBDIRS) ) do @cd $(MAKEDIR)\%i && $(MAKE) /F Makefile.nt TOOLBOX_ROOT="$(MAKEDIR)" build
+
+install:;
+
+  @for %i in ( $(SUBDIRS) ) do @cd $(MAKEDIR)\%i && $(MAKE) /F Makefile.nt install
+
+uninstall:;
+
+  @for %i in ( $(SUBDIRS) ) do @cd $(MAKEDIR)\%i && $(MAKE) /F Makefile.nt uninstall
+
+clean:;
+
+  @for %i in ( $(SUBDIRS) ) do @cd $(MAKEDIR)\%i && $(MAKE) /F Makefile.nt clean

@@ -1,0 +1,26 @@
+
+prefix=@prefix@
+INSTALL_BIN_DIR=$(prefix)/bin
+
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+INSTALL_SCRIPT=@INSTALL_SCRIPT@
+
+SCRIPT=idl_depend
+
+
+@SET_MAKE@
+
+all:
+
+install:
+	$(INSTALL_SCRIPT) $(SCRIPT) $(INSTALL_BIN_DIR)
+
+uninstall:
+	-rm -f $(INSTALL_BIN_DIR)/$(SCRIPT)
+
+clean:
+
+reconfigure:
+

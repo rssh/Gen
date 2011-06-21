@@ -1,0 +1,68 @@
+# part of GradSoft C++ ToolBox
+# (C) GradSoft 2000 - 2003
+# http://www.gradsoft.com.ua
+# $Id: Makefile.in,v 1.15 2008-01-08 17:14:59 rssh Exp $
+include config/entry.mak
+
+@SET_MAKE@
+
+all:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) all); done
+
+install:
+	if test ! -d $(prefix) ; then mkdir $(prefix) ; fi;
+	if test ! -d $(prefix)/include ; then mkdir $(prefix)/include ; fi;
+	if test ! -d $(prefix)/include/GradSoft ;\
+	then mkdir $(prefix)/include/GradSoft; fi;
+	if test ! -d $(prefix)/lib ; then mkdir $(prefix)/lib ; fi;
+	if test ! -d $(prefix)/bin ; then mkdir $(prefix)/bin ; fi;
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) install); done
+
+uninstall:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) uninstall); done
+
+clean:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) clean); done
+	-rm -rf *.cache
+
+#
+# Warning: for internal use only
+# you need autoconf be installed 
+reconfigure:
+	autoconf --include config
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) reconfigure); done
+
+#
+# Warning: for internal use only
+# you need TeX and doc++ be installed
+#
+documentation:
+	(cd docs; $(MAKE) all)
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) documentation); done
+
+install-web-distributive: documentation distributive install-web-documentation
+	(cd docs; $(MAKE) install-web-distributive)
+
+install-web-documentation: documentation
+	(cd docs; $(MAKE) install-web-documentation)
+	for i in $(PLAIN_SUBDIRS); do (cd $$i/docs; $(MAKE) install-web-documentation); done
+	(cd CORBA; $(MAKE) install-web-documentation)
+
+#
+# Warning: for internal use only
+# you must manually delete from FLIST unused files
+FLIST: clean
+	for i in * */* */*/* */*/*/* */*/*/*/* */*/*/*/*/* */*/*/*/*/*/* */*/*/*/*/*/*/* */*/*/*/*/*/*/*/*; do \
+         if test ! -d $$i; then \
+           echo Gen/$$i; \
+         fi; \
+        done | egrep -v 'CVS|Makefile$$|mk*Gen.mak|entry.mak$$'   > FLIST
+
+ifndef VERSION
+VERSION=@VERSION@
+endif
+
+distributive: 
+	(cd ..; tar -cvzf Gen-$(VERSION).tar.gz `cat Gen/FLIST`)
+	(cd ..; zip -v Gen-$(VERSION).zip `cat Gen/FLIST`)
+

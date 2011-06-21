@@ -1,0 +1,34 @@
+## Main Makefile for Threading project  for WinNT
+## $Id: makefile.nt,v 1.7 2003-10-10 17:18:53 rssh Exp $
+
+SUBDIRS_COMPILE=$(MAKEDIR)\src $(MAKEDIR)\demo
+SUBDIRS_INSTALL=$(MAKEDIR)\src $(MAKEDIR)\include
+
+default: build
+
+build-shared:
+	@for %i in ( $(SUBDIRS_COMPILE) ) do \
+		@cd %i && $(MAKE) /F Makefile.nt PROJECT_ROOT="$(MAKEDIR)" build-shared
+
+
+build:
+	@for %i in ( $(SUBDIRS_COMPILE) ) do \
+		@cd %i && $(MAKE) /F Makefile.nt PROJECT_ROOT="$(MAKEDIR)" build
+
+install:
+	@for %i in ( $(SUBDIRS_INSTALL) ) do \
+		@cd %i && $(MAKE) /F Makefile.nt install
+
+install-shared:
+	@for %i in ( $(SUBDIRS_INSTALL) ) do \
+		@cd %i && $(MAKE) /F Makefile.nt install-shared
+
+
+uninstall: 
+	@for %i in ( $(SUBDIRS_INSTALL) ) do \
+		@cd %i && $(MAKE) /F Makefile.nt uninstall
+
+clean:
+	@for %i in ($(SUBDIRS_COMPILE)) do \
+		@cd %i && $(MAKE) /F Makefile.nt clean
+

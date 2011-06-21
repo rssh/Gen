@@ -1,0 +1,44 @@
+# Makefile for GradSoft Threading package
+# (C) Grad-Soft Ltd, Kiev, Ukrain.
+# 2000, 2001, 2003
+# http://www.gradsoft.com.ua/eng/
+# $Id: Makefile.in,v 1.17 2008-01-08 17:14:07 rssh Exp $
+#
+PROJECT_ROOT=@project_root@
+include $(PROJECT_ROOT)/config/entry.mak
+
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+@SET_MAKE@
+
+INSTALL_INCLUDES_DIR=$(prefix)/include/GradSoft
+INSTALL_INCLUDES=Mutex.h RWLock.h Thread.h ThreadEvent.h Threading.h \
+ ThreadsafeContainers.h ThreadingExceptions.h \
+ ThreadingConfig.h ThreadingPostConfig.h \
+ ThreadService.h Runnable.h  ThreadingUtils.h \
+ counted_mt_ptr.h ThreadContext.h
+
+
+SUBDIRS=ThreadServices
+
+
+build:
+install:
+	if test ! -d $(INSTALL_INCLUDES_DIR); then \
+	  mkdir $(INSTALL_INCLUDES_DIR); \
+	fi
+	for i in $(INSTALL_INCLUDES); do \
+	 $(INSTALL_DATA) $$i $(INSTALL_INCLUDES_DIR);\
+	done
+	for i in $(SUBDIRS); do \
+	 (cd $$i; $(MAKE) install); \
+	done
+
+uninstall:
+	-for i in $(INSTALL_INCLUDES); do \
+	 rm $(INSTALL_INCLUDES_DIR)/$$i; \
+	done
+	-for i in $(SUBDIRS); do \
+	 (cd $$i; $(MAKE) uninstall); \
+	done
+

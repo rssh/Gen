@@ -1,0 +1,4 @@
+ 
+ // Demonstrate, that thread can be deleted in destructor
+  
+

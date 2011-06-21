@@ -1,0 +1,80 @@
+dnl autoconf script for GradSoft/Logger
+dnl part of Grad C++ Toolbox.
+dnl (C) Ruslan Shevchenko <Ruslan@Shevchenko.Kiev.UA>, 1998
+dnl (C) GradSoft, 2000, 2001
+dnl http://www.gradsoft.com.ua
+dnl $Id: configure.in,v 1.9 2008-05-31 17:24:21 rssh Exp $
+dnl
+dnl Process this file with autoconf to produce a configure script.
+
+AC_SUBST(PACKAGE, Logger)
+
+AC_INIT(include/GradSoft/Logger.h)
+AC_CONFIG_AUX_DIR(../config)
+AC_CANONICAL_SYSTEM
+
+dnl Checks for programs.
+AC_PATH_PROG(MAKE,make)
+AC_SET_MAKE
+AC_PROG_CC
+AC_PROG_CPP
+AC_PROG_CXX
+AC_PROG_CXXCPP
+AC_PROG_RANLIB
+AC_PROG_INSTALL
+
+
+RSSH_PROG_CXXAR
+RSSH_PROG_CXXLD
+
+dnl Checks for library functions.
+AC_CHECK_FUNCS(strncmp)
+RSSH_CHECK_CTIME_R
+AC_CHECK_FUNCS(syslog)
+AC_CHECK_FUNCS(ctime)
+
+dnl check for compiler switches.
+
+RSSH_ENABLE_PTHREADS
+RSSH_PIC_FLAG
+
+AC_CXX_NAMESPACES
+AC_CXX_BOOL
+AC_CXX_PARTIAL_SPECIALIZATION
+AC_CXX_STRING
+
+RSSH_CHECK_STL
+RSSH_CHECK_IOSTREAMS
+
+AC_LANG_SAVE
+AC_LANG_CPLUSPLUS
+AC_CHECK_HEADER(cstring,AC_DEFINE(HAVE_CSTRING))
+AC_LANG_RESTORE
+
+
+dnl root, where web documentation will be installed.
+
+AC_ARG_WITH(docs-web-root,docs-web-root (internal usage): where web documentation will be installed (default:<prefix>/doc/GradSoft))
+if test "x$with_docs_web_root" = "x" -o "x$with_docs_web_root" = "xno"
+then
+ docs_web_root="\$(prefix)/share/doc/GradSoft"
+else
+ docs_web_root=$with_docs_web_root
+fi
+AC_SUBST(docs_web_root)
+
+
+dnl
+project_root=`pwd`
+AC_SUBST(project_root)
+
+AC_CONFIG_HEADER(include/GradSoft/LoggerConfig.h)
+
+AC_OUTPUT(Makefile \
+          include/Makefile \
+          include/GradSoft/Makefile \
+          src/Makefile \
+          docs/Makefile \
+          demo/Makefile \
+          config/entry.mak \
+          )

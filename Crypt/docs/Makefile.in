@@ -1,0 +1,93 @@
+
+TEX_FILES=ProgrammingGuide_rus.tex \
+          ProgrammingGuide_eng.tex 
+
+DVI_FILES=ProgrammingGuide_rus.dvi \
+          ProgrammingGuide_eng.dvi
+
+PS_FILES=ProgrammingGuide_rus.ps \
+         ProgrammingGuide_eng.ps
+
+PDF_FILES=ProgrammingGuide_rus.pdf \
+          ProgrammingGuide_eng.pdf
+
+API_FILE=html/CryptHelper.html
+HTML_PR_RUS=ProgrammingGuide_rus/index.html
+HTML_PR_ENG=ProgrammingGuide_eng/index.html
+
+
+docs: all
+
+all: $(PDF_FILES) $(API_FILE)
+
+.SUFFIXES: .tex .dvi .ps .pdf
+
+.tex.dvi:
+	latex $< 
+
+.tex.pdf:
+	pdflatex $<
+
+html/CryptHelper.html:
+	(cd html; doc++ ../../include/GradSoft/CryptHelper)
+
+build:
+
+clean:
+	-rm *.log *.pdf *.aux *.ps *.dvi
+	-rm html/CryptHelper.html
+	-rm -rf ProgrammingGuide_rus ProgrammingGuide_eng
+
+install:
+
+uninstall:
+
+
+GRADSOFT_WEB_ROOT=/1/rssh/GradSoftWeb/
+HTML_PR_RUS_GRADSOFT=$(GRADSOFT_WEB_ROOT)/rus/Products/ToolBox/Crypt/ProgGuide
+PDF_PR_RUS_GRADSOFT=$(GRADSOFT_WEB_ROOT)/rus/Products/ToolBox/Crypt/pdf
+HTML_PR_ENG_GRADSOFT=$(GRADSOFT_WEB_ROOT)/eng/Products/ToolBox/Crypt/ProgGuide
+PDF_PR_ENG_GRADSOFT=$(GRADSOFT_WEB_ROOT)/eng/Products/ToolBox/Crypt/pdf
+HTML_API_GRADSOFT=$(GRADSOFT_WEB_ROOT)/common/ToolBox/Crypt/API
+
+web: $(API_FILE) $(HTML_PR_RUS) $(HTML_PR_ENG)
+install-web: web all
+	-mkdir -p $(HTML_API_GRADSOFT)
+	for i in html/*.class html/*.html html/*.gif; do \
+	 cp $$i $(HTML_API_GRADSOFT); \
+	done
+	-mkdir -p $(HTML_PR_RUS_GRADSOFT)
+	for i in ProgrammingGuide_rus/*; do\
+	 cp $$i $(HTML_PR_RUS_GRADSOFT); \
+	done
+	-mkdir -p $(HTML_PR_ENG_GRADSOFT)
+	for i in ProgrammingGuide_eng/*; do\
+	 cp $$i $(HTML_PR_ENG_GRADSOFT); \
+	done
+	-mkdir -p $(PDF_PR_RUS_GRADSOFT)
+	cp ProgrammingGuide_rus.pdf $(PDF_PR_RUS_GRADSOFT)
+	-mkdir -p $(PDF_PR_ENG_GRADSOFT)
+	cp ProgrammingGuide_eng.pdf $(PDF_PR_ENG_GRADSOFT)
+
+GRADSOFT_WEB_INTERNAL_ROOT=/1/rssh/GradSoftInternalWeb/
+HTML_PR_INTERNAL_GRADSOFT=$(GRADSOFT_WEB_INTERNAL_ROOT)/ToolBox/Crypt/ProgrammingGuide_rus
+HTML_API_INTERNAL_GRADSOFT=$(GRADSOFT_WEB_INTERNAL_ROOT)/ToolBox/Crypt/API
+
+install-internal-web: web 
+	-mkdir -p $(HTML_API_INTERNAL_GRADSOFT)
+	for i in html/*.class html/*.html html/*.gif; do \
+	 cp $$i $(HTML_API_INTERNAL_GRADSOFT); \
+	done
+	-mkdir -p $(HTML_PR_INTERNAL_GRADSOFT)
+	for i in ProgrammingGuide_rus/*; do\
+	 cp $$i $(HTML_PR_INTERNAL_GRADSOFT); \
+	done
+
+install-web-distributive: install-web install-internal-web
+
+$(HTML_PR_RUS): ProgrammingGuide_rus.tex ProgrammingGuide_rus.pdf
+	latex2html -charset KOI8-R -split 0 -info 0 -address "GradSoft" -local_icons ProgrammingGuide_rus.tex
+
+$(HTML_PR_ENG): ProgrammingGuide_eng.tex ProgrammingGuide_eng.pdf
+	latex2html -split 0 -info 0 -address "GradSoft" -local_icons ProgrammingGuide_eng.tex
+

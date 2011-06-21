@@ -1,0 +1,1 @@
+При uninstall не удаляется поддиректория ThreadServices (Win).

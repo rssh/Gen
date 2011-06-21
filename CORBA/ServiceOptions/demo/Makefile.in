@@ -1,0 +1,119 @@
+# General make definitions and rules.
+#
+# part of grad Cos* build system
+#
+# (C) Ruslan Shevchenko <Ruslan@Shevchenko.Kiev.UA>, 1998, 2000
+# $Id: Makefile.in,v 1.12 2008-06-12 10:52:16 rssh Exp $
+#
+PROJECT_ROOT=@project_root@
+TOOLS_DIR=$(PROJECT_ROOT)/../../Tools/idl-depend/sh
+#
+IDL_DIR=$(PROJECT_ROOT)
+IDL_DEPEND=sh $(TOOLS_DIR)/idl_depend
+#
+IDL_CLN_H_SUFFIX=@IDL_CLN_H_SUFFIX@
+IDL_CLN_H1_SUFFIX=@IDL_CLN_H1_SUFFIX@
+IDL_CLN_CPP_SUFFIX=@IDL_CLN_CPP@
+IDL_CLN_OBJ_SUFFIX=@IDL_CLN_O@
+IDL_SRV_H_SUFFIX=@IDL_SRV_H_SUFFIX@
+IDL_SRV_H1_SUFFIX=@IDL_SRV_H1_SUFFIX@
+IDL_SRV_CPP_SUFFIX=@IDL_SRV_CPP@
+IDL_SRV_OBJ_SUFFIX=@IDL_SRV_O@
+IDL_TIE_H_SUFFIX=@IDL_TIE_H_SUFFIX@
+IDL_TIE_H1_SUFFIX=@IDL_TIE_H1_SUFFIX@
+IDL_TIE_CPP_SUFFIX=@IDL_TIE_CPP_SUFFIX@
+#
+IDL_DEPEND_FOR_SERVICEOPTIONS=\
+ ( cd $(IDL_DIR); \
+ $(IDL_DEPEND) \
+ --idl-dir $(IDL_DIR) \
+ --var-prefix SERVICEOPTIONS_ \
+ --cln_h_suffix    $(IDL_CLN_H_SUFFIX) \
+ --cln_h1_suffix    $(IDL_CLN_H1_SUFFIX) \
+ --cln_cpp_suffix    $(IDL_CLN_CPP_SUFFIX) \
+ --cln_obj_suffix    $(IDL_CLN_OBJ_SUFFIX) \
+ --srv_h_suffix    $(IDL_SRV_H_SUFFIX) \
+ --srv_h1_suffix    $(IDL_SRV_H1_SUFFIX) \
+ --srv_cpp_suffix    $(IDL_SRV_CPP_SUFFIX) \
+ --srv_obj_suffix    $(IDL_SRV_OBJ_SUFFIX) \
+ --tie_h_suffix    $(IDL_TIE_H_SUFFIX) \
+ --tie_h1_suffix    $(IDL_TIE_H1_SUFFIX) \
+ --tie_cpp_suffix    $(IDL_TIE_CPP_SUFFIX) \
+ ) 
+#
+project_root=@project_root@
+
+
+
+CXX=@CXX@
+CPPFLAGS=-I. -I../include -I../../../ProgOptions/include @CPPFLAGS@ 
+CXXFLAGS=$(CPPFLAGS) @DEFS@ @IDLCXXFLAGS@ @CXXFLAGS@
+INCLUDE=@INCLUDE@
+CXXCOMPILE=@CXX@ $(CXXFLAGS)
+
+LD=@LD@
+LDFLAGS=-L../src -L../../../ProgOptions/src @LDFLAGS@
+LIBS=$(LDFLAGS) @LIBS@ -lProgOptions -lServiceOptions @ORB_COSNAMING_LIB@
+
+AR=@AR@
+ARFLAGS=@ARFLAGS@
+
+@SET_MAKE@
+
+IDL=@IDL@
+IDLCXX=@IDL@
+IDLFLAGS= @IDLFLAGS@ 
+JIDLFLAGS= @IDLFLAGS@ 
+ORB_PREFIX=@ORB_PREFIX@
+
+
+
+default: build
+
+
+mkServiceOptionsDemoGen.mak:
+	$(IDL_DEPEND_FOR_SERVICEOPTIONS)  > mkServiceOptionsDemoGen.mak
+
+include mkServiceOptionsDemoGen.mak
+
+build-generated: $(IDL_SERVICEOPTIONS_ALL) 
+
+
+clean:
+	-rm -f config.cache config.log config.status
+	-rm -rf *.o
+	-rm -f HelloWorldServer
+	-rm -f HelloWorldClient
+	-rm -f mkServiceOptionsDemoGen.mak 
+	-rm -rf Templates.DB
+	-rm -rf *.cache
+
+reconfigure:
+	autoconf --include ../../../config
+
+
+SERVICEOPTIONS_OBJS=$(IDL_SRV_SERVICEOPTIONS_ALL_OBJS) \
+ HelloWorldServer.o 
+
+CLIENTOPTIONS_OBJS=$(IDL_CL_SERVICEOPTIONS_ALL_OBJS)\
+ HelloWorldClient.o 
+
+build: HelloWorldServer HelloWorldClient
+
+
+HelloWorldServer: $(SERVICEOPTIONS_OBJS) $(IDL_SERVICEOPTIONS_ALL)
+	$(CXXCOMPILE) -o HelloWorldServer $(SERVICEOPTIONS_OBJS) $(LIBS)
+        
+
+HelloWorldServer.o: HelloWorldServer.cpp $(IDL_SERVICEOPTIONS_ALL)
+	$(CXXCOMPILE) -o HelloWorldServer.o -c HelloWorldServer.cpp
+
+HelloWorldClient: $(IDL_SERVICEOPTIONS_ALL) HelloWorldClient.o 
+	$(CXXCOMPILE) -o HelloWorldClient $(CLIENTOPTIONS_OBJS) $(LIBS)
+
+HelloWorldClient.o : HelloWorldClient.cpp
+	$(CXXCOMPILE) -c HelloWorldClient.cpp
+
+install:
+uninstall:
+

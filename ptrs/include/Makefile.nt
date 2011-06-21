@@ -1,0 +1,11 @@
+## Makefile for Windows NT: ptrs include files installation 
+## $Id: Makefile.nt,v 1.1 2002-03-16 19:04:02 kav Exp $
+
+
+DIRECTORIES=$(MAKEDIR)\GradSoft
+
+install:
+  @for %i in ( $(DIRECTORIES) ) do @cd %i && $(MAKE) /F Makefile.nt install
+
+uninstall:
+  @for %i in ( $(DIRECTORIES) ) do @cd %i && $(MAKE) /F Makefile.nt uninstall

@@ -1,0 +1,27 @@
+## Makefile for Windows NT
+## $Id: Makefile.nt,v 1.2 2002-07-31 16:31:55 rin Exp $
+
+include ..\..\..\config\Win32\environment.nt.mak
+include ..\..\config\common_settings.nt.mak
+
+TARGET_DIR=$(INSTALL_INC_DIR)\GradSoft
+
+PURVEYANCE=\
+	Timing.h \
+	TimeStamp.h \
+	AmountOfTime.h \
+	Conversion.h \
+	TimeFetch.h 
+
+install: makedir
+	@for %i in ( $(PURVEYANCE) ) do @$(INSTALL) %i $(TARGET_DIR)
+
+makedir:
+	@if not exist $(TARGET_DIR) mkdir $(TARGET_DIR)
+
+uninstall:
+	@for %i in ( $(PURVEYANCE) ) do @if exist $(TARGET_DIR)\%i $(REMOVE) $(TARGET_DIR)\%i
+
+build:
+clean:
+

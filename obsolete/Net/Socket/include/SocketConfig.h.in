@@ -1,0 +1,53 @@
+
+#ifndef HAVE_UNISTD_H 
+#undef HAVE_UNISTD_H
+#endif
+
+#ifndef HAVE_SYS_SOCKET_H
+#undef HAVE_SYS_SOCKET_H
+#endif
+
+#ifndef HAVE_SYS_TYPES_H
+#undef HAVE_SYS_TYPES_H
+#endif
+
+#ifndef HAVE_STDIO_H
+#undef HAVE_STDIO_H
+#endif
+
+#ifndef HAVE_NETDB_H
+#undef HAVE_NETDB_H
+#endif
+
+
+#ifndef HAVE_ERRNO_H
+#undef HAVE_ERRNO_H
+#endif
+
+#ifndef HAVE_ARPA_INET_H
+#undef HAVE_ARPA_INET_H
+#endif
+
+#ifndef HAVE_NETINET_IN_H 
+#undef HAVE_NETINET_IN_H
+#endif
+
+#ifndef HAVE_STRING
+#undef HAVE_STRING
+#endif
+
+#ifndef HAVE_NAMESPACES
+#undef HAVE_NAMESPACES
+#endif
+
+#ifndef HAVE_BOOL
+#undef HAVE_BOOL
+#endif
+
+#ifndef HAVE_MUTABLE
+#undef HAVE_MUTABLE
+#endif
+
+#ifndef HAVE_PTHREAD_H
+#undef HAVE_PTHREAD_H
+#endif

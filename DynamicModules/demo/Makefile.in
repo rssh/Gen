@@ -1,0 +1,23 @@
+# (C) Grad-Soft Ltd, Kiev, Ukraine 2001
+# http://www.gradsoft.com.ua/eng/
+# $Id: Makefile.in,v 1.1 2001-09-18 17:03:49 rssh Exp $
+#
+PROJECT_ROOT=@project_root@
+@SET_MAKE@
+include $(PROJECT_ROOT)/config/entry.mak
+
+
+SUBDIRS=Hello
+        
+
+default:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) default); done
+
+build: 
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) build); done
+
+install:
+uninstall:
+
+clean:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) clean); done

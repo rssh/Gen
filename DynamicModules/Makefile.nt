@@ -1,0 +1,46 @@
+# 
+# Gen/DynamicModules/Makefile.nt
+# (C) GradSoft, 2001 <info@gradsoft.kiev.ua>
+# http://www.gradsoft.kiev.ua
+# author: Alexander Yanovets <yad@gradsoft.com.ua>
+# $Id: Makefile.nt,v 1.3 2002-04-04 03:56:14 kav Exp $
+
+
+############################################
+!ifndef PROJECT_ROOT       #               #
+PROJECT_ROOT=$(MAKEDIR)    # debug entries #
+!endif                     #               #
+############################################
+
+include ..\config\Win32\environment.nt.mak
+include config\common_settings.nt.mak
+
+COMPILE_DIRS=src demo
+INSTALL_DIRS=src include  
+
+default: build
+
+all:build
+
+build:
+	@for %i in ( $(COMPILE_DIRS) ) do \
+		@cd %i && $(MAKE) /F Makefile.nt build && cd ..
+
+install:
+	@for %i in ( $(INSTALL_DIRS) ) do \
+		@cd %i && $(MAKE) /F Makefile.nt install && cd ..
+
+uninstall:
+	@for %i in ( $(INSTALL_DIRS) ) do \
+		@cd %i && $(MAKE) /F Makefile.nt uninstall && cd ..
+
+clean:
+	@for %i in ( $(COMPILE_DIRS) ) do \
+		@cd %i && $(MAKE) /F Makefile.nt clean && cd ..
+
+documentation:
+	@cd docs && $(MAKE) /F Makefile.nt all && cd ..
+
+install-web-distributive:
+	@cd docs && $(MAKE) /F Makefile.nt install-web-distributive && cd ..
+

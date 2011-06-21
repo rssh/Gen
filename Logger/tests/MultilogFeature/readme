@@ -1,0 +1,22 @@
+
+ Example of the multiprocess log feature.
+ First step: run only main.exe and see the log file, do not run main1.exe.
+ Delete log file.
+ Second step: run main.exe and main1.exe both and again see the log.
+ I have such log file:
+
+----------
+Info:Tue Aug 27 19:49:11 2002:Middle message.
+
+
+ ~~~ (Lot's of space, first messages were here)
+
+
+Info:Tue Aug 27 19:49:13 2002:Last message.
+
+----------
+ 
+ That is the first mesages loosed now.
+ It seems to be that logger file is opened and resetted.
+ Also note empty space where previous messages were.
+ Note that log file sizes on first and second steps are equal.

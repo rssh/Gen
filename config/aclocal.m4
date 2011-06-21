@@ -1,0 +1,33 @@
+dnl
+dnl part of GradSoft C++ ToolBox
+dnl (C) GradSoft 2000, 2001
+dnl $Id: aclocal.m4,v 1.15 2003-03-29 16:00:46 rin Exp $
+dnl
+builtin(include,ac_cxx_namespaces.m4)
+builtin(include,ac_cxx_bool.m4)
+builtin(include,RSSH_CHECK_SUNPRO_C.m4)
+builtin(include,RSSH_CHECK_SUNPRO_CC.m4)
+builtin(include,RSSH_PROG_CXXAR.m4)
+builtin(include,RSSH_PROG_CXXLD.m4)
+builtin(include,RSSH_CHECK_PTHREADS.m4)
+builtin(include,RSSH_ENABLE_PTHREADS.m4)
+builtin(include,RSSH_PIC_FLAG.m4)
+builtin(include,RSSH_CHECK_STL.m4)
+builtin(include,RSSH_CHECK_JTC.m4)
+builtin(include,RSSH_CHECK_ORBACUS.m4)
+builtin(include,RSSH_RTTI.m4)
+builtin(include,RSSH_TRY_RTTI_NOCACHE.m4)
+builtin(include,RSSH_CHECK_TAO.m4)
+builtin(include,RSSH_CHECK_OMNIORB.m4)
+builtin(include,RSSH_CHECK_ORB.m4)
+builtin(include,RSSH_CHECK_MICO.m4)
+builtin(include,RSSH_CHECK_VISIBROKER.m4)
+builtin(include,ac_cxx_partial_specialization.m4)
+builtin(include,ac_cxx_mutable.m4)
+builtin(include,RSSH_CHECK_IOSTREAMS.m4)
+builtin(include,RSSH_CHECK_CTIME_R.m4)
+builtin(include,ac_cxx_typename.m4)
+builtin(include,RSSH_PROG_LORDER.m4)
+builtin(include,ac_cxx_string.m4)
+builtin(include,YAD_CHECK_INCLUDE_LIB.m4)
+builtin(include,RIN_CHECK_DISTANCE_2_ARGS.m4)

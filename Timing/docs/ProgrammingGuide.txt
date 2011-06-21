@@ -1,0 +1,4 @@
+---------------------------------------------------
+Now it's a dummy file.
+Information now is placed in ProgrammingGuide_rus.*
+---------------------------------------------------

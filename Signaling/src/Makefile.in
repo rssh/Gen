@@ -1,0 +1,44 @@
+# Makefile.in
+# This make file generate libarary for Signaling interface.
+# (c) GradSoft.
+# Jos Vladimir <jos@grad.kiev.ua> 2001.
+#
+
+PROJECT_ROOT=@PROJECT_ROOT@
+
+include $(PROJECT_ROOT)/config/entry.mak
+
+SIGNALING_SRC_DIR=$(PROJECT_ROOT)/src
+
+CPPFLAGS=$(CXXFLAGS) -I. -I$(PROJECT_ROOT)/include/
+
+SIGNALING_LIB=libSignaling
+
+STATIC_SIGNALING_LIB=$(SIGNALING_LIB).a
+
+SHARE_SIGNALING_LIB=$(SIGNALING_LIB).so
+
+SIGNALING_OBJECT=$(SIGNALING_SRC_DIR)/Signaling.o
+
+build: $(STATIC_SIGNALING_LIB) $(SHARE_SIGNALING_LIB)
+
+$(SHARE_SIGNALING_LIB): $(SIGNALING_OBJECT)
+	$(LD) -shared $(LDFLAGS) -o $(SHARE_SIGNALING_LIB) $(SIGNALING_OBJECT)
+
+$(STATIC_SIGNALING_LIB): $(SIGNALING_OBJECT)
+	$(AR) $(ARFLAGS) $(STATIC_SIGNALING_LIB) $(SIGNALING_OBJECT)
+
+install: build
+	$(INSTALL_DATA) $(STATIC_SIGNALING_LIB) $(prefix)/lib
+	$(INSTALL_DATA) $(SHARE_SIGNALING_LIB) $(prefix)/lib
+
+uninstall:
+	-rm -f $(prefix)/lib/$(STATIC_SIGNALING_LIB) $(prefix)/lib/$(SHARE_SIGNALING_LIB)
+
+clean:
+	-rm -f *.o $(STATIC_SIGNALING_LIB) $(SHARE_SIGNALING_LIB)
+
+.SUFFIXES: .cpp.o
+
+.cpp.o:
+	$(CXX) $(CPPFLAGS) -c -o $*.o $<

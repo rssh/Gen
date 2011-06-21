@@ -1,0 +1,98 @@
+#ifndef __GradSoft_ThreadingConfig_h
+#define __GradSoft_ThreadingConfig_h
+
+/**
+ * part of GradSoft C++ ToolBox
+ * Threading.
+ * (C) GradSoft, 2000, 2001
+ * $Id: ThreadingConfig.h.in,v 1.4 2001-07-02 14:27:14 rssh Exp $
+ **/
+
+
+#ifndef HAVE_BOOL
+#undef HAVE_BOOL
+#endif
+
+#ifndef HAVE_MUTABLE
+#undef HAVE_MUTABLE
+#endif
+
+#ifndef HAVE_NAMESPACES
+#undef HAVE_NAMESPACES
+#endif
+
+#ifndef HAVE_TYPENAME
+#undef HAVE_TYPENAME
+#endif
+
+#ifndef _REENTRAT
+#define _REENTRAT
+#endif
+
+#ifndef HAVE_PTHREAD_H
+#undef HAVE_PTHREAD_H
+#endif
+
+#ifndef HAVE_PTHREAD_RWLOCK_INIT
+#undef HAVE_PTHREAD_RWLOCK_INIT
+#endif
+
+#ifndef HAVE_RWLOCK_INIT
+#undef HAVE_RWLOCK_INIT
+#endif
+
+#ifndef HAVE_UNISTD_H
+#undef HAVE_UNISTD_H
+#endif
+
+#ifndef HAVE_ERRNO_H
+#undef HAVE_ERRNO_H
+#endif
+
+#ifndef HAVE_VECTOR
+#undef HAVE_VECTOR
+#endif
+
+#ifndef HAVE_VECTOR_H
+#undef HAVE_VECTOR_H
+#endif
+
+#ifndef HAVE_SET
+#undef HAVE_SET
+#endif
+
+#ifndef HAVE_SET_H
+#undef HAVE_SET_H
+#endif
+
+#ifndef HAVE_MAP
+#undef HAVE_MAP
+#endif
+
+#ifndef HAVE_MAP_H
+#undef HAVE_MAP_H
+#endif
+
+#ifndef HAVE_IOSTREAM
+#undef  HAVE_IOSTREAM
+#endif
+
+#ifndef HAVE_IOSTREAM_H
+#undef  HAVE_IOSTREAM_H
+#endif
+
+#ifndef HAVE_STRSTREAM
+#undef  HAVE_STRSTREAM
+#endif
+
+#ifndef HAVE_STRSTREAM_H
+#undef  HAVE_STRSTREAM_H
+#endif
+
+
+#ifndef HAVE_SCHED_H
+#undef HAVE_SCHED_H
+#endif
+
+
+#endif

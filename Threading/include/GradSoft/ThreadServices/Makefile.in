@@ -1,0 +1,32 @@
+# Makefile for GradSoft Threading package
+# (C) GradSoft 2000, 2001
+# http://www.gradsoft.com.ua/eng/
+# $Id: Makefile.in,v 1.2 2001-05-22 19:55:15 rssh Exp $
+#
+PROJECT_ROOT=@project_root@
+include $(PROJECT_ROOT)/config/entry.mak
+
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+@SET_MAKE@
+
+INSTALL_INCLUDES_DIR=$(prefix)/include/GradSoft/ThreadServices
+INSTALL_INCLUDES=QueueOfRunnables.h \
+ SingleThreadBlocking.h SingleThreadChecking.h SingleThreadReactive.h \
+ ThreadPerClient.h  ThreadPool.h ThreadServiceStateWrapper.h 
+
+
+build:
+install:
+	if test ! -d $(INSTALL_INCLUDES_DIR); then \
+	  mkdir $(INSTALL_INCLUDES_DIR); \
+	fi
+	for i in $(INSTALL_INCLUDES); do \
+	 $(INSTALL_DATA) $$i $(INSTALL_INCLUDES_DIR);\
+	done
+
+uninstall:
+	-for i in $(INSTALL_INCLUDES); do \
+	 rm $(INSTALL_INCLUDES_DIR)/$$i; \
+	done
+

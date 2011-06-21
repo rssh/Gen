@@ -1,0 +1,29 @@
+PROJECT_ROOT=@project_root@
+include $(PROJECT_ROOT)/config/entry.mak
+
+RUNNABLES=demo demo1
+
+ALL_LIBS=-L../src -lLogger -L../../Threading/src -lThreading $(LIBS)
+
+demo: demo.o
+	$(CXX) $(CXXFLAGS) -o demo demo.o $(ALL_LIBS)
+
+demo1: demo1.o
+	$(CXX) $(CXXFLAGS) -o demo1 demo1.o $(ALL_LIBS)
+	
+demo.o: demo.cpp
+	$(CXX) $(CXXFLAGS) -c demo.cpp
+
+demo1.o: demo1.cpp
+	$(CXX) $(CXXFLAGS) -c demo1.cpp
+
+default:
+
+build: demo
+
+install:
+uninstall:
+
+clean:
+	-rm *.o demo
+	-rm -rf Templates.DB

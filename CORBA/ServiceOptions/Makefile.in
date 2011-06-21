@@ -1,0 +1,46 @@
+#!/bin/sh
+#
+# Makefile.in
+# part of GradSoft C++ ToolBox
+# (C) Ruslan Shevchenko <Ruslan@Shevchenko.Kiev.UA>, 1998 - 2003
+# $Id: Makefile.in,v 1.13 2008-06-12 10:52:15 rssh Exp $
+#
+PROJECT_ROOT=@project_root@
+include $(PROJECT_ROOT)/config/entry.mak
+#
+SUBDIRS=include src 
+CONFIG_SUBDIRS=demo
+#
+
+default: build
+all: build
+
+
+build: 
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) build) ; done	
+
+install: 
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) install) ; done
+
+uninstall: 
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) uninstall) ; done
+
+clean:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) clean) ; done	
+	for i in $(CONFIG_SUBDIRS); do (cd $$i; $(MAKE) clean) ; done	
+	-rm -rf Templates.DB
+	-rm -rf *.cache
+
+docs: documentation
+documentation:
+	(cd docs; $(MAKE) all);
+
+install-web-documentation:
+	(cd docs; $(MAKE) install-web-documentation)
+
+reconfigure:
+	-rm -rf *.cache
+	autoconf --include ../../config
+	for i in $(CONFIG_SUBDIRS); do (cd $$i; autoconf --include  $(PROJECT_ROOT)/../../config ); done
+
+

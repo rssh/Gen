@@ -1,0 +1,86 @@
+dnl configure.in for CORBA part of Grad C++ framework
+dnl (C) Ruslan Shevchenko <Ruslan@Shevchenko.Kiev.UA>, 1998, 1999
+dnl (C) GradSoft 2000, 2001
+dnl $Id: configure.in,v 1.14 2002-04-18 09:22:59 rssh Exp $
+dnl
+dnl Process this file with autoconf to produce a configure script.
+
+AC_SUBST(PACKAGE, ServiceOptions)
+AC_SUBST(VERSION, 1.01)
+
+AC_INIT(include/GradSoft/ServiceOptions.h)
+AC_CONFIG_AUX_DIR(../../config)
+
+
+dnl check system type
+AC_CANONICAL_SYSTEM
+
+dnl
+dnl Checks for programs.
+dnl
+AC_CANONICAL_HOST
+AC_PROG_CC
+AC_PROG_CXX
+AC_PROG_CXXCPP
+AC_PROG_RANLIB
+AC_PROG_INSTALL
+AC_PROG_MAKE_SET
+
+RSSH_PROG_CXXAR
+RSSH_PROG_CXXLD
+
+
+RSSH_CHECK_SUNPRO_C
+RSSH_CHECK_SUNPRO_CC
+
+RSSH_RTTI
+RSSH_PIC_FLAG
+
+AC_CHECK_LIB(ssl, EVP_CIPHER_CTX_init, LIBS="-lssl $LIBS")
+
+RSSH_ENABLE_PTHREADS
+RSSH_CHECK_ORB
+RSSH_CHECK_STL
+RSSH_CHECK_IOSTREAMS
+
+AC_CXX_NAMESPACES
+AC_CXX_BOOL
+
+dnl
+dnl define some helper Makefile.in variables.
+dnl
+PROJECT_ROOT=`pwd`
+project_root=$PROJECT_ROOT
+AC_SUBST(PROJECT_ROOT)
+AC_SUBST(project_root)
+
+
+dnl root, where web documentation will be installed.
+
+AC_ARG_WITH(docs-web-root,docs-web-root (internal usage): where web documentation will be installed (default:<prefix>/doc/GradSoft))
+if test "x$with_docs_web_root" = "x" -o "x$with_docs_web_root" = "xno"
+then
+ docs_web_root=@prefix@/share/doc/GradSoft
+else
+ docs_web_root=$with_docs_web_root
+fi
+AC_SUBST(docs_web_root)
+
+
+LIBS="$LIBS $LIBS_COLLECTION"
+AC_SUBST(LIBS,"$LIBS")
+
+AC_CONFIG_HEADER(src/include/ServiceOptionsConfig.h)
+
+AC_CONFIG_SUBDIRS(demo)
+
+AC_OUTPUT(Makefile \
+          config/entry.mak \
+          src/Makefile \
+	  include/Makefile \
+	  include/GradSoft/Makefile \
+          docs/Makefile \
+	  )
+
+
+

@@ -1,0 +1,22 @@
+## Makefile for Windows NT: Signaling include files installation 
+## (C) GradSoft 2000, 2001
+## $Id: Makefile.nt,v 1.1 2001-08-20 13:06:29 yad Exp $
+
+include ..\..\..\config\env_inc.nt.mak
+include ..\..\config\env_inc.nt.mak
+
+install: install-headers
+
+DIR=GradSoft
+GradSoft_INSTALL= Signaling.h
+
+
+install-headers::
+	@if not exist $(INSTALL_INC_DIR)\$(DIR) mkdir $(INSTALL_INC_DIR)\$(DIR)
+	@for %i in ( $(GradSoft_INSTALL) ) do \
+		$(INSTALL_DATA) %i $(INSTALL_INC_DIR)\$(DIR)
+
+uninstall:
+	@for %i in ( $(GradSoft_INSTALL) ) do \
+	@if exist $(INSTALL_INC_DIR)\$(DIR)\%i $(RM) $(INSTALL_INC_DIR)\$(DIR)\%i
+

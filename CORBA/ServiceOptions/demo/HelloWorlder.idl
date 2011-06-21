@@ -1,0 +1,9 @@
+
+module Demo {
+
+interface HelloWorlder
+{
+  void hello_world();
+};
+
+};

@@ -1,0 +1,39 @@
+# Makefile for WinNT: source code compilation
+# part ogf GradSoft C++ ToolBox
+# (C) GradSoft 2000, 2001
+# http://www.gradsoft.com.ua
+# $Id: Makefile.nt,v 1.3 2002-07-31 16:31:11 rin Exp $
+
+default: build
+
+include ..\..\config\env_inc.nt.mak
+include ..\config\env_inc.nt.mak
+
+OBJS=Timing.obj Conversion.h TimeFetch.h TimeStamp.obj AmountOfTime.h
+LIB=Timing.lib
+
+
+install: build
+        @if not exist $(INSTALL_LIB_DIR) mkdir $(INSTALL_LIB_DIR)
+        $(INSTALL_DATA) $(LIB) $(INSTALL_LIB_DIR)
+
+build: $(LIB)
+
+$(LIB): $(OBJS)
+        $(AR) $(AR_FLAGS) $(OBJS)
+
+uninstall:
+        @for %i in ( $(LIB) ) do \
+                @if exist $(INSTALL_LIB_DIR)\%i $(RM) $(INSTALL_LIB_DIR)\%i
+
+clean::
+        @for %i in ( $(LIB) $(OBJS) ) do \
+                @if exist %i $(RM) %i
+
+.SUFFIXES: .obj .c .cpp
+
+.c.obj:
+        $(CC) $(CFLAGS) $<
+
+.cpp.obj:
+        $(CXX) $(CXXFLAGS) $<

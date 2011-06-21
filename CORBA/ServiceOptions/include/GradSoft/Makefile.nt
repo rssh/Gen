@@ -1,0 +1,21 @@
+## Makefile for Windows NT: ServiceOptions include files installation
+## $Id: Makefile.nt,v 1.8 2001-12-11 21:01:57 kav Exp $
+
+include ..\..\..\..\config\Win32\environment.nt.mak
+
+VENDOR_TAG = GradSoft
+TARGET_DIR = $(INSTALL_INC_DIR)\$(VENDOR_TAG)
+DELIVERED_FILES = ServiceOptions.h
+
+install: makedir ;
+
+    @for %i in ( $(DELIVERED_FILES) ) do @copy %i $(TARGET_DIR)
+
+uninstall: ;
+
+    @for %i in ( $(DELIVERED_FILES) ) do @if exist $(TARGET_DIR)\%i erase $(TARGET_DIR)\%i
+
+makedir: ;
+
+    @if not exist $(TARGET_DIR) @mkdir $(TARGET_DIR)
+

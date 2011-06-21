@@ -1,0 +1,20 @@
+# Makefile for GradSoft Dynamic Modules package
+# (C) GradSoft 2000, 2001
+# http://www.gradsoft.com.ua/eng/
+# $Id: Makefile.nt,v 1.2 2001-12-27 16:02:18 kav Exp $
+#
+
+include ..\..\..\config\Win32\environment.nt.mak
+include ..\..\config\common_settings.nt.mak
+
+TARGET_DIR=$(INSTALL_INC_DIR)\GradSoft
+PURVEYANCE=DynamicModules.h 
+
+install: makedir
+   @for %i in ( $(PURVEYANCE) ) do @$(INSTALL) %i $(TARGET_DIR)
+
+makedir:
+   @if not exist $(TARGET_DIR) mkdir $(TARGET_DIR)
+
+uninstall:
+   @for %i in ( $(PURVEYANCE) ) do @if exist $(TARGET_DIR)\%i $(REMOVE) $(TARGET_DIR)\%i

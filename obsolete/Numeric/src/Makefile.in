@@ -1,0 +1,38 @@
+PROJECT_ROOT=@project_root@
+include $(PROJECT_ROOT)/config/entry.mak
+
+SRCS=FixedBigNumber.cpp
+OBJS=FixedBigNumber.o
+SOBJS=FixedBigNumber.so
+
+LIB=libNumeric.a
+SLIB=libNumeric.so
+
+build: $(LIB) $(SLIB)
+
+install: build
+	$(INSTALL_DATA) $(LIB) $(prefix)/lib
+	$(INSTALL_DATA) $(SLIB) $(prefix)/lib
+
+uninstall: 
+	-rm $(prefix)/lib/$(LIB)
+	-rm $(prefix)/lib/$(SLIB)
+
+clean:
+	-rm *.o $(LIB) $(SLIB)
+
+.SUFFIXES: .cpp .o .so
+
+.cpp.o:
+	$(CXX) $(CXXFLAGS) -c -o $*.o $<
+
+.cpp.so:
+	$(CXX) $(CXXSFLAGS) -c -o $*.o $<
+	mv $*.o $*.so
+
+$(LIB): $(OBJS)
+	$(AR) $(ARFLAGS) $(LIB) $(OBJS)
+
+$(SLIB): $(SOBJS)
+	$(LD) $(LD_CREATE_FLAGS) $(SLIB) $(SOBJS)
+

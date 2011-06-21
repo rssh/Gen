@@ -1,0 +1,1309 @@
+
+\documentclass[10pt]{article}
+%\usepackage{tex4ht}
+\usepackage[OT1,T2A]{fontenc}
+\usepackage[koi8-u]{inputenc}
+\usepackage{graphicx}
+\usepackage{verbatim}
+
+
+\bibliographystyle{plain} 
+
+\title{ Threading: Programmers Guide  
+       \newline
+       \small{DocumentId:GradSoft-PR-e-09.09.2000-vC}
+      }
+
+% $Id: ProgrammingGuide_eng.tex,v 1.24 2002-07-22 15:27:06 yulp Exp $
+
+\begin{document}
+
+\maketitle{}
+
+\tableofcontents
+
+\section{ Introduction }
+
+ Package {\bf Threading } is devoted for organization of multithreaded C++ 
+ programs. It includes set of platform-independet threading primitives
+ organized as C++ classes. With help of this primitives it is easy
+ to create effective platform independet multithreading C++ applications.
+
+ For reading of this document base knoweldge of main concepts of
+multithreading is required; for introductory matherial you can look
+at 
+ \cite{MPT}, \cite{CPT-FAQ}
+
+\subsection{ About this package }
+
+ This software is prodused by GradSoft company, Kiev, Ukraine.
+Last version of this package is aviable on GradSoft Web site
+\verb|http://www.gradsoft.com.ua/eng/|.
+
+ You can free use this package and redistribute it with you programs,
+according to license, which situated in file \verb|docs/LICENSE| inside
+distributive of GradSoft C++ ToolBox.
+
+ Commercial support of this package is aviable: call us for details.
+
+\subsection{ About this document }
+
+ This manual is writen for 1.5.0 version of GradSoft C++ ToolBox.
+ Using Threading API from programmers point of view is described.
+ Compilation and installation issues described in \cite{AD}
+
+\section{ Class Hierarchy Description }
+
+\subsection{ Exceptions Hierarchy }
+
+ As you know, errors handling is the most used functionality of any
+class library ;) 
+ 
+ Methos of Threading classes throws exceptions, which inheried from
+\verb|ThreadingExceptions::Failure|. Full exception hierarchy is
+shown on next scheme:
+
+\begin{verbatim}
+ std::runtime_error
+        |
+   ThreadingExceptions::Failure
+          |
+          |----------ThreadingExceptions::NoResources
+          |                     |
+          |                     |----ThreadingExceptions::NoMemory
+          |                     |----ThreadingExceptions::TemporaryNoResources
+          |                     *----ThreadingExceptions::NoPermission 
+          |
+          |----ThreadingExceptions::ResourceBusy
+          |----ThreadingExceptions::InvalidResource
+          |----ThreadingExceptions::PossibleDeadlock
+          |----ThreadingExceptions::SystemError
+          |----ThreadingExceptions::InternalError
+          *----ThreadingExceptions::NotImplemented
+          
+\end{verbatim}
+
+ more detailed:
+ \begin{itemize}
+  \item \verb|Failure| - Just a base class for Threading Exceptions. 
+  \item \verb|NoResources| - Base class for exceptions, associated with
+ Resources unaviability. Note, that this is basic class, and in some situations
+ is better handle different subclasses of this class in different ways:
+  \begin{itemize}
+  \item \verb|NoMemory| - Underlying function of operation system can not
+ do his work becouse required free memory can not be allocated.
+  \item \verb|TemporaryNoResources| - Underlying function of operation system 
+can not do its work, becouse some required resouces are unaviable.
+But it is possible, that this resources will be avaible in future.
+  \item \verb|NoPermission| - Current user have no permission for this
+operation.
+  \end{itemize}
+  \item \verb|ResourceBusy| - Program try to change resource, when it's used
+by some another program: for example - this exception can be throwed when
+you try to destroy locked mutex.
+  \item \verb|PossibleDeadlock| - Illustrate error in logic of application
+program - for example dual locking of mutex from one thread. Note, that this
+exception is not supported on all platforms: it's depend from OS functionality and Threading compilation flags.
+  \item \verb|SystemException| - unclassificated error of underlayuing OS system call.
+  \item \verb|InternalError| - internal error in Threading.
+  \item \verb|NotImplemented| - functionality is not implemented for this platform.
+ \end{itemize}
+
+ During exception handling error message and system depended error code are 
+available to programmer via methods of base class 
+\verb|ThreadingExceptions::Failure| \verb|getErrorMessage()| and \verb|getErrorCode()| accordingly.
+
+\subsection{ Thread }
+
+\subsubsection{ Common principle } \label{Thread-general}
+
+  The main class, which represent control flow is \verb|Thread|
+
+  Application Programmer must create own threads as childs of class Thread 
+and embed thread behaviour there, overriding Thread::run. 
+
+ At first, let's look on simple example:
+
+\begin{verbatim}
+class CountThread: public Thread
+{
+public:
+
+  void run()
+  {
+    for(int i=0; i<1000; ++i)
+    {
+     cout << "i=" << i << endl;
+     sleep(1);
+    } 
+  }
+
+};
+\end{verbatim}
+
+ This program print current value of \verb|i| once a second.
+Full text of program using Thread may next:\footnote{Usial error handling
+is ommited in examples for simplicity}
+
+\begin{verbatim}
+#include <GradSoft/Threading.h>
+ ...
+class CountThread {
+   ....
+}
+ ...
+int main(int argc, char** argv)
+{
+ CountThread countThread;
+ countThread.start();
+ Thread::sleepCurrent(100);
+ return 0;
+}
+\end{verbatim}
+
+ As we see, it is nesessory to call method Thread::start() for starting
+of thread; thread stopped when it reach the end of it's run() function
+ or when program is ended (i. e. when destructor of Thread is
+called) 
+
+Note, than in this example thread will run during 100 second.
+
+Let's modify our program: wait in main until countThread is
+ended:
+
+\begin{verbatim}
+int main(int argc, char** argv)
+{
+ CountThread countThread;
+ countThread.start();
+ while(countThread.is_running()) {
+   Thread::sleepCurrent(1);
+ }
+ return 0;
+}
+\end{verbatim}
+
+ This code shows that:
+ \begin{enumerate}
+ \item we can get status of thread by calling Thread::is\_running();
+ \item method Thread::sleepCurrent() is static and is related to the current thread.
+ \end{enumerate}
+ Note that cyclic call of Thread::is\_running() is not the unique way
+ to wait until the end of the process running -
+ there is static method Thread::join(const Thread\&) with usual semantics:
+ it wait until argument is ended and join it with current thread.
+
+ Thus, it is natural the main() function from the last example of code being rewritten as follows:
+\begin{verbatim}
+int main(int argc, char** argv)
+{
+ CountThread countThread;
+ countThread.start();
+ Thread::join(countThread);
+ return 0;
+}
+\end{verbatim}
+
+
+\subsubsection{ Cancellation points }
+
+ Let's look on next example:
+
+\begin{verbatim}
+ class Forever: public Thread
+ {
+ public:
+   void run(void)
+   {
+     for(;;);
+   }
+ };
+
+int main(int,char**)
+{
+ Forever forever;
+ forever.start();
+ sleepCurrent(10);
+ return 0;
+}
+\end{verbatim}
+
+ Try compile and run it on different platforms: for example on
+Sun Solaris or Linux.
+You will discover, the behaviour of program is unmatched for different platforms:
+it will run during 10 seconds for some platforms, 
+and will no end, until we stop it by OS command, for another.
+This behaviour dependece on the OS descends from fact of
+different operating system supports different models of threads execution.
+In some models cancellation of thread by external event is
+possible only in so called cancellation points, which is built into
+native system calls for some operating systems and no built for another.
+
+
+The class Thread defines few protected methods (for call inside the run()), which
+have the cancellation points, it's known. These are:
+\begin{itemize}
+  \item Thread::testcancel(); -- do nothing, except test for cancellation;
+  \item Thread::sleep(int nSec); -- waint nSec seconds additionally;
+  \item Thread::nanosleep(unsigned int sec, long nanosec); -- waint {\bf sec } seconds and {\bf nonsec } nanoseconds additionally.
+\end{itemize}
+If you want to ensure the thread was finished after end of program run, 
+you must invoke one of this methods periodically in Thread::run() you write.
+Note the class CountThread from section \ref{Thread-general} invokes the Thread::sleep() 
+inside the CountThread::run() and, thus, the next code area provide incontestable end of the thread
+in less then 6 seconds after starting instead of 1000 ones:
+\begin{verbatim}
+int main(int argc, char** argv)
+{
+ CountThread countThread;
+ countThread.start();
+ Thread::sleepCurrent(5);
+ return 0;
+}
+\end{verbatim}
+
+
+\subsubsection{ Switch points }
+
+  Yet one usefull conception in parallel programming is switch points. 
+In switch point sheduler of operation system switch execution of current
+process to some other task. In our package you can forse such switch by call
+of static method \verb|Thread::yield()|.
+
+ This method can be usefull in service-oriented applications.
+
+\subsubsection{ Thread Context  }
+
+ In system programming we often need to associate some data with thread that are not defined 
+when creating the thread. Example: asynchronous input/output when operating system or ORB
+activates thread message receiving callback where  the thread is unknown beforehand, or 
+implicit transactions processing, that are dependant on execution thread.
+
+ There is thread contexts running infrastructure (\verb|ThreadContext|) 
+for those purposes in \verb|Threading|.
+
+Let's study main definitions:
+\begin{itemize} 
+ \item In Thread class:
+\begin{verbatim}
+class Thread
+{
+public:
+ .....
+ ThreadContext* getThreadContext();
+ ....
+};
+\end{verbatim}
+ \item And the \verb|ThreadContext| itself:
+\begin{verbatim}
+/**
+ * Thread-Specific context.
+ **/
+class ThreadContext
+{
+public:
+
+  /**
+   * one abstract entry in thread context.
+   * (ThreadContext itself is just sequence of such slots)
+   **/
+  class Slot
+  {
+   public:
+     ///
+     virtual ~Slot() {}
+  };
+
+public:
+
+  /**
+   * get current thread.
+   * return NULL, is this thread is not created
+   * by our ToolBox.
+   **/
+  Thread* getThread();
+
+  /**
+   * get Context of current thread.
+   * (note, that ThreadContext is automatically created on this call.)
+   **/
+  static ThreadContext* current();
+
+  /**
+   * alloc slot in current context and return it's index.
+   **/
+  unsigned int    allocSlot(Slot* slot);
+
+  /**
+   * alloc slot on specified index.
+   *@return true, if
+   **/
+  bool   allocSlot(Slot* slot, unsigned int index);
+
+  /**
+   * return slot on specified index or NULL, if slot does not exists.
+   **/
+  Slot*  getSlot(unsigned int index);
+
+private:
+
+ .......
+
+};
+#endif
+\end{verbatim}
+\end{itemize}
+
+ First will consider the slots mechanism.
+ If you ask what is it ? - The answer will be: whatever you like.
+ Slots are created by user, ThreadContext stores indexed slots sequence 
+ You can create slot and associate it with  ThreadContext instance and index 
+ also you can get slot by given index.
+
+ Example: let we are projecting application, where system messages are  transmitted 
+ to classes supplied by user, and messages receiving threads are absolutely independent 
+ of those classes. Then we possibly need to associate two objects with the thread:  
+ current thread operation identifier and reference to the thread processing join.  
+ We assign slot indexes in advance starting with zero:
+\begin{verbatim}
+#define CURRENT_THS_INDEX 0
+#define CONNECTION_THS_INDEX 0
+\end{verbatim}
+
+ Communication slot defining:
+\begin{verbatim}
+class CurrentThreadSlot: public ThreadContext::Slot
+{
+public:
+
+  .........
+ 
+ // unmarshall message and set parameters and operation.
+ void setData(BinaryBuffer message);
+
+ static CurrentThreadSlot*  getOrCreate();
+
+private:
+ std::string operation_;
+ std::auto_ptr<Parameters> params_;
+};
+\end{verbatim}
+
+ At the message receiving point we create/choose the necessary slot:
+\begin{verbatim}
+ accept..
+ // 
+ .....
+ unmarshall(buffer,operation,params);
+ CurrentThreadSlot()->getOrCreate()->setData();
+ ///
+\end{verbatim}
+
+Where \verb|getOrCreate| method looks as follows:
+\begin{verbatim}
+CurrentThreadSlot* CurrentThreaSlot::getOrCreate()
+{
+ ThreadContext* threadContext=ThreadContext::current();
+ ThreadContext::Slot* ts= treadContext->getSlot(CURRENT_THS_INDEX);
+ CurrentThreadSlot* cts=NULL;
+ if (ts==NULL) {
+   cts = new CurrentThreadSlot();
+   treadContext->alloc(cts,CURRENT_THS_INDEX);
+ }else{
+   cts=dynamic_cast<CurrentThreadSlot*>(ts);
+   if (cts==NULL) throw InternalError("bad value in operation thread context");
+ }
+ return cts; 
+}
+\end{verbatim}
+
+And in the API presented to user we define current message receiving function:
+\begin{verbatim}
+class Current
+{
+public:
+  static std::string get_operation()
+  {
+   return getThreadSlot()->get_operation();
+  }
+  ........
+private:
+
+  CurrentThreadSlot* getThreadSlot()
+  {
+   ThreadContext* threadContext=ThreadContext::current();
+   ThreadContext::Slot* ts= treadContext->getSlot(CURRENT_THS_INDEX);
+   if (ts==NULL) throw NoOperation();
+   CurrentThreadSlot* cts=dynamic_cast<CurrentThreadSlot*>(ts);
+   if (ts==NULL) throw InternalError("bad value in operation thread context");
+   return cts; 
+  }
+
+}
+\end{verbatim}
+ 
+ Now we need to accomplish similar operations with another slot.
+
+ And at last \verb|unsigned int ThreadContext::allocSlot(x)| is assigned to be used
+in more complicated situations, when we need to form slot indexes set dynamically.
+
+ Now let's turn to \verb|Threading|:
+ what correlation between thread contexts and threads is:
+\begin{itemize}
+ \item By a thread we can determine its context using
+\begin{verbatim}
+ ThreadContext*  Thread::getThreadContext()
+\end{verbatim}
+ \item By an execution thread context we can determine execution thread itself:
+ it will be 
+\begin{verbatim}
+ Thread* ThreadContext::getThread()
+\end{verbatim}
+ The method can return \verb|NULL|, if execution thread, 
+associated with this context was created not using GradSoft C++ ToolBox,
+but otherwise.
+\end{itemize}
+
+ ThreadContext lifetime is the thread lifetime - all the slots are automatically deleted  
+by system after according thread termination.
+ 
+Thus, for instance, next thread execution slot using will lead to the following message 
+output in some time period after thread termination:
+
+\begin{verbatim}
+class EndThreadSlot: public GradSoft::ThreadSlot
+{
+ int id_;
+public:
+ EndThreadSlot(int id):id_(id) {  }
+ ~EndThreadSlot() 
+  { cerr << "thread which bound context with id " << id_ 
+         << " was finished some time ago" << endl; }
+};
+\end{verbatim}
+
+ By the way, this example also illustrates behavior dependence on system:
+for \verb|posix|-compatible systems this message will be printed during 
+thread termination, for Win32 - really after some time period 
+\verb|;)|
+
+
+\subsubsection{ Summary: }
+
+ \begin{enumerate}
+  \item Programmes must define own threads by way of creating subclasses of 
+  Thread and overriding run method.
+  \item For starting of thread, Thread::start must be called.
+  \item For possibility of stopping thread by external event, one og methods:
+  testcancel, sleep, nanosleep must be periodically called from run();
+  \item For checking thread status you can use method Thread::is\_running();
+  \item Thread is stopped, when:
+   \begin{enumerate}
+     \item run reach it's end.
+     \item Thread::cancel is called (if run() check for cancellation)
+     \item Thread destructor is called (if run() check for cancellation )
+   \end{enumerate} 
+  \item You can force switch of current process on current processor
+   by call of method \verb|Thread::yield()|
+  \item Thread is utilizated by operation system, when:
+   \begin{enumerate}
+     \item Thread is stopped and Thread::join from other thread is called.
+     \item Thread destructor is called.
+   \end{enumerate} 
+ \end{enumerate}
+
+\subsection{ Synchronization Primitives }
+
+ It is important to organize shared access to resources from different
+ threads. For this purpose Threding define few classes, which respects 
+ well known synchronization primitives.
+
+\subsubsection{ Mutex }
+ 
+ (from words Mutual Exclusive Lock). 
+ As you can see from name, Mutex is a locking promitive, which organize
+access to resource at one moment of time only from one thread.
+
+Class Mutex have 3 methods: lock, try\_lock and unlock. 
+Before using shared resource, thread must lock related mutex (i. e.
+call Mutex::lock), after using -- unlock it (i. e. call Mutex::unlock).
+
+ try\_lock is try to lock mutex, and if in given moment of time it is locked by
+another process, than not wait, but just return false.
+
+
+\begin{verbatim}
+......
+resourceMutex.lock();
+ .. work with shared resource here ...
+resourceMutex.unlock();
+.......... 
+\end{verbatim}
+
+ Note, that operations with shared resources and related mutexes must
+be atomic (in sence non-divided): you must lock mutex before operation,
+unlock after operation and {\em do not touch mutex inside operation}.
+
+I. e. the easest way to receive situation of deadlock is to call
+ operation, which lock mutex from another operation, which also lock the
+same mutex.
+
+ For example, next code fragment will be in wait forewer:
+\begin{verbatim}
+mutex.lock();
+mutex.lock(); // -- deadlock here
+mutex.unlock();
+mutex.unlock();
+\end{verbatim}
+
+Note, that on some platforms exception \verb|ThreadingExceptions::PossibleDeadlock| will be throwed, on some -- real dealock will occur.
+
+
+\subsubsection{ MutexLocker }
+
+ Some time it is usefull to hide locking/unlocking of mutex into
+ object costruction/destruction.
+ Class MutexLocker is devoted to this purpose.
+
+\begin{itemize}
+ \item \verb|MutexLocker(const Mutex&)| -- constructor, which lock mutex
+ \item \verb|~MutexLocker()| -- destructor, which unblock one.
+\end{itemize}
+
+ Example of using:
+\begin{verbatim}
+ Y X::f() 
+ {
+  MutexLocker l(yMutex_);
+  return sharedY_;
+ }
+\end{verbatim}
+
+ instead:
+
+\begin{verbatim}
+Y X::f() 
+{
+ yMutex_.lock();
+ Y retval = sharedY_;
+ yMutex_.unlock();
+ return retval;
+}
+\end{verbatim}
+
+
+\subsubsection{ RWLock } 
+
+ Yet one usefull  locking model is so called read/write locking.
+I. e. resource is accessible for reading and for writing. 
+In concrete moment of time resource can be accessed or by few readers
+simultaneously, or by one writer.
+
+ Appropriative class is defined in Threading package and named RWLock.
+
+Let's look on it signature:
+
+\begin{verbatim}
+/**
+ * Read/Write lock
+ * 
+ *  allow multiple readers/single writer.
+ *  access to object with such lock must be 
+ *  sequence of atomic read-only or write-only
+ *  operations.
+ *
+ *  (i. e. rwlock.read_lock(), rwlock.write_lock() is
+ * the fastest way to deadlock state.
+ **/
+class RWLock
+{
+ ........
+public:
+
+   RWLock()  throw(ThreadingExceptions::NoResources,
+                   ThreadingExceptions::InternalError);
+
+   virtual ~RWLock() throw(ThreadingExceptions::ResourceBusy,
+                           ThreadingExceptions::InternalError);
+
+   void  read_lock() const
+                      throw(ThreadingExceptions::NoResources,
+                            ThreadingExceptions::PossibleDeadlock,
+                            ThreadingExceptions::InternalError);
+
+   bool  try_read_lock() const
+                      throw(ThreadingExceptions::NoResources,
+                            ThreadingExceptions::PossibleDeadlock,
+                            ThreadingExceptions::InternalError);
+
+   void  read_unlock() const
+                      throw(ThreadingExceptions::NoPermission,
+                            ThreadingExceptions::InternalError);
+
+   void  write_lock()
+                      throw(ThreadingExceptions::NoResources,
+                            ThreadingExceptions::PossibleDeadlock,
+                            ThreadingExceptions::InternalError);
+
+   bool  try_write_lock()
+                      throw(ThreadingExceptions::NoResources,
+                            ThreadingExceptions::PossibleDeadlock,
+                            ThreadingExceptions::InternalError);
+
+   void  write_unlock() const
+                      throw(ThreadingExceptions::NoPermission,
+                            ThreadingExceptions::InternalError);
+
+};
+\end{verbatim}
+
+ You must put read-access operations to resource in pair read\_lock/read\_unlock; wite access -- in pair write\_lock/write\_unlock.
+
+ As for mutex, programmer is reponsible for atomarity of operations.
+ i. e. :
+\begin{verbatim}
+rwlock.read_lock();
+rwlock.write_lock(); // -- deadlock here
+\end{verbatim}
+ will cause deadlock.
+
+ 
+\subsubsection{ ReadLocker, WriteLocker }
+
+ There is the objects, which incapsulate read and write locking into construction/destructions.
+
+ Usage is obvious:
+
+\begin{verbatim}
+ {
+  ReadLocker rl(rwlock);
+  ...
+  read-from-resource
+  ...
+ }
+\end{verbatim}
+
+
+\subsubsection{ RWLocked }
+
+ It is often convenient to manipulate with class, which consists from
+shared resource and read/write lock. In many cases this resource is 
+satisficade to "Default Constructable", "Assignable", "Comparable" constraints
+in term of
+ \cite{SGI-STL} .
+
+For this case in GradSoft C++ Toolbox exists class RWLocked.
+
+\begin{verbatim}
+template<class T>
+class RWLocked
+{
+public:
+
+ typedef T locked_type;
+
+protected:
+
+ T v_;
+ RWLock rwlock_;
+
+public:
+ 
+ RWLocked()
+  :v_(),rwlock_() {}
+
+ RWLocked(const T& v)
+  :v_(v),rwlock_() {} 
+
+ RWLocked(const RWLocked& x);
+
+ RWLocked& operator=(const RWLocked& x);
+
+ virtual ~RWLocked();
+
+ bool  operator==(const RWLocked& x);
+ bool  operator==(const T& x);
+ bool  operator!=(const RWLocked& x);
+ bool  operator!=(const T& x);
+ 
+public:
+
+ T&       get_value_()  { return v_; }
+ const T& get_value_() const { return v_; }
+
+ void  read_lock() const
+ void  read_unlock() const
+
+ void  write_lock()
+ void  write_unlock() const
+
+};
+
+template<class T>
+class RWLockedPtr:public RWLocked<T*>
+{
+};
+\end{verbatim}
+
+ As you can see, this template define set of operations for appropriative
+properties of \verb|locked_type|.
+
+ Yet one good opportunity for using this class: as the base class for you
+ specific shared object.
+
+ Note, that wrapping resource and lock into one class is a very usefull
+ pattern.
+
+\subsection{ Usage of STL containers } 
+
+   Serious C++ programming is unimaginable without using of STL containers.
+But in multithreading programs we can not use shared STL containers without
+additional work: ad said in 
+ \cite{SGI-STL}
+\begin{quotation}
+The SGI implementation of STL is thread-safe only in the sense that simultaneous accesses to distinct
+containers are safe, and simultaneous read accesses to to shared containers are safe. If multiple threads
+access a single container, and at least one thread may potentially write, then the user is responsible for
+ensuring mutual exclusion between the threads during the container accesses. 
+\end{quotation}
+
+ So, we include in "Threading" package set of adapters to STL containers,
+which aggreate container and RWLock, delegate thread safe container operations
+and give direct access to lock and not-threadsafe methods for managing
+locks "by hand". This is allow programmer to choose optimal style
+of lock management.
+
+\subsubsection{ treadsafe\_biseq }
+
+ This is threadsafe {\bf back insertion sequence }. This adapter can be
+used for STL models of "Back Insertion Sequence" (i. e. vector, deque, list ).
+
+ At first, let's look on signature:
+
+\begin{verbatim}
+/**
+ * threadsafe wrapper arround back insertion sequence.
+ **/
+template<class container>
+class threadsafe_biseq: public RWLocked<container>
+{
+public:
+
+  typedef threadsafe_biseq self_type;
+  typedef ReadLocker rlocker;
+  typedef WriteLocker wlocker;
+  
+  typedef container container_type;
+
+  typedef typename container::value_type value_type;
+  typedef typename container::reference reference;
+  typedef typename container::const_reference const_reference;
+  typedef typename container::pointer pointer;
+
+  typedef typename container::iterator iterator;
+  typedef typename container::const_iterator const_iterator;
+
+  typedef typename container::reverse_iterator reverse_iterator;
+  typedef typename container::const_reverse_iterator const_reverse_iterator;
+
+  typedef typename container::difference_type difference_type;
+  typedef typename container::size_type size_type;
+
+public:
+
+  threadsafe_biseq();
+  threadsafe_biseq(const threadsafe_biseq& x);
+  threadsafe_biseq(iterator beg, iterator end);
+  threadsafe_biseq(size_type n);
+
+  void swap(const threadsafe_biseq& x);
+
+  bool operator<(const threadsafe_biseq& x);
+  bool operator<=(const threadsafe_biseq& x);
+  bool operator>(const threadsafe_biseq& x);
+  bool operator>=(const threadsafe_biseq& x);
+
+  size_type size();
+  size_type max_size();
+
+  bool      empty();
+
+  iterator begin_();
+  const_iterator begin_() const;
+
+  iterator end_();
+  const_iterator end_() const;
+
+  reverse_iterator rbegin_();
+  const_reverse_iterator rbegin_() const;
+
+  reverse_iterator rend_();
+  const_reverse_iterator rend_() const;
+
+  reference front();
+  reference front_();
+  const_reference front() const;
+  const_reference front_() const;
+
+  reference back();
+  reference back_();
+  const_reference back() const;
+  const_reference back_() const;
+
+  void push_back(const value_type& v);
+  void push_back_(const value_type& v);
+
+  void pop_back(void);
+  void pop_back_(void);
+
+  iterator insert(iterator it, const value_type& v);
+  iterator insert_(iterator it, const value_type& v);
+  iterator insert(iterator it, size_type n, const value_type& v);
+  iterator insert_(iterator it, size_type n, const value_type& v);
+  iterator insert(iterator it, iterator p, iterator q);
+  iterator insert_(iterator it, iterator p, iterator q);
+
+  iterator erase(iterator p);
+  iterator erase_(iterator p);
+  iterator erase(iterator p, iterator q);
+  iterator erase_(iterator p, iterator q);
+  
+  void  clear();
+  void  clear_();
+
+  void  resize(size_type n, const value_type* v);
+  void  resize_(size_type n, const value_type* v);
+
+  const container& get_container_() const;
+  { return v_; }
+  container& get_container_();
+  { return v_; }
+
+};
+\end{verbatim}
+
+ As you can see, this template define usuall typedefs for containers and
+delegate 2 versions of each container operation. 
+ Operations, which have not underscore
+at end of name is threadsafe, i. e. lock container for reading or 
+writing automatically.
+Operations with underscore at end do not touch rwlock, left control for
+concurrency management to programmer.
+
+ Few examples of usage: (correct and incorrect).
+
+\begin{verbatim}
+  typedef threadsafe_biseq<vector<int> > StorageType;
+  StorageType storage; // 0
+  .....................
+  storage.push_back(10); // 1. safe
+  .......................
+  storage.write_lock();
+  storage.push_back_(10);  // 2. the same as 1
+  storage.write_unlock();
+  ....................
+  storage.write_lock();
+  storage.push_back(10); // 3. - deadlock-here
+  storage.write_unlock();
+  ....................
+  storage.write_lock();
+  remove_if(storage,storage.begin_(),storage.end_(),10); // 4 - safe
+  storage.write_unlock();
+  ..................
+\end{verbatim}
+
+\subsubsection{ threadsafe\_uac }
+ 
+ This is adapter for {\bf unique assciative containers}. STL implementations
+ are:
+ set, map, hash\_set, hash\_map. 
+
+ Usage of threadsafe\_uac is the same, as threadsafe\_biseq, so
+ wi will not describe template signature in details. (see API documentation).
+
+ Note, than you can find complete example of usage in subdirectory 
+ \verb|demo/containers| of package distributive.
+
+\subsubsection{ threadsafe\_mac }
+
+ At last, thredsave\_mac, as you probability know, is an adapter for
+  {\bf multiple associative container} 
+ (multiset, mulimap, hash\_multiset, hash\_multimap).
+
+\subsection{ Threadsafe smart pointers }
+
+\subsubsection{ counted\_mt\_ptr }
+
+ Smart pointer templates is well-known technique of C++ programming, which
+can involve shared access to one object through counted-referenced pointers.
+Note, that using such technique in multithreading environment require some
+changes to implementation of counted pointer, becouse different thread now
+can modify underlying object in parallel. So, Grad-Soft C++ ToolBoc provide
+class template \verb|counted_mt_ptr| -- thread-safe counted pointer.
+ 
+You can use \verb|counted_mt_ptr| exacltly as \verb|counted_ptr| from 
+\verb|ptrs| package from Grad-Soft C++ ToolBox.
+
+ Typical patterm of usage:
+
+\begin{verbatim}
+ GradSoft::counted_mt_ptr<MyObject,GradSoft::ptr::safe> obj(new MyObject());
+
+ callSomethingInParallelThread(obj);
+ 
+ .........
+
+ try {
+   obj->myFun()
+ }catch(const GradSoft::NullPointerException& ex){
+   Object was settet to NULL, do something 
+ }
+
+\end{verbatim}
+
+ (for explanation of second template argument look at \cite{ptrs})
+ 
+ As with collections wrappers we keep unsafe copy of methods in class
+interface by adding underscore suffix (\verb|get_|, \verb|assign_|) and
+give application programmer direct access to pointer mutex.
+
+
+\subsection{ Primitives for asynchronic interaction: ThreadEvent }
+
+ %TODO : write, what is asynchronic thread interaction.
+ Threading also provide set of primitives for asynchronic thread interaction.
+
+ They incapsulated into class \verb|ThreadEvent|, signature of this
+class look as follows:
+
+\begin{verbatim}
+/**
+ * Thread Event (Condition) class
+ **/
+class ThreadEvent
+{
+public:
+   ///
+   ThreadEvent() throw(ThreadingExceptions::NoResources,
+                            ThreadingExceptions::InternalError);
+
+   ///
+   ~ThreadEvent() throw(ThreadingExceptions::ResourceBusy,
+                            ThreadingExceptions::InternalError);
+
+   ///
+   void wait()  throw(ThreadingExceptions::PossibleDeadlock,
+                      ThreadingExceptions::InternalError);
+
+   ///
+   void wait(long timeout)
+                  throw(ThreadingExceptions::PossibleDeadlock,
+                        ThreadingExceptions::InternalError);
+
+   ///
+   void notify() throw();
+
+   ///
+   void notifyAll() throw();
+
+private:
+
+  ....
+
+};
+\end{verbatim}
+
+ The mwaning of methods are next:
+ \begin{itemize} 
+  \item te.wait()\footnote{ Let te - instance of class ThreadEvent}
+   - block current thread until we receive notification from other thread.
+   (i. e. until \verb|te.notify()| or \verb|te.notifyAll| will be called.
+  \item te.wait(long timeout) - the same, as version without parameters,
+   but current thread is blocked only during time of \verb|timeout| 
+   (in milliseconds)
+  \item te.notify() - break blocking of one of threads, which are wait
+    for this event. (i. e. flow control in some thread is leave 
+    \verb|te.wait()| expression)
+  \item te.notifyAll() - break blocking of all threasds, which are
+    wait for this event.
+ \end{itemize} 
+
+ This is well-known model, semantics of this model is described in detail
+ in literature. We can find direct conformity of this model and
+ \verb|ptread_cond| family of functions in pthread API and family
+ of methods asynchronic interaction in Java language.
+
+ Let's illustrate typical usage of ThreadEvent via classical example of
+bounded buffer: exists 2 threads: supplier and consumer. They are
+ linked throught bounded buffer from \verb|maxBufferSize| elements.
+
+ Supplier put elemenys into buffer using method \verb|BoundedBuffer::put|,
+Consumer read thie elements, using method \verb|BoundedBuffer::get|.
+
+ When buffer is full, supplier stop his work and wait for free space in
+buffer; when buffer is empty consumer stop his work and wait for existence
+ of ellements in buffer.
+
+ \begin{verbatim}
+ class BoundedBuffer
+ {
+  ThreadEvent elementsExists_;
+  ThreadEvent freeSpaceExists_;
+   ..........
+  public:
+
+   void put(ElementType element)
+   {
+    if (getNumberElements() >= maxBufferSize_) {
+      freeSpaceExists.wait(); 
+    }
+    ... do actual put
+    elementsExists_.notify();
+   }
+
+   ElementType get()
+   {
+    if (getNumberElements() == 0) {
+      elementsExists_.wait();
+    }
+    ... do actual get
+    freeSpaceExists_.notify();
+    return retval;
+   }
+
+   .....
+
+ };
+ \end{verbatim}
+
+ As you can see, we have 2 events, which correspond to changes
+of logical conditions\footnote{ in some threading packages this model is 
+ named as thread conditions  model}. One event is take place when we
+ have at least one element in buffer, second -- when we have at least
+ one free space in buffer. If some conditions is not true, than we wait
+ for appropriative event: for example if in \verb|BoundedBuffer::get|
+ we have no avaible elements in buffer, then we wait for event 
+\verb|elementExists_|. We notifying about this event in end of method
+\verb|BoundedBuffer::put| when this condition must be true, becouse
+ we just put element into buffer.
+
+ Note, that this example is unoptimized: exists trivial optimization of
+this technique, known as hairdressen algorithm.
+
+\subsection{ Thread Services }
+
+  One of wide-known and usefull design patterns is organizing of asynchronic
+requests processing. This technique allows to minimize response time of application (when long request is porcessed, application still active and can process
+other requests), increase scalability and liveness of you program.
+ 
+  GradSoft C++ ToolBox define some framework in which application programmer
+can process asynchronic requests and use standart "executors" - i. e. thread
+services, which implement common techniques : \verb|ThreadPool|, \verb|SingleThreadBlocking| and so on.
+
+  Typical usage of ThreadService framework looks next:
+
+\begin{itemize}
+ \item Programmer define own items of execution as subclasses of \verb|Runnable|. 
+ \item In request processing loops this items are passed to ThreadService via
+  method \verb|process|.
+ \item ThreadService execute this items in way, depending of concrete implementation, or arrize exception about impossabillity to process request at this time.
+\end{itemize}
+  
+ Now, more detailed look:
+
+class Runnable looks as follow:
+\begin{verbatim}
+/**
+ * Abstract class for runnable
+ * Runnable is item of execution
+ **/
+class Runnable
+{
+public:
+
+  ///
+  Runnable();
+
+  ///
+  virtual ~Runnable();
+
+  ///
+  virtual void run() = 0;
+
+private:
+
+  Runnable(const Runnable& );
+  Runnable& operator=(const Runnable&);
+
+};
+\end{verbatim}
+
+ As you can see this definitions are very simular to standart java interface.
+
+TheadService is an absract class, defined as follow:
+
+\begin{verbatim}
+
+/**
+ * ThreadService: entity which process Runnable
+ * (Runnable may be events, network connections, etc)
+ * Typical usage pattern:
+ *  1. Generator generates Runnable
+ *  2. this Runnables are passed to ThreadServices,
+ *    with help of call ThreadService::process 
+ *  3. ThreadService process this runnable, asynchronicly or
+ *   synchronisly.
+ *
+ * ThreadService can be in active or inactive state.
+ * When it in active state, it can process requests.
+ * When in inactive - can't.
+ * 
+ **/
+class ThreadService
+{
+public:
+
+   /**
+    * This exception is throwed, when we try to use
+    * not-activated ThreadService
+    **/
+   struct NotActive {int dummy;};
+
+private:
+
+   ...........
+
+public:
+
+   ///
+   ThreadService();
+
+   ///
+   virtual ~ThreadService();
+
+   ///
+   virtual void  process(Runnable* runnable)=0;
+
+   ///
+   bool is_active() const { return active_.value(); }
+
+   ///
+   virtual void  activate();
+
+   ///
+   virtual void  deactivate(bool shutdown);
+
+protected:
+
+   virtual void mark_deactivate();
+
+   ..........
+
+private:
+
+   ThreadService(const ThreadService&);
+   ThreadService& operator=(const ThreadService&);
+
+};
+
+\end{verbatim}
+
+  Meaning of methods:
+ \begin{itemize}
+   \item \verb|activate| - activate thread service. Thread Service must be activated before using. Internal work of activate is starting internal threads.
+   \item \verb|is_active| - returns \verb|true| when service is in active state, otherwise - returns \verb|false|. 
+   \item \verb|process| - execute argument \verb|runnable| blocking or unblocking, depend from concrete implementation of thread service. This method throw
+exception \verb|ThreadService::NotActive| when servic is in inactive state; 
+\verb|ThreadingExceptions::TemporaryNoResources| if request can not be executed
+   \item \verb|deactivate| - deactivate service, i. e. set it's state to 
+ become inactive. If parameter \verb|shutdown| set to true, than service
+ become inactive immediatly and all current evaluated tasks can be stopped.
+ If it is set to false, currently evaluated tasks are completed.
+   \item \verb|mark_deactivate| -  can be usefull for implementators of
+ new ThreadServices. Default implementation simple set internal flag to
+ inactive.
+ \end{itemize}
+
+ Few concrete implementations of thread services, with different threading policies are supplied with GradSoft C++ ToolBox. Note, that before using ones you must include appropriative header file.
+
+\subsubsection{ SingleThreadBlocking }
+
+  This is a most simpliest thread service, which execute request in the
+same thread in blocking way.
+
+\subsubsection{ SingleThreadChecking }
+
+  Requests are processed asynchronically in dedicated thread of this service.
+They are not serialized to queue, so if in current moment of time service is
+executing some request, than call of \verb|process| method will raise exception
+\verb|ThreadingExceptions::TemporaryNoResources|.
+
+\subsubsection{ SingleThreadReactive }
+
+  Requests are processed asynchronically in dedicated thread of this service.
+They are serialized to queue, size of this queu is passed to constructor
+ of SingleThreadReactive. Behaviour of service in case when of queue overflow
+is depend from \verb|mode| flag, also passed to constructor.
+ Mode can be one of:
+ \begin{itemize}
+   \item \verb|SingleThreadReactive::Blocked| - if queue is full, than 
+  \verb|process| blocks execution of current thread until free place in
+ queue be appear.
+   \item \verb|SingleThreadReactive::Checked| - if queue is full, than 
+  exception \verb|ThreadingExceptions::TemporaryNoResources| is throwed immediatly.
+   \item \verb|SingleThreadReactive::CheckedWithTimeout| - if queue is full, 
+ than \verb|process| wait during \verb|timeout| milliseconds to put current request in queue. If this is still impossible, than \verb|ThreadingExceptions::TemporaryNoResources| is throwed.
+ \end{itemize}
+
+\subsubsection{ ThreadPerClient }
+
+ Requests are processed asynchronically, each in own thread.
+
+\subsubsection{ ThreadPool }
+
+ Requests are processed asynchronically in thread pool: any free thread execute
+first aviable item. When all threads are busy, then request are putted into internal queue. Number of threads and size of queue is passed to the constructor of
+ThreadPool.
+ Behaviour of \verb|process| during queue overflow is depend from mode flag,
+which can have values \verb|ThreadPool::Blocked|, \verb|ThreadPool::Checked|,
+ \verb|ThreadPool::CheckedWithTimeout| with the same meaning, as in \verb|SingleThreadReactor| case.
+
+\section{ Programming environment conventions:  }
+
+\begin{enumerate}
+  \item Few autoconf-related preprocessor macroses are defined in file 
+  \verb|ThreadConfig.h| which is generated during installation of this package.
+  Potentially this definitions can conflict with you autoconf preprocessor
+  macro definitions. To avoid this we reccomend to place you macrodefinitions
+  in \verb|Configure.in| inside conditional compilation braces, i. e.
+\begin{verbatim}
+#ifdef HAVE_XXX
+#undef HAVE_XXX
+#endif
+\end{verbatim}
+  \item in Linux environment, include file \verb|Threading.h| must be
+ included or preprocessor macro \verb|_GNU_SOURCE| must be
+ defined before any inclusion of system headers.
+  \item Using Threading on Windows NT, you must:
+    \begin{enumerate}
+      \item to define WIN32 macro before inclusion of Threading.h header file;
+      \item to use iostream, fstream, etc. standard headers instead iostream.h, fstream.h, etc. ones.
+    \end{enumerate}
+\end{enumerate}
+
+\section{ Changes History }
+
+\begin{itemize}
+  \item[26.03.2002]  added \verb|counted_mt_ptr| description
+  \item[03.01.2002]  last touch before 1.4.0 public release
+  \item[02.07.2001]  added 1.2 exception information.
+  \item[24.05.2001]  added description of \verb|Thread::yield()|
+  \item[22.05.2001]  added 1.2 items (ThreadServices).
+  \item[25.04.2001]  review, added 1.1 items (ThreadEvent).
+  \item[17.02.2001]  review, formal document attributes added.
+  \item[09.09.2000]  created.
+\end{itemize}
+ 
+\bibliography{Bib} 
+
+\end{document}

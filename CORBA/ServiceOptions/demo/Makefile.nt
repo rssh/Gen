@@ -1,0 +1,77 @@
+## Main Makefile for HostProcControl project for Windows NT
+## $Id: Makefile.nt,v 1.6 2004-03-13 16:22:55 kav Exp $
+
+include ..\..\..\config\Win32\environment.nt.mak
+include ..\..\config\Win32\environment.nt.mak
+include ..\..\config\Win32\ORB_description.nt.mak
+
+!ifndef TEMPFILE
+
+build: maketool 
+  @$(MAKE) -f Makefile.nt TEMPFILE="tempfile" build
+
+clean: maketool
+  @$(MAKE) -f Makefile.nt TEMPFILE="tempfile" clean
+
+maketool: create prime
+
+create: ; @echo. > <<tempfile
+<<
+
+prime: HelloWorlder.idl ; 
+
+  !@for %i in ( $(IDL_ALL_SRC_SUFS) ) do \
+     @echo $(**B)_SRC_FILES = $$($(**B)_SRC_FILES) $(**B)%i >> tempfile
+  !@echo IDL_ALL_SRC_FILES = $$(IDL_ALL_SRC_FILES) $$($(**B)_SRC_FILES) >> tempfile
+  !@echo $$($(**B)_SRC_FILES): $** ; $(IDLCXX) $(IDLFLAGS) $** >> tempfile
+
+  !@for %i in ( $(IDL_ALL_CLN_OBJ_SUFS) ) do \
+     @echo $(**B)_CLN_OBJS = $$($(**B)_CLN_OBJS) $(**B)%i >> tempfile
+  !@echo IDL_ALL_CLN_OBJS = $$(IDL_ALL_CLN_OBJS) $$($(**B)_CLN_OBJS) >> tempfile
+  !@echo $$($(**B)_CLN_OBJS): $$($(**B)_SRC_FILES) >> tempfile
+
+  !@for %i in ( $(IDL_ALL_SRV_OBJ_SUFS) ) do \
+     @echo $(**B)_SRV_OBJS = $$($(**B)_SRV_OBJS) $(**B)%i >> tempfile
+  !@echo IDL_ALL_SRV_OBJS = $$(IDL_ALL_SRV_OBJS) $$($(**B)_SRV_OBJS) >> tempfile
+  !@echo $$($(**B)_SRV_OBJS): $$($(**B)_SRC_FILES) >> tempfile
+
+!else
+
+default: build
+
+!include $(TEMPFILE)
+
+!ifndef PROJECT_ROOT        #
+PROJECT_ROOT=$(MAKEDIR)\..  # debug entries
+!endif                      #
+
+!include ..\config\common_settings.nt.mak
+
+ALL_SRV_OBJS=$(IDL_ALL_SRV_OBJS) HelloWorldServer.obj
+
+ALL_CLN_OBJS=$(IDL_ALL_CLN_OBJS) HelloWorldClient.obj
+
+EXECUTABLES=HelloWorldServer.exe HelloWorldClient.exe
+
+build: $(EXECUTABLES)
+
+HelloWorldServer.exe: $(MUTABLE_LIBS) $(ALL_SRV_OBJS)
+	$(LD) -out:$@ $(ALL_SRV_OBJS) $(LDFLAGS)
+        
+HelloWorldClient.exe: $(MUTABLE_LIBS) $(ALL_CLN_OBJS)
+	$(LD) -out:$@ $(ALL_CLN_OBJS) $(LDFLAGS)
+
+.SUFFIXES: .cc 
+
+.cc.obj::
+  $(CPP) $< $(CPPFLAGS) -I.
+
+.cpp.obj::
+  $(CPP) $< $(CPPFLAGS) -I.
+
+ALL_GENERATED= $(IDL_ALL_SRC_FILES) $(ALL_SRV_OBJS) $(ALL_CLN_OBJS) $(EXECUTABLES) 
+
+clean:
+  @for %i in ( $(ALL_GENERATED) ) do @if exist %i erase %i
+
+!endif

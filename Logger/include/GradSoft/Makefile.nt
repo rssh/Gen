@@ -1,0 +1,19 @@
+## Makefile for Windows NT: Logger include files installation 
+## $Id: Makefile.nt,v 1.5 2001-12-11 21:21:51 kav Exp $
+
+include ..\..\..\config\Win32\environment.nt.mak
+include ..\..\config\common_settings.nt.mak
+
+TARGET_DIR=$(INSTALL_INC_DIR)\GradSoft
+PURVEYANCE=LoggerPostConfig.h LoggerConfigNT.h Logger.h 
+
+
+install: makedir
+   @for %i in ( $(PURVEYANCE) ) do @$(INSTALL) %i $(TARGET_DIR)
+
+makedir:
+   @if not exist $(TARGET_DIR) mkdir $(TARGET_DIR)
+
+uninstall:
+   @for %i in ( $(PURVEYANCE) ) do @if exist $(TARGET_DIR)\%i $(REMOVE) $(TARGET_DIR)\%i
+

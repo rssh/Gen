@@ -1,0 +1,22 @@
+## Makefile for Windows NT: SMTPmailer usage sample compilation
+## $Id: Makefile.nt,v 1.1 2001-02-09 15:02:35 yad Exp $
+
+include ..\..\..\config\env_inc.nt.mak
+include ..\config\env_inc.nt.mak
+
+
+default: build
+
+build: SMTPmailerDemo.exe
+
+SMTPmailerDemo.exe: SMTPmailerDemo.obj
+	$(LD) $(LDFLAGS) SMTPmailerDemo.obj 
+	
+SMTPmailerDemo.obj: SMTPmailerDemo.cpp
+	$(CXX) $(CXXFLAGS) -c SMTPmailerDemo.cpp
+
+clean::
+	@if exist *.obj $(RM) *.obj
+        @if exist *.exe $(RM) *.exe
+
+

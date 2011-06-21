@@ -1,0 +1,84 @@
+# Makefile.in for Gen/Logger/docs
+#
+#
+prefix=@prefix@
+PROJECT_ROOT=@project_root@
+GRADSOFT_WEB_ROOT=@docs_web_root@
+
+TEX_FILES=ProgrammingGuide_rus.tex \
+          ProgrammingGuide_eng.tex 
+
+DVI_FILES=ProgrammingGuide_rus.dvi \
+          ProgrammingGuide_eng.dvi
+
+PS_FILES=ProgrammingGuide_rus.ps \
+         ProgrammingGuide_eng.ps
+
+PDF_FILES=ProgrammingGuide_rus.pdf \
+          ProgrammingGuide_eng.pdf
+
+API_FILE=html/Logger.html
+HTML_PR_RUS=ProgrammingGuide_rus/index.html
+HTML_PR_ENG=ProgrammingGuide_eng/index.html
+
+
+docs: $(PDF_FILES) $(API_FILE)
+
+all: docs web
+
+.SUFFIXES: .tex .dvi .ps .pdf
+
+.tex.dvi:
+	latex $< 
+
+.tex.pdf:
+	pdflatex $<
+
+html/Logger.html:
+	(cd html; doc++ ../../include/GradSoft/Logger.h)
+
+build:
+
+clean:
+	-rm *.log *.pdf *.aux *.ps *.dvi
+	-rm html/Logger.html
+	-rm -rf ProgrammingGuide_rus ProgrammingGuide_eng
+
+install:
+
+uninstall:
+
+
+HTML_PR_RUS_GRADSOFT=$(GRADSOFT_WEB_ROOT)/rus/Products/ToolBox/Logger/ProgGuide
+PDF_PR_RUS_GRADSOFT=$(GRADSOFT_WEB_ROOT)/rus/Products/ToolBox/Logger/pdf
+HTML_PR_ENG_GRADSOFT=$(GRADSOFT_WEB_ROOT)/eng/Products/ToolBox/Logger/ProgGuide
+PDF_PR_ENG_GRADSOFT=$(GRADSOFT_WEB_ROOT)/eng/Products/ToolBox/Logger/pdf
+HTML_API_GRADSOFT=$(GRADSOFT_WEB_ROOT)/common/ToolBox/Logger/API
+
+web: $(API_FILE) $(HTML_PR_RUS) $(HTML_PR_ENG)
+install-web: web all
+	-mkdir -p $(HTML_API_GRADSOFT)
+	for i in html/*.class html/*.html html/*.gif; do \
+	 cp $$i $(HTML_API_GRADSOFT); \
+	done
+	-mkdir -p $(HTML_PR_RUS_GRADSOFT)
+	for i in ProgrammingGuide_rus/*; do\
+	 cp $$i $(HTML_PR_RUS_GRADSOFT); \
+	done
+	-mkdir -p $(HTML_PR_ENG_GRADSOFT)
+	for i in ProgrammingGuide_eng/*; do\
+	 cp $$i $(HTML_PR_ENG_GRADSOFT); \
+	done
+	-mkdir -p $(PDF_PR_RUS_GRADSOFT)
+	cp ProgrammingGuide_rus.pdf $(PDF_PR_RUS_GRADSOFT)
+	-mkdir -p $(PDF_PR_ENG_GRADSOFT)
+	cp ProgrammingGuide_eng.pdf $(PDF_PR_ENG_GRADSOFT)
+
+install-web-documentation: install-web 
+
+$(HTML_PR_RUS): ProgrammingGuide_rus.tex ProgrammingGuide_rus.pdf
+	latex2html -charset KOI8-R -split 0 -info 0 -address "GradSoft" -local_icons ProgrammingGuide_rus.tex
+
+$(HTML_PR_ENG): ProgrammingGuide_eng.tex ProgrammingGuide_eng.pdf
+	latex2html -split 0 -info 0 -address "GradSoft" -local_icons ProgrammingGuide_eng.tex
+

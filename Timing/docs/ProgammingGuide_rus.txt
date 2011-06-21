@@ -1,0 +1,491 @@
+////NOTE:
+//
+// Точность (precision) - в смысле - точность измерения данного момента времени.
+// Accuracy подходит для этого больше и в нём на 1 букву меньше.
+// 
+//
+////NOTE:
+//
+// nSeq не путать с наносекундами. nSeq - это просто секунды.
+//
+//// NOTE
+//
+// AmountOfTimeWithAccuracy - это слишком длинно но я пока ничего другого не придумал.
+//
+//// NOTE
+//
+// Написать что в некоторых системах время идёт с большей дискретностью
+// чем 1 милисекунда
+//
+////
+
+
+
+ Описание библиотеки
+ -------------------
+
+ Timing предназначен для работы со временем в приложениях.
+ Даты задаются с аомошью Григорианского календаря.
+ Для этого библиотека предоставляет несколько С++ классов:
+
+  * TimeStamp - который собственно и представляет собой
+    точку на временной оси. TimeStamp содержит дату,
+    время а также смещение в часах относительно GMT.
+    TimeStamp определяет время с точностью до одной милисекунды.
+
+  * AmountOfTime - который представляет длительность.
+    Этот класс просто предоставляет временной интервал,
+    не прикреплённый к какому либо моменту времени.
+
+ И их модификации, включающие точность:
+
+// TODO : реализовать эти классы.
+
+  * TimeStampWithAccuracy - расширение TimeStamp, включающее
+    точность измерения момента времени (accuracy).
+    Т.о., TimeStampWithAccuracy определяет момент времени,
+    измеренный с точностью плюс-минус "точность".
+    С другой стороны может рассматриваться как временной интервал
+    задаваемый через точку середины интервала и длительность времени
+    половины интервала.
+  * AmountOfTimeWithAccuracy - расширение AmountOfTime, включающее
+    точность измерения момента времени (accuracy).                        0
+    Т.о., TimeStampWithAccuracy определяет момент времени,
+    измеренный с точностью плюс-минус "точность".
+    С другой стороны может рассматриваться как временной интервал
+    задаваемый через точку середины интервала и длительность времени
+    половины интервала.
+
+
+
+ Описание классов
+ ----------------
+
+ Ниже приведены объявления классов.
+
+ TimeStamp
+ ---------
+
+ Класс TimeStamp представляет реальные дату и время. TimeStamp инкапсулирует
+ точку во времени, определенную календарной датой ( год, месяц, день, и часы,
+ минуты, секунды и миллисекунды этого дня ).
+ Точность определения - одна милисекунда.
+ Также TimeStamp поддерживает форматирование  информации
+ о дате и времени в соответсвии с определенным часовым поясом.
+  
+ ---Инициализация TimeStamp.
+
+ Инициализировать обьект класса можно несколькими способами:
+  * с помощью задания даты и времени (год, месяц, день, час, минуты,
+    секунды, милисекунды);
+  * инициализировать посредством метки времени в юникс-стиле,
+    т.е. задать количество секунд, прошедших с 1970-01-01T00:00:00Z
+    (дата в формате, используемом в спецификации HTML 4.0,
+    http://www.w3.org/TR/REC-html40/types.html#h-6.11),
+    т.е. с первого января 1970 года. Такие метки мы далее будем
+    называть метками времени в unix-стиле. В этом случае милисекунды
+    будут установлены в ноль.
+  * с помощью другого объекта класса TimeStamp.
+
+ Здесь:
+
+ "Год"  выражается четырехзначным числом с 1970 по 2038 включительно.
+ Такое ограничение происрастает из того, что в C-библотеках для
+ хранения метки времени в секундах выделялось 32-х битное число со знаком.
+
+ "месяц"  должен иметь целое значение от 1 до 12 включительно,
+
+ "день" - целое от 1 до 31, допустимое для данного месяца и года
+ (Январь   31,
+  Февраль  28 (29 для высокосных годов
+     по григорианскому каленжарю, а такими являются года,
+     делящиеся на 4 кроме тех, что делятся на 100 и не делятся на 400),
+  Март     31, Апрель  30, Май    31,
+  Июнь     30, Июль    31, Август 31,
+  Сентябрь 30, Октябрь 31, Ноябрь 30,
+  Декабрь  31).
+
+ "час" - целое от 0 до 23.
+
+ "Минуты" и "секунды"  должны иметь целые значения от 0 до 59.
+
+ "миллисекунды" - целые от 0 до 999.
+
+ "смещение относительно GMT aka UTC" - целое знаковое,
+ это количество часов и минут, на которое локальное время
+ отличается от UTC. При этом знак находится в часах смещения.
+ Минуты смещения - из множества {0, ..., 59}.
+ Часы смещения - из множества {-99, ..., 99}.
+
+ Если данные не соответствуют вышеуказанным ограничениям,
+ то возбуждается  исключение InvalidTimestamp (InvalidDate,InvalidTime).
+
+   // 
+   // Инициализация посредством Даты и Времени
+   //
+    void initialize( unsigned short year,
+                     unsigned short month,
+                     unsigned short day,
+                     unsigned short hour = 0,
+                     unsigned short minute = 0,
+                     unsigned short second = 0,
+                       signed short hoffsetGMT = 0,
+                     unsigned short moffsetGMT = 0) throw (InvalidTimestamp);
+    
+   //
+   // Инициализация посредством секунд прошедших с 1 января
+   // 1970 года 0:0:0 GMT
+   //
+    void initializeFromGreenwich(unsigned long nSeconds,
+                                unsigned short offsetGMT = 0) throw(InvalidTimestamp);
+
+   //
+   // Инициализация посредством другого экземпляра типа TimeStamp
+   //
+    Timestamp(const Timestamp& anotherTime);
+
+ 
+ ---Получение информации о моменте времени.
+    
+   // 
+   // Получение часов данного дня   
+   //   
+    short getHoursOfDay() const throw();
+
+   //
+   // Получение  минут данного часа
+   //
+    short getMinutesOfHour() const throw();
+
+   //
+   // Получение секунд данной минуты
+   //
+    short getSecondsOfMinute() const throw();
+
+   //
+   // Получение дня (числа) данного месяца
+   //
+    short getDayOfMonth() const throw();
+
+   //
+   // Получение количества дней, прошедших с начала этого года
+   //
+    short getDayOfYear() const throw();
+
+   //
+   // Получение месяца данного года
+   //
+    short getMonth() const throw();
+
+   //
+   // Получение года
+   //  
+    short getYear() const throw();
+
+
+   //
+   // Получение смещения в часах относительно Гринвича
+   //
+    short getOffsetGMT() const throw();
+
+   //
+   // Получение количества секунд, прошедших с  0:0:0 1 января 1970г. GMT
+   //
+    unsigned long getGreenwich() const throw(); 
+
+   //
+   // Получение точности, с которой мы измеряем время
+   //
+    AmountOfTime getPrecision() const throw();
+
+  
+ ---Усановка данных, описываюищих момент времени.
+    Ограничения на значения такие же, как для инициализации.
+  
+
+   //
+   // Устанавливает новое значение для часов
+   //
+    void setHours(unsigned short hours) throw(InvalidDateParameter) ;
+
+   //
+   // Устанавливает новое значение для минут
+   //
+    void setMinutes(unsigned short minutes) throw(InvalidDateParameter);
+
+   //
+   // Устанавливает новое значение для секунд
+   //
+    void setSeconds(unsigned short seconds) throw(InvalidDateParameter);
+
+   //
+   // Устанавливает новое значение для числа месяца
+   //
+    void setDayOfMonth(unsigned short dayOfMonth) throw(InvalidDateParameter);
+
+   //
+   // Устанавливает новое значение для чила месяца и/или месяца
+   //
+    void setDayOfYear(unsigned short dayOfYear) throw(InvalidDateParameter);
+
+   //
+   // Устанавливает новое значение для месяца
+   //
+    void setMonth(unsigned short month) throw(InvalidDateParameter);
+
+
+   //
+   // Устанавливает новое значение для года
+   //
+    void setYear(unsigned short year) throw(InvalidDateParameter); 
+
+   //
+   // Устанавливает новое смещение относительно Гринвича
+   //
+    void setOffsetGMT(unsigned short offsetGMT) throw(InvalidDateParameter);
+
+   //
+   // Устанавливает точность с которой измеряется время
+   //  
+    void setPrecision( AmountOfTime precision) throw();
+
+
+ ---А также различные операции для работы с объектами типа TimeStamp.
+
+
+    Timestamp  operator+(const AmountOfTime& amount) const throw();
+    Timestamp& operator+=(const AmountOfTime& amount) throw();
+    AmountOfTime operator-(const Timestamp& anotherTime) const throw();
+    Timestamp operator-(const AmountOfTime& amount) const throw();
+    Timestamp& operator-=(const AmountOfTime& amount) throw();    
+    bool   operator <= (const Timestamp& anotherTime) const throw();
+    bool   operator < (const Timestamp& anotherTime)  const throw();
+    bool   operator >= (const Timestamp& anotherTime) const throw();
+    bool   operator > (const Timestamp& anotherTime)  const throw();
+    bool   operator != (const Timestamp& anotherTime) const throw();
+    bool   operator == (const Timestamp& anotherTime) const throw();
+
+// TODO: Включить сюда и всюду дальше операции направления в поток "<<" and ">>".
+
+ ---Предоставление информации о системном времени.
+  
+    //
+    //  Возвращает объект, содержащий  системное время 
+    //
+     static  Timestamp  now() throw(SystemTimeExc);	
+
+
+
+
+
+
+
+ AmountOfTime
+ ------------
+   
+ Объект типа AmountOfTime представляет промежуток времени (может быть как 
+ положительным так и отрицательным), который можно складывать, вычитать или 
+ использовать для хранения разницы между объектами типа TimeStamp.
+ AmountOfTime содержит промежуток времени (длительность) безотносительно
+ к какому либо моменту времени. 
+
+ AmountOfTime определен как количество недель, дней, часов, минут,секунд и
+ миллисекунд.
+   
+  
+ Инициализация AmountOfTime.
+ 
+ "Недели" и "дни" - любые целые числа,"часы" - целое в диапазоне от -23 до 23
+ включительно, "минуты" и "секунды" - целые от -59 до 59, и "миллисекунды"-
+ от -999 до 999.
+ Если данные не соответствуют вышеуказанным ограничениям, то возбуждается 
+ исключение.
+  
+
+   //
+   //  Инициализация посредством  "недель", "дней","часов","минут","секунд" и "миллисекунд"
+   //
+    void initialize(long weeks,
+                    long days,
+                    short hours,
+                    short minutes,
+                    short seconds,
+		    short milliseconds) throw (InvalidDateParameter);
+ 
+
+   //
+   // Инициализация посредством количества секунд и миллисекунд ( допустимы любые целые значения)
+   //
+    void initialize(long nSeconds,long milliSeconds) throw();
+   
+   
+ ---Получение информации о прмежутке времени.
+   
+
+   //
+   // Получение количества миллисекунд после последней полной секунды 
+   // 
+    short getMilliSecondsOfSeconds() const throw();
+
+   //
+   // Получение количетва миллисекунд после последней полной минуты
+   //
+    short getSecondsOfMinute() const throw();
+
+   //
+   // Получение количества минут после последнего полного часа
+   //
+    short getMinutesOfHour() const throw();
+
+   //
+   // Получение количества часов после последнего полного дня
+   //
+    short getHoursOfDay() const throw();
+    
+   //
+   // Получение количества дней ( < 7 ) после последней полной недели
+   //
+    long getDays() const throw();
+
+   //
+   // Получение количества недель
+   //
+    long getWeeks() const throw();
+
+   //
+   // Получение целого количества секунд содержащегося в данном прмежутке времени
+   //   
+    long toSeconds() const throw(); 
+   
+   //
+   // Получение количества миллисекунд в данном промежутке времени 
+   //  ( в случае если количество секунд в данном промежутке времени превышает 
+   //     2000000 или меньше -2000000 вобуждается исключение)
+   //
+    long toMilliSeconds() const throw(MillisecondsExc);
+      
+   // 
+   // Получение количества минут в данном промежутке времени
+   //                                     
+    long toMinutes() throw();
+
+   //
+   // Получение количества часов в данном промежутке времени
+   //
+    long toHours() throw();
+
+   //
+   // Получение количества дней (всех) в данном промежутке времени 
+   //
+    long toDays() throw();
+
+   //
+   // Получение точности
+   //
+    short getPrecision() const throw();
+
+
+ ---Усановка данных, описываюищих промежуток времени.
+    Ограничения на значения такие же, как для инициализации.
+   
+   //
+   //  Установка нового значения для миллисекунд
+   //   
+    void setMillisecondsOfSecond(short milSeconds) throw (InvalidDateParameter);
+
+   //
+   // Установка нового значения для секунд
+   //
+    void setSecondsOfMinute(short Seconds) throw(InvalidDateParameter);
+
+   //
+   //  Установка нового значения для минут
+   //
+    void setMinutesOfHour(short Minutes) throw(InvalidDateParameter);
+
+   //
+   // Установка нового значения для часов
+   //
+    void setHoursOfDay(short Hours) throw(InvalidDateParameter);
+
+   //
+   // Установка нового значения для дней и недель( если Days >= 7) 
+   //
+    void setDays(long Days) throw();
+   
+   //
+   // Установка нового значения для недель
+   //
+    void setWeeks(long Weeks) throw();
+
+
+   //
+   // Установка нового промежутка времени (т.е. "недель", "дней" и т.д.) 
+   //
+    void setMilSeconds(long milSeconds) throw();
+
+   //
+   // Установка нового промежутка времени ( но не включая "миллисекунды")   
+   //
+    void setNSeconds(long nSeconds) throw();	
+  
+   //
+   // Установка точности.
+   //
+    void setPrecision(short prec) throw (InvalidDateParameter);
+
+
+
+ ---Операции для работы с объектами типа TimeStamp.           
+
+    
+   AmountOfTime operator+(const AmountOfTime& anotherAmount) const throw();
+
+   AmountOfTime& operator+=(const AmountOfTime& anotherAmount) throw();
+
+   AmountOfTime operator-(const AmountOfTime& anotherAmount) const throw();
+
+   AmountOfTime& operator-=(const AmountOfTime& anotherAmount) throw();
+
+   bool operator<(const AmountOfTime& anotherAmount) const throw();
+   bool operator<=(const AmountOfTime& anotherAmount) const throw();
+   bool operator>(const AmountOfTime& anotherAmount) const throw();
+   bool operator>=(const AmountOfTime& anotherAmount) const throw();    
+   bool operator==(const AmountOfTime& anotherAmount) const throw();
+   bool operator!=(const AmountOfTime& anotherAmount) const throw();
+
+
+
+
+
+
+ Ссылки
+ ------
+ 1) Относительно форматов даты и времени:
+
+    комментарии:  http://www.cl.cam.ac.uk/~mgk25/iso-time.html
+                     (A discussion of ISO 8601 has been written by Markus Kuhn.)
+                  http://www.cs.tut.fi/~jkorpela/iso8601.html
+
+    rfc:     822->1123, 850->1036, 2068, 2822.
+
+    iso:     8601:1988->8601:2000.
+       (это скорее описание всех использующихся форматов)
+
+    html40:  http://www.w3.org/TR/REC-html40/types.html#h-6.11
+       (формат, используемый в html40)
+
+    w3c: http://www.w3.org/TR/1998/NOTE-datetime-19980827
+
+ 2) http://serendipity.magnet.ch/hermetic/cal_stud/cal_art.htm
+       ("The Julian and Gregorian Calendars" by Peter Meyer)
+    Интересно что алгоритмы, расположенные здесь - неправильные.
+    Смотри j_test.php .
+
+ 3) А вот ещё интересная ссылка о том, как написать класс работы с датами:
+       http://www.mtholyoke.edu/courses/pdobosh/cs211f01/pa3.html
+    
+
+
+
+

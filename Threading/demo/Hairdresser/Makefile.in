@@ -1,0 +1,26 @@
+#
+# part of GradSoft C++ ToolBox
+# http://www.gradsoft.com.ua
+# (C) GradSoft 2000, 2001
+#
+# $Id: Makefile.in,v 1.2 2001-06-05 17:06:57 rssh Exp $
+#
+PROJECT_ROOT=@project_root@
+include $(PROJECT_ROOT)/../config/entry.mak
+
+Hairdresser: Hairdresser.o
+	$(CXX) $(CXXFLAGS) -o Hairdresser Hairdresser.o -L../../src -lThreading $(LIBS)
+	
+Hairdresser.o: Hairdresser.cpp
+	$(CXX) $(CXXFLAGS) -c Hairdresser.cpp
+
+default: build
+
+build: Hairdresser 
+
+install:
+uninstall:
+
+clean:
+	-rm *.o Hairdresser 
+	-rm -rf Templates.DB

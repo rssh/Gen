@@ -1,0 +1,48 @@
+dnl configure.in for GradSOft C++ ToolBox
+dnl (C) GradSoft 2000 - 2001 
+dnl http://www.gradsoft.com.ua
+dnl $Id: configure.in,v 1.28 2003-05-08 10:31:29 rssh Exp $
+
+AC_INIT(ProgOptions/include/GradSoft/ProgOptions.h)
+AC_CONFIG_AUX_DIR(config)
+
+AC_ARG_WITH(corba, [corba: compile with corba support],\
+                   [with_corba=yes], [with_corba=no] )
+
+DOCS_SUBDIRS="docs"
+PLAIN_SUBDIRS="ptrs Threading ProgOptions Logger"
+PLAIN_SUBDIRS="$PLAIN_SUBDIRS DirectoryContainer"
+PLAIN_SUBDIRS="$PLAIN_SUBDIRS DynamicModules"
+NON_CORBA_SUBDIRS="$DOCS_SUBDIRS $PLAIN_SUBDIRS"
+
+if test "$with_corba" = "yes"
+then
+  SUBDIRS="$NON_CORBA_SUBDIRS CORBA"
+else
+  SUBDIRS="$NON_CORBA_SUBDIRS"
+fi
+
+AC_SUBST(PLAIN_SUBDIRS)
+AC_SUBST(SUBDIRS)
+
+VERSION=1.6.3
+AC_SUBST(VERSION)
+
+dnl root, where web documentation will be installed.
+
+AC_ARG_WITH(docs-web-root,docs-web-root (internal usage): where web documentation will be installed (default:<prefix>/doc/GradSoft))
+if test "x$with_docs_web_root" = "x" -o "x$with_docs_web_root" = "xno"
+then
+ docs_web_root=@prefix@/share/doc/GradSoft
+else
+ docs_web_root=$with_docs_web_root
+fi
+AC_SUBST(docs_web_root)
+
+
+AC_SET_MAKE
+
+
+AC_CONFIG_SUBDIRS($SUBDIRS)
+
+AC_OUTPUT(Makefile config/entry.mak docs/Makefile)

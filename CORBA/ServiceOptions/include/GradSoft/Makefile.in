@@ -1,0 +1,24 @@
+PROJECT_ROOT=@project_root@
+include $(PROJECT_ROOT)/config/entry.mak
+
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+
+INSTALL_INCLUDES=ServiceOptions.h
+INSTALL_INCLUDES_DIR=$(prefix)/include/GradSoft
+
+build:
+install:
+	if test ! -d $(prefix) ; then mkdir $(prefix) ; fi;
+	if test ! -d $(prefix)/include ; then mkdir $(prefix)/include ; fi;
+	if test ! -d $(prefix)/include/GradSoft ;\
+	then mkdir $(prefix)/include/GradSoft; fi;
+	for i in $(INSTALL_INCLUDES); do \
+	 $(INSTALL_DATA) $$i $(INSTALL_INCLUDES_DIR);\
+	done
+
+uninstall:
+	-for i in $(INSTALL_INCLUDES); do \
+	 rm -f $(INSTALL_INCLUDES_DIR)/$$i;\
+	done
+

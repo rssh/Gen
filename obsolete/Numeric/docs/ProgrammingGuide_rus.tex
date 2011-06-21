@@ -1,0 +1,46 @@
+
+\documentclass[10pt]{article}
+%\usepackage{tex4ht}
+\usepackage[OT1,T2A]{fontenc}
+\usepackage[koi8-u]{inputenc}
+\usepackage{graphicx}
+\usepackage{verbatim}
+
+%\Contribute{TITLE}{\def\LaTeX{LaTeX}}
+\title{ Numeric: Руководство программиста  }
+
+% $Id: ProgrammingGuide_rus.tex,v 1.1 2001-04-10 11:13:06 yad Exp $
+
+\begin{document}
+
+\maketitle{}
+
+%\tableofcontents
+
+\section{ Введение }
+
+ Numeric представляет собой набор компонент для обеспечения расширенной
+ функциональности при работе с числовыми данными. На данный момент единственной
+ доступной компонентой является класс FixedBigNumber.
+
+ Этот документ представляет собой неформальное описание, полная спецификация
+пакета приводится в API reference (\verb|www.gradsoft.kiev.ua/common/ToolBox/Numeric/API/index.html|).
+
+\section{ Общее описание механизма работы }
+
+ Процесс работы пользовательского приложения с FixedBigNumber выглядит следующим
+ образом:
+  
+\section{ Простейший пример  }
+  иллюстрирующий использование FixedBigNumber приведен ниже:
+
+\section{ Требования к программному окружению  }
+
+\begin{enumerate}
+  \item переменная препроцессора \verb|HAVE_NAMESPACES| должна быть определена 
+  {\em до} включение файла FixedBigNumber.h, если ваш C++ компилятор
+  поддерживает пространства имен.
+  \item если Вы не пользуетесь MSVC и при этом Ваш компилятор поддерживает тип bool, вам необходимо определить переменную препроцессора \verb|HAVE_BOOL|
+\end{enumerate}
+
+\end{document}

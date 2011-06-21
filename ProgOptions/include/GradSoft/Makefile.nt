@@ -1,0 +1,17 @@
+## Makefile for Windows NT: ProgOptions include files installation 
+## $Id: Makefile.nt,v 1.7 2001-12-11 20:56:33 kav Exp $
+
+include ..\..\..\config\Win32\environment.nt.mak
+include ..\..\config\common_settings.nt.mak
+
+TARGET_DIR=$(INSTALL_INC_DIR)\GradSoft
+PURVEYANCE=ProgOptions.h StringPtrWithLen.h ProgOptionsConfigNT.h ProgOptionsPostConfig.h
+
+install: makedir
+   @for %i in ( $(PURVEYANCE) ) do @$(INSTALL) %i $(TARGET_DIR)
+
+makedir:
+   @if not exist $(TARGET_DIR) mkdir $(TARGET_DIR)
+
+uninstall:
+   @for %i in ( $(PURVEYANCE) ) do @if exist $(TARGET_DIR)\%i $(REMOVE) $(TARGET_DIR)\%i

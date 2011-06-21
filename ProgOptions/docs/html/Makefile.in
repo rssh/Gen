@@ -1,0 +1,12 @@
+PROJECT_ROOT=@project_root@
+
+build:
+
+install:
+
+clean:
+
+
+docs:
+	doc++ $(PROJECT_ROOT)/include/GradSoft/ProgOptions
+

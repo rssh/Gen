@@ -1,0 +1,64 @@
+#ifndef __GradSoft_LoggerConfig_h
+#define __GradSoft_LoggerConfig_h
+
+/*
+ * part of GradSoft C++ ToolBox: Logger
+ * (C) GradSoft, 2000, 2001
+ * author: Ruslan Shevchenko <Ruslan@Shevchenko.Kiev.UA>, 
+ * 2000, 2001
+ * $Id: LoggerConfig.h.in,v 1.6 2008-05-31 17:24:21 rssh Exp $
+ */
+
+#ifndef HAVE_NAMESPACES
+#undef HAVE_NAMESPACES
+#endif
+
+#ifndef HAVE_BOOL
+#undef HAVE_BOOL
+#endif
+
+#ifndef HAVE_STRING
+#undef HAVE_STRING
+#endif
+
+#ifndef HAVE_PARTIAL_SPECIALIZATION
+#undef HAVE_PARTIAL_SPECIALIZATION
+#endif
+
+#ifndef HAVE_STRSTREAM
+#undef HAVE_STRSTREAM
+#endif
+
+#ifndef HAVE_FSTREAM
+#undef HAVE_FSTREAM
+#endif
+
+#ifndef HAVE_IOSTREAM
+#undef HAVE_IOSTREAM
+#endif
+
+#ifndef STREAMBUF_HAVE_PUBSEEKPOS
+#undef STREAMBUF_HAVE_PUBSEEKPOS
+#endif
+
+#ifndef HAVE_CTIME
+#undef HAVE_CTIME
+#endif
+
+#ifndef HAVE_CTIME_R
+#undef HAVE_CTIME_R
+#endif
+
+#ifndef CTIME_R_HAVE_3_ARGS
+#undef CTIME_R_HAVE_3_ARGS
+#endif
+
+#ifndef HAVE_SYSLOG
+#undef HAVE_SYSLOG
+#endif
+
+#ifndef HAVE_CSTRING
+#undef HAVE_CSTRING
+#endif
+
+#endif

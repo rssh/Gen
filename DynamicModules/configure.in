@@ -1,0 +1,72 @@
+dnl Gen/DynamicModules/configure.in
+dnl autoconf script for DynamicModules.
+dnl part of GradSoft C++ ToolBox
+dnl (C) Ruslan Shevchenko <Ruslan@Shevchenko.Kiev.UA>, 1998
+dnl (C) GradSoft 2000,2001, 2002
+dnl $Id: configure.in,v 1.5 2002-04-18 09:23:12 rssh Exp $
+dnl
+dnl Process this file with autoconf to produce a configure script.
+
+AC_INIT(include/GradSoft/DynamicModules.h)
+AC_CONFIG_AUX_DIR(../config)
+PACKAGE=DynamicModules
+AC_SUBST(PACKAGE)
+AC_CANONICAL_SYSTEM
+
+dnl Checks for programs.
+AC_SET_MAKE
+AC_PROG_CC
+AC_PROG_CPP
+AC_PROG_CXX
+AC_PROG_CXXCPP
+AC_PROG_RANLIB
+AC_PROG_INSTALL
+
+
+RSSH_PROG_CXXAR
+RSSH_PROG_CXXLD
+
+dnl check for compiler switches.
+
+RSSH_ENABLE_PTHREADS
+RSSH_PIC_FLAG
+RSSH_CHECK_STL
+RSSH_CHECK_IOSTREAMS
+
+AC_CXX_NAMESPACES
+AC_CXX_BOOL
+
+
+dnl Checks for library functions.
+AC_CHECK_FUNCS(dlopen)
+AC_CHECK_FUNCS(dlerror)
+AC_CHECK_FUNCS(dlclose)
+AC_CHECK_LIB(dl,dlopen,LIBS="-ldl $LIBS")
+AC_SUBST(LIBS)
+
+
+dnl root, where web documentation will be installed.
+
+AC_ARG_WITH(docs-web-root,docs-web-root (internal usage): where web documentation will be installed (default:<prefix>/doc/GradSoft))
+if test "x$with_docs_web_root" = "x" -o "x$with_docs_web_root" = "xno"
+then
+ docs_web_root="\$(prefix)/share/doc/GradSoft"
+else
+ docs_web_root=$with_docs_web_root
+fi
+AC_SUBST(docs_web_root)
+
+
+dnl
+project_root=`pwd`
+AC_SUBST(project_root)
+
+AC_OUTPUT(Makefile \
+          include/Makefile \
+          include/GradSoft/Makefile \
+          src/Makefile \
+          docs/Makefile \
+          demo/Makefile \
+          demo/Hello/Makefile \
+          config/entry.mak \
+          )

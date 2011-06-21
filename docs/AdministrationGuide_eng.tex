@@ -1,0 +1,468 @@
+\documentclass[10pt]{article}
+\usepackage[OT1,T2A]{fontenc}
+\usepackage{graphicx}
+
+\title{ GradC++ ToolBox: Administration Guide  
+       \newline
+       \small{DocumentId:GradSoft-AD-e-04.09.2000-v1.2.0}
+      }
+
+% $Id: AdministrationGuide_eng.tex,v 1.32 2003-05-08 10:31:30 rssh Exp $
+
+\newcommand{\version}{1.6.3}
+
+\begin{document}
+
+\maketitle{}
+
+\tableofcontents
+
+\section{Introduction}
+
+\subsection{Subject}
+
+GradC++Toolbox is a joined package composed by several platform-independet components
+designed to resolve standard widely-spread problem such as:
+\begin{list}{-}{}
+  \item implementation of smart pointer templates;
+  \item parsing of the command line;
+  \item writing debug or info messages;
+  \item reading file directories;
+  \item starting and stopping of threads and so on.
+\end{list}
+We beg to propose this package for programm builders,
+which want to save them from some standard problems
+or need to produce portable sourse code for UNIX and for Windows NT.
+This file describe a routine of obtaining, installing and using of version \version of package.
+This version GradC++ToolBox 1.6.3 consists from following components:
+\begin{enumerate}
+  \item ptrs - set of smart pointer templates;
+  \item ProgOptions - class for high-level handling of program options;
+  \item Threading - set of classes to design of multithreading programs;
+  \item Logger - class for logging support;
+  \item DirectoryContainer - set of classes to read file directories;
+  \item DynamicModules - component for shared libraries dynamic loading.
+  \item ServiceOptions - specialization of ProgOptions for CORBA services;
+\end{enumerate}
+You may install by choice:
+\begin{enumerate}
+  \item a whole set of package components;
+  \item a set of all non-CORBA components which are (today) ptrs, ProgOptions, Logger, Threading, DirectoryContainer and DynamicModules.
+\end{enumerate}
+Besides, by handle dependencies between some components, some single components can be installed too.
+
+\subsection{Source}
+
+Current version of GradC++ToolBox is always avaible on builder's website: http://www.gradsoft.com.ua/eng \\
+
+\noindent
+No payment if license is satisfied (see file {\bf license} from delivery set).
+
+
+\subsection{Development team}            
+
+GradC++ToolBox is designed and distributed by GradSoft company, GradSoft home page is: http://www.gradsoft.com.ua/eng
+
+
+\section{ Installation }
+
+\subsection{ General information }
+
+GradC++ToolBox is distributed in the form of source code,
+its installation process consists from following steps:
+\begin{enumerate}
+\item compilation of source code in user environment;
+\item coping of include files and libraries generated into directories defined by user.
+\end{enumerate}
+You may:
+\begin{enumerate}
+\item compile code;
+\item copy ("install") include files and libraries into directories defined by user;
+\item remove installed files ;
+\item remove automatically generated files (such as *.obj and *.lib)
+\end{enumerate}
+using command {\bf make} with options correspondent (see below for details).
+
+
+\subsection{ Software needed }
+
+\begin{enumerate}
+ \item CORBA ORB (not needed, if you not use ServiceOptions): 
+  \begin{itemize} 
+    \item Unix: one of omniORB-3.0 or higher, TAO-1.1 or higher, ORBacus 4.0.1 or higher, MICO-2.3.9 or highter.
+    \item WindowsNT: one of omniORB-3.0 or higher, TAO-1.2, ORBacus 4.0.1 or higher 
+  \end{itemize}
+ \item C++ compiler: 
+  \begin{itemize} 
+   \item Unix:  gcc-2.95.2 or higher, SunProc C++ 6.2
+   \item Windows NT: Microsoft Visual C v. 6.0 or higher.
+  \end{itemize}
+ \item make:
+  \begin{itemize} 
+   \item Unix:  gnu make is necessary
+   \item WindowsNT: nmake from  MSVC++
+  \end{itemize}
+\end{enumerate}
+
+\subsection{ Installing for UNIX}
+
+
+\begin{enumerate}
+ \item Make sure that necessary software are installed and are in working state.
+ \item Extract files from archive Gen-1.6.3.tar.gz or Gen-1.6.3.zip in some catalog. Let's name
+ this catalog \verb|<project_root>|
+ \item cd to \verb|<project_root>|.
+ \item Run configure with command \verb|./configure [options]| 
+ (options list is accessible via command \verb|./configure --help|; 
+ for example, you can set \verb|--prefix=<smth>| option to set directory of installation 
+ or \verb|--with-corba=<yes/no>| option to set volume of compilation and installation).
+ \item Start compilation process with command \verb|gmake|
+ \item Become superuser. 
+ \item Run install process with command \verb|gmake install| 
+ \item For deinstallation you can use command \verb|gmake uninstall| 
+\end{enumerate}
+
+
+\subsection{ Installing for Windows NT }
+
+\begin{enumerate}
+ \item Check, that all necessary software is installed and are in working state.
+       Requirements to use MSVC are
+       \begin{enumerate}
+       \item Environment variables INCLUDE and LIB must be defined and must contain pathes
+             to MSVC include files and MSVC libraries correspondingly.
+       \item location of {\bf nmake}, {\bf cl} and {\bf link} utilities must be reflected
+             in the environment variable PATH.
+       \end{enumerate}
+ \item Extract files from archive Gen-\version.tar.gz or Gen-\version.zip in some directory
+       (let's name of  this catalogue \verb|<project_root>|).
+
+ \item Edit file {\bf environment.nt.mak} in directory \verb|<project_root>\config\Win32|
+       and, in the case you want to use ServiceOptions,
+       analogous file {\bf environment.nt.mak} in directory
+       \verb|<project_root>\CORBA\config\Win32|;
+       set values of next nmake variables:
+
+       \paragraph{I.} \verb|<project_root>\config\Win32\environment.nt.mak|:
+
+       \begin{itemize}
+
+       \item INSTALL\_DIR (installation root) - include files and libraries supplied
+             will be quartered in subdirectories {\bf install/GradSoft} and {\bf lib}
+             of this directory.
+
+       \end{itemize}
+
+       \paragraph{II.} \verb|<project_root>\CORBA\config\Win32\environment.nt.mak|:
+
+       \begin{itemize}
+
+       \item ORB (the "name" of ORB) - it must be ORBacus, or OmniORB, or TAO
+             in concordance with ORB used
+
+       \item ACE\_ROOT - ACE root (in the case of using TAO as the ORB)
+       \item TAO\_ROOT - TAO root (in the case of TAO is placed outside of ACE directory tree)
+       \item OMNI\_ROOT - omniORB root (in the case of using omniORB)
+       \item OOC\_ROOT - ORBacus root (in the case of using ORBacus)
+       \item MICO\_ROOT - MICO  root (in the case of using MICO)
+       \item PTREADS\_ROOT - location of pthreads-win32 source distributive (in the case of using MICO)
+       \end{itemize}
+
+ \item To compile package go to \verb|<project_root>| and type {\bf make build}
+       if you want to compile no CORBA components,
+       or {\bf make with-corba build} if you want to compile ServiceOptions too.
+ 
+ \item To install include files and libraries go to \verb|<project_root>|
+       and type {\bf make install}
+       if you want to install no CORBA components,
+       or {\bf make with-corba install} if you want to install ServiceOptions too.
+   
+ \item To uninstall installed files go to directory \verb|<project_root>| and type 
+        {\bf make uninstall} or {\bf make with-corba uninstall} respectively.
+ 
+ \item To remove automatically generated files, such as *.obj, *.exe and *.lib,
+       from \verb|<project_root>| and its subdirs go to directory \verb|<project_root>| and type
+       {\bf make clean} or {\bf make with-corba clean} respectively.
+   
+ \item For compilation, installation, deinstallation or cleaning of single (apart) subpackage move over
+       to directory suitable (one of next:
+       \begin{list}{}{}
+       \item \verb| <project_root>\ProgOptions| 
+       \item \verb| <project_root>\CORBA\ServiceOptions| 
+       \item \verb| <project_root>\ptrs| 
+       \item \verb| <project_root>\Threading| 
+       \item \verb| <project_root>\Logger|
+       \item \verb| <project_root>\DynamicModules|
+       \item \verb| <project_root>\DirectoryContainer| )
+       \end{list}
+       and use command {\bf make} with options {\bf build}, {\bf install}, {\bf uninstall} and {\bf clean} correspondingly
+
+ \end{enumerate}
+
+\paragraph{Remark:}
+Using {make install} without compilation of the package 
+leads to compilation of libraries will be started automatically
+but test examples will not be compiled.
+
+\section{ Testing }
+
+\subsection{ Common information }
+
+Demo examples, included in GradC++ToolBox,
+are related to using examples in Programmers Guides for each package commponent.
+It is necesorry to compile project before starting demos.
+
+\subsection{ Procedure }
+
+\subsubsection{ ProgOptions }
+
+\begin{enumerate}
+ \item Read ProgrammingGuide in file \newline
+ \verb|<project_root>|/ProgOption/docs/ProgrammingGuide\_eng.pdf
+ \item cd to directory \verb|<project_root>|/ProgOptions/demo
+ \item run  ProgOptionsDemo few times with next options:
+ \begin{verbatim}
+  --help
+  --qqq
+  --zzz
+  --zzz <something>
+  --zz1 <something> 
+  --zz3
+  <something>
+  --config config.ini
+ \end{verbatim}
+ \item check, that program output is expected
+\end{enumerate}
+
+\subsubsection{ ServiceOptions }
+
+\begin{enumerate}
+ \item Read ProgrammingGuide in file \newline
+ \verb|<project_root>|/CORBA/ServiceOptions/docs/ProgrammingGuide\_eng.pdf
+ \item Go to directory \verb|<project_root>|/CORBA/ServiceOptions/demo
+ \item For UNIX: make tests, thereto:
+       \begin{enumerate}
+       \item call {\bf ./configure} with options appropriate
+       \item call {\bf gmake} (or {\bf gmake build})
+       \end{enumerate}
+ \item Start HelloWorldServer with option \verb|--help|; read help message.
+ \item Start HelloWorldServer with option \verb|--ior-stdout|;
+ make sure that Interoperable Object Reference is displayed on standard output 
+ \item Start HelloWorldServer with options: \verb|--ior-file-HelloService hello.ref|
+ Make sure that Interoperable Object Reference is placed into file hello.ref 
+ \item Start HelloWorldServer with options: 
+  \begin{itemize}
+    \item \verb|-OAport 1100| if you use ORBacus
+    \item \verb|-ORBport 1100| if you use TAO-1.1
+    \item \verb|-ORBEndpoint iiop://:1100| if you use TAO-1.2
+    \item \verb|-ORBpoa_iiop_port 1100| if you use omniORB
+    \item \verb|-ORBIIOPAddr=inte:<hostname>:1100| if you use MICO
+  \end{itemize}
+  (note port 1100 must be not busy by some other application; of course, you can
+  use any port number instead 1100)
+ \item Start HelloWorldClient with options: 
+  \begin{itemize}
+    \item if you use omniORB3 or TAO 1.2 or ORBacus 4.x : 
+   \newline\verb|-ORBInitRef HelloService=corbaloc::127.0.0.1:1100/HelloService|
+    \item if you use TAO-1.1: 
+   \newline\verb|-ORBInitRef HelloService=iiop://127.0.0.1:1100/HelloService|
+  \end{itemize}
+ \item Make sure that string "Hello World" is printed on you terminal
+ \item Check you NameService daemon
+ \item Start program HelloWorldServer with option \verb|--with-naming|
+ \item Start HelloWorldClient with option \verb|--with-naming|
+ \item Make sure that string "Hello World" is printed on you terminal
+\end{enumerate}
+
+\subsubsection{ Logger }
+
+\begin{enumerate}
+ \item Read ProgrammingGuide in file \newline \verb|<project_root>/Logger/docs/ProgrammingGuide_eng.pdf|
+ \item Move out to directory \verb|<project_root>/Logger/demo|
+ \item Run demo executable
+ \item Make sure that file.log is generated and its content correspond with usage rules
+ described in programming Guide.
+\end{enumerate}
+
+\subsubsection{ DirectoryContainer }
+
+\begin{enumerate}
+ \item Read ProgrammingGuide in file \newline \verb|<project_root>/DirectoryContainer/docs/ProgrammingGuide_eng.pdf|
+ \item Move out to directory \verb|<project_root>/DirectoryContainer/demo|
+ \item Run demo executable
+ \item Make sure that file.log is generated and its content correspond with usage rules
+ described in programming Guide.
+\end{enumerate}
+
+\subsubsection{ ptrs }
+ \begin{enumerate}
+ \item Read ProgrammingGuide in file \newline \verb|<project_root>/ptrs/docs/ProgrammingGuide_eng.pdf|
+  Move out in series to:
+  \begin{enumerate} 
+  \item \verb|project_root/ptrs/demo/safe_ptr|
+  \item \verb|project_root/ptrs/demo/owned_ptr|
+  \end{enumerate}
+  \item Make sure that executable files is present and is in working state.
+  \end{enumerate}
+
+\subsubsection{ Threading }
+  Move out in series to:
+  \begin{enumerate} 
+  \item \verb|project_root/Threading/demo/Container|
+  \item \verb|project_root/Threading/demo/DeleteThis|
+  \item \verb|project_root/Threading/demo/Hairdresser|
+  \item \verb|project_root/Threading/demo/Philosophs| 
+  \item \verb|project_root/Threading/demo/Stres|
+  \item \verb|project_root/Threading/demo/ThreadServices|
+  \end{enumerate}
+  Make sure that executable files is present and is in working state.
+
+\subsubsection{ DirectoryContainer }
+
+\begin{enumerate}
+ \item Read ProgrammingGuide in file \newline \verb|<project_root>/DynamicModules/docs/ProgrammingGuide_eng.pdf|
+ \item Move out to directory \verb|<project_root>/DynamicModules/demo|
+ \item Run Hello executable
+ \item Make sure that output is:
+\begin{verbatim}
+Hi! I'm Hello1
+Hi! I'm Hello2, name was xxx
+\end{verbatim}
+\end{enumerate}
+
+
+
+\section{ Using }
+
+\paragraph{A.}
+Windows NT:
+WIN32 macros must be defined befor including of any include file from GradC++ToolBox package
+
+\paragraph{B.}
+Programs, which use some of GradC++ToolBox components must be compiled with the next libraries:
+\newline
+\newline
+For Unix:
+\newline
+
+\begin{tabular}{|l|l|}\hline
+
+  {\em component}
+& {\em staic library} \\ \cline{2-2}
+& {\em dinamic library} \\ \hline
+
+  ProgOptions
+& libProgOptions.a \\ \cline{2-2}
+& libProgOptions.so \\ \hline
+
+  ServiceOptions
+& libServiceOptions.a, libProgOptions.a \\ \cline{2-2}
+& libServiceOptions.so, libProgOptions.so \\ \hline    
+
+  Threading
+& libThreading.a \\ \cline{2-2}
+& libThreading.so \\ \hline
+
+  Logger
+& libLogger.a, libThreading.a  \\ \cline{2-2}
+& libLogger.so, libThreading.so \\ \hline
+
+  DirectoryContainer
+& libDirectoryContainer.a, libThreading.a  \\ \cline{2-2}
+& libDirectoryContainer.so, libThreading.so \\ \hline
+
+  DynamicModules
+& libDynamicModules.a  \\ \cline{2-2}
+& libDynamicModules.so \\ \hline
+
+\end{tabular}
+\newline
+\newline
+\newline
+ For Windows NT:
+\newline
+
+\begin{tabular}{|l|l|}\hline
+
+  {\em component}
+& {\em staic library}\\ \hline
+
+  ProgOptions
+& ProgOptions.lib \\ \hline
+
+  ServiceOptions
+& ServiceOptions.lib, ProgOptions.lib \\ \hline    
+
+  Threading
+& Threading.lib \\ \hline
+
+  Logger
+& Logger.lib, Threading.lib \\ \hline
+
+  DirectoryContainer
+& DirectoryContainer.lib \\ \hline
+
+  DynamicModules
+& DynamicModules.lib \\ \hline
+
+\end{tabular}
+\newline
+\newline
+
+
+\section{ Dependencies }
+
+Take into account if want to treat single component of package:
+\begin{itemize}
+\item Compile ProgOptions before ServiceOptions
+\item Compile Threading before Logger and DirectoryContainer
+\item configure ptrs before compiling threading.
+\end{itemize}
+
+I. e. dependency diagram is shown in next picture:
+\begin{verbatim}
+ ptrs                  ProgOptions
+  |                        |
+  *-- Threading            *--ServiceOptions
+         |
+         |
+         *--Logger
+         |
+         *--DirectoryContainer
+\end{verbatim}
+
+\section{ Changes }
+
+\begin{itemize}
+  \item[07.05.2003] 
+                   \begin{itemize}
+                     \item release number changed (1.6.0 -> 1.6.3)
+                     \item added information about MICO.
+                   \end{itemize}
+  \item[29.08.2002] 
+                   \begin{itemize}
+                     \item release number changed (1.5.0 -> 1.6.0)
+                     \item version of supported Sun CC compiler changed.
+                   \end{itemize}
+  \item[28.04.2002] 
+                   \begin{itemize}
+                     \item release number changed (1.4.2 -> 1.5.0)
+                     \item reflected adding of \verb|ptrs| component.
+                     \item added dependency diagram.
+                   \end{itemize}
+  \item[06.02.2002] - release number changed (1.4.1 -> 1.4.2)
+  \item[24.01.2002] - release number changed (1.4.0 -> 1.4.1)
+  \item[27.12.2001] - overpatching reflecting next stuffs: 
+                      \begin{enumerate}
+                      \item alteration of installation process for Windows NT;
+                      \item adding of omniORB and TAO support for Windows NT;
+                      \item adding new component DynamicModules.
+                      \end{enumerate}
+ \item[18.09.2001] - added info about DirectoryContainer component
+ \item[04.07.2001] - changed port number in CORBA demo explanation.
+ \item[29.04.2001] - fixed few minor typos.
+ \item[14.02.2001] - added detailed information about ORB configuration options
+ \item[04.09.2000] - first revision
+\end{itemize}
+
+\end{document}

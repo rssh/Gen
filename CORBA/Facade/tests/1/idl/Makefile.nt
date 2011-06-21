@@ -1,0 +1,5 @@
+# $Id: Makefile.nt,v 1.1 2000-08-02 09:07:19 alik Exp $
+
+include ../../../env_inc.nt.mak
+
+include mkidl.nt.mak

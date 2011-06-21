@@ -1,0 +1,43 @@
+# Makefile.in
+# This make file generate libarary for Socket interface.
+# (c) Jos Vladimir <jos@grad.kiev.ua> 2001.
+#
+
+PROJECT_ROOT=@PROJECT_ROOT@
+
+include $(PROJECT_ROOT)/config/entry.mak
+
+SOCKET_SRC_DIR=$(PROJECT_ROOT)/src
+
+CPPFLAGS=$(CXXFLAG) -D_SOCKET_SERVER_ -D_SOCKET_CLIENT_ -I. -I$(PROJECT_ROOT)/include/
+
+SOCKET_LIB=libSocket
+
+STATIC_SOCKET_LIB=$(SOCKET_LIB).a
+
+SHARE_SOCKET_LIB=$(SOCKET_LIB).so
+
+SOCKET_OBJECT=$(SOCKET_SRC_DIR)/Socket.o
+
+build: $(STATIC_SOCKET_LIB) $(SHARE_SOCKET_LIB)
+
+$(SHARE_SOCKET_LIB): $(SOCKET_OBJECT)
+	$(LD) -shared $(LDFLAGS) -o $(SHARE_SOCKET_LIB) $(SOCKET_OBJECT)
+
+$(STATIC_SOCKET_LIB): $(SOCKET_OBJECT)
+	$(AR) $(ARFLAGS) $(STATIC_SOCKET_LIB) $(SOCKET_OBJECT)
+
+install: build
+	$(INSTALL_DATA) $(STATIC_SOCKET_LIB) $(prefix)/lib
+	$(INSTALL_DATA) $(SHARE_SOCKET_LIB) $(prefix)/lib
+
+uninstall:
+	-rm -f $(prefix)/lib/$(STATIC_SOCKET_LIB) $(prefix)/lib/$(SHARE_SOCKET_LIB)
+
+clean:
+	-rm -f *.o $(STATIC_SOCKET_LIB) $(SHARE_SOCKET_LIB)
+
+.SUFFIXES: .cpp.o
+
+.cpp.o:
+	$(CXX) $(CPPFLAGS) -c -o $*.o $<

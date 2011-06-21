@@ -1,0 +1,95 @@
+TEX_FILES=ProgrammingGuide_rus.tex \
+          ProgrammingGuide_eng.tex
+
+DVI_FILES=ProgrammingGuide_rus.dvi \
+          ProgrammingGuide_eng.dvi
+
+PS_FILES=ProgrammingGuide_rus.ps \
+         ProgrammingGuide_eng.ps
+
+PDF_FILES=ProgrammingGuide_rus.pdf \
+          ProgrammingGuide_eng.pdf
+
+HTML_PR_RUS=ProgrammingGuide_rus/index.html
+HTML_PR_ENG=ProgrammingGuide_eng/index.html
+
+
+API_FILE=html/Signaling.html
+
+build: docs 
+
+clean:
+	-rm -f *.pdf *.aux *.log *.ps *.toc *.dvi $(API_FILE)
+	-rm -rf ProgrammingGuide_rus ProgrammingGuide_eng
+
+install:
+
+uninstall:
+
+docs: $(API_FILE)
+
+GRADSOFT_WEB_ROOT=/1/rssh/GradSoftWeb/
+GRADSOFT_WEB_INTERNAL_ROOT=/1/rssh/GradSoftInternalWeb/
+HTML_PR_RUS_GRADSOFT=$(GRADSOFT_WEB_ROOT)/rus/Products/ToolBox/Signaling.h/ProgGuide
+HTML_PR_INTERNAL_GRADSOFT=$(GRADSOFT_WEB_INTERNAL_ROOT)/ToolBox/Signaling.h/ProgrammingGuide_rus
+PDF_PR_RUS_GRADSOFT=$(GRADSOFT_WEB_ROOT)/rus/Products/ToolBox/Signaling.h/pdf
+HTML_PR_ENG_GRADSOFT=$(GRADSOFT_WEB_ROOT)/eng/Products/ToolBox/Signaling.h/ProgGuide
+PDF_PR_ENG_GRADSOFT=$(GRADSOFT_WEB_ROOT)/eng/Products/ToolBox/Signaling.h/pdf
+HTML_API_GRADSOFT=$(GRADSOFT_WEB_ROOT)/common/ToolBox/Signaling.h/API
+
+HTML_API_INTERNAL_GRADSOFT=$(GRADSOFT_WEB_INTERNAL_ROOT)/ToolBox/Signaling.h/API
+
+web: $(API_FILE) $(HTML_PR_RUS) $(HTML_PR_ENG)
+install-web: web 
+	-mkdir -p $(HTML_API_GRADSOFT)
+	for i in html/*.class html/*.html html/*.gif; do \
+	 cp $$i $(HTML_API_GRADSOFT); \
+	done
+	-mkdir -p $(HTML_PR_RUS_GRADSOFT)
+	for i in ProgrammingGuide_rus/*; do\
+	 cp $$i $(HTML_PR_RUS_GRADSOFT); \
+	done
+	-mkdir -p $(HTML_PR_ENG_GRADSOFT)
+	for i in ProgrammingGuide_eng/*; do\
+	 cp $$i $(HTML_PR_ENG_GRADSOFT); \
+	done
+	-mkdir -p $(PDF_PR_RUS_GRADSOFT)
+	cp ProgrammingGuide_rus.pdf $(PDF_PR_RUS_GRADSOFT)
+	-mkdir -p $(PDF_PR_ENG_GRADSOFT)
+	cp ProgrammingGuide_eng.pdf $(PDF_PR_ENG_GRADSOFT)
+
+install-internal-web: web
+	-mkdir -p $(HTML_API_INTERNAL_GRADSOFT)
+	for i in html/*.class html/*.html html/*.gif; do \
+	 cp $$i $(HTML_API_INTERNAL_GRADSOFT); \
+	done
+	-mkdir -p $(HTML_PR_INTERNAL_GRADSOFT)
+	for i in ProgrammingGuide_rus/*; do\
+	 cp $$i $(HTML_PR_INTERNAL_GRADSOFT); \
+	done
+
+install-web-distributive: install-web install-internal-web
+
+.SUFFIXES: .tex .dvi .ps .pdf
+
+.tex.dvi:
+	latex $<
+	-bibtex $*
+	latex $<
+
+.tex.pdf:
+	pdflatex $<
+	-bibtex $*
+	pdflatex $<
+
+html/Signaling.html:
+	if test ! -d html; then mkdir html; fi;
+	(cd html; doc++ ../../include/GradSoft/Signaling.h)
+
+$(HTML_PR_RUS): ProgrammingGuide_rus.tex ProgrammingGuide_rus.pdf
+	latex2html  -split 0 -info 0 -address "GradSoft" -local_icons ProgrammingGuide_rus.tex
+
+$(HTML_PR_ENG): ProgrammingGuide_eng.tex ProgrammingGuide_eng.pdf
+	latex2html -split 0 -info 0 -address "GradSoft" -local_icons ProgrammingGuide_eng.tex
+
+

@@ -1,0 +1,72 @@
+------------
+
+7. Conversion Algorithms
+Mathematicians and programmers have naturally interested themselves in mathematical and computational algorithms to convert between Julian day numbers and Gregorian dates. The following conversion algorithm is due to Henry F. Fliegel and Thomas C. Van Flandern: 
+The Julian day (jd) is computed from Gregorian day, month and year (d, m, y) as follows:
+
+
+     jd = ( 1461 * ( y + 4800 + ( m - 14 ) / 12 ) ) / 4 +
+          ( 367 * ( m - 2 - 12 * ( ( m - 14 ) / 12 ) ) ) / 12 -
+          ( 3 * ( ( y + 4900 + ( m - 14 ) / 12 ) / 100 ) ) / 4 +
+          d - 32075
+Converting from the Julian day number to the Gregorian date is performed thus:
+
+
+        l = jd + 68569
+        n = ( 4 * l ) / 146097
+        l = l - ( 146097 * n + 3 ) / 4
+        i = ( 4000 * ( l + 1 ) ) / 1461001
+        l = l - ( 1461 * i ) / 4 + 31
+        j = ( 80 * l ) / 2447
+        d = l - ( 2447 * j ) / 80
+        l = j / 11
+        m = j + 2 - ( 12 * l )
+        y = 100 * ( n - 49 ) + i + l
+Days are integer values in the range 1-31, months are integers in the range 1-12, and years are positive or negative integers. Division is to be understood as in integer arithmetic, with remainders discarded.
+
+In these algorithms Julian day number 0 corresponds to -4713-11-24 (Gregorian), which is -4712-01-01 (Julian).
+
+These algorithms are valid only in the Gregorian Calendar and the proleptic Gregorian Calendar. They do not correctly convert dates in the Julian Calendar.
+
+It seems that the designers of these algorithms intended them to be used only with non-negative Julian day numbers (corresponding to Gregorian dates on and after -4713-11-24 G). In fact they are valid (only) for dates from -4900-03-01 G onward when converting from a Julian day number to a date, and (only) from -4800-03-01 G onward when converting from a date to a Julian day number. 
+
+--------------
+
+B. Day of the Week
+
+     The following is a sample C subroutine loosly based on Zeller's
+     Congruence [Zeller] which may be used to obtain the day of the
+     week:
+
+     char *day_of_week(int day, int month, int year)
+     {
+         char *dayofweek[] = {
+             "Sunday", "Monday", "Tuesday", "Wednesday",
+             "Thursday", "Friday", "Saturday"
+         };
+
+         /* adjust months so February is the last one */
+         month -= 2;
+         if (month < 1) {
+             month += 12;
+             --year;
+         }
+         /* split by century */
+         cent = year / 100;
+         year %= 100;
+         return (dayofweek[((26 * month - 2) / 10 + day + year
+                           + year / 4 + cent / 4 - 2 * cent) % 7]);
+     }
+
+C. Leap Years
+
+     Here's a sample C subroutine to calculate if a year is a leap year:
+
+     /* This returns non-zero if year is a leap year.  Must use 4 digit year.
+      */
+     int leap_year(int year)
+     {
+         return (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0));
+     }
+
+

@@ -1,0 +1,34 @@
+# Makefile for GradSoft ptrs package
+# (C) Grad-Soft Ltd, Kiev, Ukrain.
+# 2000, 2001, 2002
+# http://www.gradsoft.com.ua/eng/
+# $Id: Makefile.in,v 1.3 2002-04-05 17:03:23 kav Exp $
+#
+PROJECT_ROOT=@project_root@
+include $(PROJECT_ROOT)/config/entry.mak
+
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+@SET_MAKE@
+
+INSTALL_INCLUDES_DIR=$(prefix)/include/GradSoft
+INSTALL_INCLUDES=ptrs.h ptrExceptions.h \
+ safe_auto_ptr.h safe_ptr.h \
+ owned_ptr.h counted_ptr.h \
+ ptrsPostConfig.h ptrsConfig.h
+
+
+build:
+install:
+	if test ! -d $(INSTALL_INCLUDES_DIR); then \
+	  mkdir $(INSTALL_INCLUDES_DIR); \
+	fi
+	for i in $(INSTALL_INCLUDES); do \
+	 $(INSTALL_DATA) $$i $(INSTALL_INCLUDES_DIR);\
+	done
+
+uninstall:
+	-for i in $(INSTALL_INCLUDES); do \
+	 rm $(INSTALL_INCLUDES_DIR)/$$i; \
+	done
+

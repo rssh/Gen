@@ -1,0 +1,15 @@
+# conmfigure script for GradSoft C++ Toolbox.
+# (C) GradSoft, 2000
+# $Id: configure.in,v 1.8 2002-01-16 15:38:17 yad Exp $
+#
+SUBDIRS=ServiceOptions
+AC_SUBST(SUBDIRS)
+
+AC_INIT(ServiceOptions/include/GradSoft/ServiceOptions.h)
+AC_CONFIG_AUX_DIR(../config)
+
+AC_SET_MAKE
+
+AC_CONFIG_SUBDIRS(ServiceOptions Tools)
+
+AC_OUTPUT(Makefile)

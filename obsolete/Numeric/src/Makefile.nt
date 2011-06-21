@@ -1,0 +1,36 @@
+# Makefile for Numeric project for WinNT: source code compilation
+# $Id: Makefile.nt,v 1.1 2001-04-10 11:13:09 yad Exp $
+
+include ..\..\config\env_inc.nt.mak
+include ..\config\env_inc.nt.mak
+
+OBJS=FixedBigNumber.obj 
+
+default: install
+
+install: build
+	@if not exist $(INSTALL_LIB_DIR) mkdir $(INSTALL_LIB_DIR)
+	$(INSTALL_DATA) $(LIB) $(INSTALL_LIB_DIR)
+
+build: $(LIB) 
+
+$(LIB): $(OBJS)
+	$(AR) $(AR_FLAGS) $(OBJS)
+
+uninstall:
+	@for %i in ( $(LIB) ) do \
+		@if exist $(INSTALL_LIB_DIR)\%i $(RM) $(INSTALL_LIB_DIR)\%i
+
+clean::
+	@for %i in ( $(LIB) $(OBJS) ) do \
+		@if exist %i $(RM) %i
+
+.SUFFIXES: .obj .c .cpp
+
+.c.obj:
+	$(CC) $(CFLAGS) $<
+
+.cpp.obj:
+	$(CXX) $(CXXFLAGS) $<
+
+FixedBigNumber.obj: FixedBigNumber.cpp

@@ -1,0 +1,29 @@
+
+SUBDIRS=ServiceOptions Tools
+
+@SET_MAKE@
+
+all:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) all); done
+
+install:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) install); done
+
+uninstall:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) uninstall); done
+
+clean:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) clean); done
+	-rm -r *.cache
+
+reconfigure:
+	-rm -r *.cache
+	autoconf --include ../config
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) reconfigure); done
+
+documentation:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) documentation); done
+
+install-web-documentation:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) install-web-documentation); done
+	

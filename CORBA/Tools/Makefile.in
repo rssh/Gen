@@ -1,0 +1,26 @@
+
+SUBDIRS=idl-depend
+
+@SET_MAKE@
+
+all:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) all); done
+
+install:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) install); done
+
+uninstall:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) uninstall); done
+
+clean:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) clean); done
+
+reconfigure:
+	autoconf -l ../../config
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) reconfigure); done
+
+documentation:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) clean); done
+
+install-web-documentation:
+

@@ -1,0 +1,65 @@
+dnl Gen/Net/SMTPMailer/configure.in
+dnl auto{conf/make} script for SMTPMailer.
+dnl part of GradSoft C++ ToolBox
+dnl (C) Ruslan Shevchenko <Ruslan@Shevchenko.Kiev.UA>, 1998
+dnl (C) GradSoft, 2001
+dnl http://www.gradsoft.com.ua
+dnl $Id: configure.in,v 1.2 2001-07-27 14:51:35 jos Exp $
+dnl
+dnl Process this file with autoconf to produce a configure script.
+
+AC_SUBST(PACKAGE, Socket )
+AC_SUBST(VERSION, 1.0)
+
+AC_INIT(include/GradSoft/Socket.h)
+AC_CONFIG_AUX_DIR(../../config)
+AC_CANONICAL_SYSTEM
+
+AC_CONFIG_HEADER(include/SocketConfig.h)
+
+dnl Checks for programs.
+AC_PATH_PROG(MAKE,make)
+AC_SET_MAKE
+AC_PROG_CC
+AC_PROG_CPP
+AC_PROG_CXX
+AC_PROG_CXXCPP
+AC_PROG_RANLIB
+AC_PROG_INSTALL
+
+RSSH_PROG_CXXAR
+RSSH_PROG_CXXLD
+
+dnl check for compiler switches.
+
+RSSH_ENABLE_PTHREADS
+RSSH_CHECK_PTHREADS
+
+AC_CXX_NAMESPACES
+AC_CXX_BOOL
+AC_CXX_MUTABLE
+AC_CXX_STRING
+
+
+dnl check for necessary headers
+
+AC_CHECK_HEADERS(stdio.h)
+AC_CHECK_HEADERS(unistd.h)
+AC_CHECK_HEADERS(sys/types.h)
+AC_CHECK_HEADERS(sys/socket.h)
+AC_CHECK_HEADERS(netdb.h)
+AC_CHECK_HEADERS(errno.h)
+AC_CHECK_HEADERS(arpa/inet.h)
+AC_CHECK_HEADERS(netinet/in.h)
+
+dnl
+PROJECT_ROOT=`pwd`
+AC_SUBST(PROJECT_ROOT)
+
+AC_OUTPUT(Makefile \
+          include/Makefile \
+          include/GradSoft/Makefile \
+          src/Makefile \
+          docs/Makefile \
+          config/entry.mak \
+          )

@@ -1,0 +1,15 @@
+
+SUBDIRS=GradSoft
+
+@SET_MAKE@
+
+build:
+
+install: 
+	for i in $(SUBDIRS); do (cd $$i; make install); done
+
+uninstall: 
+	for i in $(SUBDIRS); do (cd $$i; make uninstall); done
+
+clean:
+

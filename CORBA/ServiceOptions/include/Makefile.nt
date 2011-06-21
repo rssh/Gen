@@ -1,0 +1,10 @@
+## Makefile for Windows NT: ServiceOptions include files installation
+## $Id: Makefile.nt,v 1.5 2001-12-11 21:01:57 kav Exp $
+
+DIRECTORIES=$(MAKEDIR)\GradSoft
+
+install:
+  @for %i in ( $(DIRECTORIES) ) do @cd %i && $(MAKE) /F Makefile.nt install
+
+uninstall:
+  @for %i in ( $(DIRECTORIES) ) do @cd %i && $(MAKE) /F Makefile.nt uninstall

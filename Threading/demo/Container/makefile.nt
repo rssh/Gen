@@ -1,0 +1,25 @@
+## Makefile for Windows NT: ProgOptions usage sample compilation
+## $Id: makefile.nt,v 1.4 2003-10-10 15:34:34 rssh Exp $
+
+###############################################
+!ifndef PROJECT_ROOT          #               #
+PROJECT_ROOT=$(MAKEDIR)\..\.. # debug entries #
+!endif                        #               #
+###############################################
+
+include ..\..\config\common_settings.nt.mak
+
+default: build
+
+OBJS=Container1.obj Container2.obj Container3.obj
+EXEC=Container1.exe Container2.exe Container3.exe
+
+build: $(OBJS) $(EXEC)
+
+$(EXEC): $(THREADING_LIBS) 
+
+clean: ; @for %i in ( $(OBJS) $(EXEC) ) do @if exist %i $(REMOVE) %i
+
+.cpp.obj:: ; $(CPP) $< $(CPPFLAGS)
+
+.obj.exe: ; $(LD) $< $(LDFLAGS) $(THREADING_LIBS)

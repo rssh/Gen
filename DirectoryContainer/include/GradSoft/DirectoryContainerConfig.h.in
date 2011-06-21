@@ -1,0 +1,20 @@
+
+
+/* 
+ * part of Grad-Soft C++ ToolBox.
+ * (C) Grad-Soft Ltd, Kiev, Ukraine
+ * $Id: DirectoryContainerConfig.h.in,v 1.1 2002-03-27 20:02:22 rssh Exp $
+ */
+
+#ifndef HAVE_READDIR_R
+#undef HAVE_READDIR_R
+#endif
+
+#ifndef ITERATOR_HAVE_DISTANCE_TYPE
+#undef ITERATOR_HAVE_DISTANCE_TYPE
+#endif
+
+#ifndef DISTANCE_HAVE_2_ARGS
+#undef DISTANCE_HAVE_2_ARGS
+#endif
+

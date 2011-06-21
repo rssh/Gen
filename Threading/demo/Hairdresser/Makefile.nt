@@ -1,0 +1,17 @@
+## Project Threading; Makefile for Windows NT; compilation of Hairdresser test application 
+## $Id: Makefile.nt,v 1.4 2003-10-10 15:34:36 rssh Exp $
+
+###############################################
+!ifndef PROJECT_ROOT          #               #
+PROJECT_ROOT=$(MAKEDIR)\..\.. # debug entries #
+!endif                        #               #
+###############################################
+
+include ..\..\config\common_settings.nt.mak
+
+build: Hairdresser.exe
+
+Hairdresser.exe: $(THREADING_LIBS) Hairdresser.obj ; $(LD) Hairdresser.obj $(LDFLAGS) $(THREADING_LIBS) 
+
+clean: ; @for %i in ( Hairdresser.exe Hairdresser.obj ) do @if exist %i $(REMOVE) %i
+

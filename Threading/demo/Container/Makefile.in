@@ -1,0 +1,35 @@
+PROJECT_ROOT=@project_root@
+include $(PROJECT_ROOT)/../config/entry.mak
+
+default: build
+
+
+Container1: Container1.o
+	$(CXX) $(CXXFLAGS) -o Container1 Container1.o -L../../src -lThreading $(LIBS)
+	
+
+Container2: Container2.o
+	$(CXX) $(CXXFLAGS) -o Container2 Container2.o -L../../src -lThreading $(LIBS)
+
+Container3: Container3.o
+	$(CXX) $(CXXFLAGS) -o Container3 Container3.o -L../../src -lThreading $(LIBS)
+
+Container1.o: Container1.cpp
+	$(CXX) $(CXXFLAGS) -c Container1.cpp
+
+
+Container2.o: Container2.cpp
+	$(CXX) $(CXXFLAGS) -c Container2.cpp
+
+Container3.o: Container3.cpp
+	$(CXX) $(CXXFLAGS) -c Container3.cpp
+
+
+build: Container1 Container2 Container3
+
+install:
+uninstall:
+
+clean:
+	-rm *.o Container1 Container2 Container3
+	-rm -rf Templates.DB

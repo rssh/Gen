@@ -1,0 +1,22 @@
+PROJECT_ROOT=@project_root@
+include $(PROJECT_ROOT)/../config/entry.mak
+
+default: build
+
+
+MaxThreads: MaxThreads.o
+	$(CXX) $(CXXFLAGS) -o MaxThreads MaxThreads.o -L../../src -lThreading $(LIBS)
+	
+
+MaxThreads.o: MaxThreads.cpp
+	$(CXX) $(CXXFLAGS) -c MaxThreads.cpp
+
+
+build: MaxThreads
+
+install:
+uninstall:
+
+clean:
+	-rm *.o MaxThreads
+	-rm -rf Templates.DB

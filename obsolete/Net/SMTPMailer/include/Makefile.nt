@@ -1,0 +1,13 @@
+## Makefile for Windows NT: SMTPmailer include files installation 
+## $Id: Makefile.nt,v 1.1 2001-02-09 15:02:36 yad Exp $
+
+
+DIRS=GradSoft
+
+install:
+	@for %i in ( $(DIRS) ) do \
+		@cd %i & $(MAKE) /F Makefile.nt install
+
+uninstall:
+	@for %i in ( $(DIRS) ) do \
+		@cd %i & $(MAKE) /F Makefile.nt uninstall

@@ -1,0 +1,490 @@
+\documentclass[10pt]{article}
+\usepackage[OT2,T2A]{fontenc}
+\usepackage[koi8-u]{inputenc}
+
+%\usepackage{html}
+
+\newenvironment{component}[1]{\par#1:\begin{itemize}}{\end{itemize}}
+
+\title{ GradC++ToolBox: Revision history \newline
+        \small{DocumentId:GradSof:e-CH-09.04.2000-1.6.2}
+      }
+
+\begin{document}
+
+\maketitle{}
+
+\tableofcontents
+
+\section{Latest release}
+
+1.6.3
+
+\section{Changes in product set}
+
+\begin{description}
+\item 1.6.0: Threading:
+      \begin{itemize}
+        \item ThreadContext interfaces added.
+      \end{itemize}
+\item 1.5.0: ptrs package added.
+\item 1.4.0: DynamicModules package added.
+\item 1.3.0: DirectoryContainer package added.
+\item 1.2.0: Threading: 
+      \begin{itemize}
+      \item some new examples added
+      \item ThreadServices framework added
+      \end{itemize}
+\item 1.1.0: Threading: 
+      \begin{itemize}
+      \item some new examples added
+      \item ThreadEvent added.
+      \end{itemize}
+\end{description}
+
+\section{Overpatching in components specifications}
+
+\subsection{Overpatching in interface specifications}
+
+\begin{description}
+ \item [1.6.1]:
+       \begin{component}{ptrs} 
+         \item added method to \verb|owned_ptr| template - \verb|get_ownity()|
+       \end{component}
+ \item [1.6.0]:
+       \begin{component}{Threading} 
+         \item added ThreadContext access methods to Thread class.
+         \item added ThreadContext class.
+       \end{component}
+ \item [1.5.0]:
+       \begin{component}{Threading} 
+         \item specifications of exceptions simplified;
+         \item class \verb|counted_mt_ptr| is added to package.
+       \end{component}
+       \begin{component}{DynamicModules}
+         \item interface extended (iteration over loaded modules is implemented).
+       \end{component} 
+       \begin{component}{ProgOptions}
+       \item both ProgOptions::parseFile and ProgOptions::parseString methods
+             get additional parameter, the name of executable ascking for options
+             (on default, "unspecified").
+             (The name of executable must not be present in the file or string being parsed forth.)
+       \item ProgOptions::ArgsHolder-related:
+             \begin{enumerate}
+             \item both ArgsHolder(int,char**) constructor and ProgOptions::getArgsHolder()
+                   method are removed;
+             \item ArgsHolder() constructor (being missed in previous releases)
+                   and ArgsHolder::takeArgv(const ProgOptions\&) method provided instead.
+             \end{enumerate} 
+       \end{component}
+
+ \item [1.4.1]:
+       \begin{component}{ProgOptions}
+         \item class ProgOptions::ArgsHolder and method ProgOptions::createArgsHolder()
+               to obtain an instance of this class have been added
+       \end{component}
+
+ \item [1.4.0]:
+
+  \begin{component}{General requirements}
+   \item namespaces and standart c++ header became mandatory.
+   \item namespace \verb|std| made not imported by ToolBox headers.
+  \end{component}
+  \begin{component}{ServiceOptions}
+   \item ServiceOptions header file is replaced by ServiceOptions.h
+  \end{component}
+
+ \item [1.2.0]:
+    \begin{component}{Threading}
+       \item Thread::sleep() and Thread::nanosleep() methods,
+             being "public" and "static" in previous releases,
+             has been made "protected" now;
+             two public and static methods,
+             Thread::sleepCurrent() and Thread::nanosleepCurrent(), provided instead.
+    \end{component}
+    \begin{component}{Logger}
+       \item Logger header file is deleted from distribution.
+       \item Logger.h now does not import Logger class to current namespace.
+       \item Added methods \verb|Logger::setDuppedToStderr(bool)|, 
+         \verb|Logger::setSyslogOutput(bool).x|
+       \item Added Logger stream specific mutexes.
+    \end{component}
+
+ \item [1.1.0]:
+    \begin{component}{Threading}
+       \item Exceptions specifications are added, with uniform exceptions layer.
+    \end{component}
+
+ \item [1.0.3]:
+
+    \begin{component}{ProgOptions}
+       \item method \verb|ProgOptions::allowUnknownOptions| is added.
+    \end{component}
+
+\end{description}
+
+\subsection{Changes in functional specifications}
+
+\begin{description}
+
+\item [1.4.0]:
+      \begin{component}{ProgOptions}
+      \item procedure of parsing of configuration file revised
+      \end{component}
+
+\end{description}
+
+\subsection{Changes of implementation characterisitcs}
+
+\begin{description}
+ \item [1.6.3]:
+       \begin{itemize}
+        \item ported to GCC-3.2
+        \item MICO is added to list of supported ORB-s
+        \item small changes in implementation of \verb|counted_mt_ptr| 
+       \end{itemize}
+ \item [1.6.2]:
+       \begin{component}{ProgOptions}
+       \item bug fixed: typo in Threading Programmers Guide and in API
+       \end{component}
+ \item [1.6.1]:
+       \begin{component}{ServiceOptions}
+       \item bug fixed: typo in ServiceOptions.cpp
+       \end{component}
+
+ \item [1.6.0]:
+       \begin{component}{Threading}
+       \item bug fixed: this error leads to incorrect output of Win32 error code in exception.
+       \end{component}
+
+       \begin{component}{ServiceOptions}
+       \item fixed one-time memory leak in initialization of service record.
+       \end{component}
+
+ \item [1.4.2]:
+       \begin{component}{Installing procedure}
+       \item bug fixed: Gen/DynamicModules/configure added
+       \end{component}
+
+ \item [1.4.1]:
+       \begin{component}{DynamicModules}
+                     \item error in DynamicModules.h removed;
+                           this error leads to EXPORT\_OBJECT macros
+                           acts correctly within GradSoft namespace only for Windows NT 
+       \end{component}
+       \begin{component}{ServiceOptions}
+                     \item error in CORBA/ServiceOptions/demo/configure.in removed;
+                           this error leads to ServiceOptions use examples
+                           can not been compiled for Linux
+       \end{component}
+       \begin{component}{Installing procedure}
+                     \item bug fixed - header file DirectoryContainerPostConfig.h
+                           made a member of installation for UNIX
+       \end{component}
+
+ \item [1.4.0]:
+
+       \begin{component}{Installing procedure}
+          \item support of omniORB-3.0.4 and TAO-1.2 added for Windows NT
+          \item errors in Makefiles removed
+          \item Sun C++ 6.2 on Sun Solaris 2.8 is supported.
+          \item Changed requirements to C++ compiler.
+       \end{component}
+
+       \begin{component}{Logger}
+          \item fixed bug which can cause core dump during reporting fatal error.
+       \end{component}
+
+       \begin{component}{ProgOptions}
+          \item fixed small mismath between component's specification and implementation.
+       \end{component}
+
+ \item [1.3.0]: 
+       \begin{component}{Installing procedure}
+         \item Fixed bug in installing procedure for UNIX,
+               which can cause incorrect installing of Logger
+               when default "make" is differ from GNU make.
+       \end{component}
+
+ \item [1.2.1]:
+       \begin{component}{Installing procedure}
+         \item Fixed building on Windows NT.
+       \end{component}
+
+ \item [1.2.0]:
+
+       \begin{component}{Installing procedure}
+         \item fixed generation of shared libs under Linux
+       \end{component}
+
+       \begin{component}{Threading}
+         \item bug fixed: call of \verb|delete This| from Thread subclasses allocated on heap succeeds now.
+         \item bug fixed: error notification with throwing of ThreadingExceptions classes is implemented under Windows NT.
+         \item memory leak in Thread, Mutex, and ThreadEvent destructors under Windows NT is removed.
+         \item bug that leads to run-time error if destructor is called in a little while 
+               after starting of the thread is fixed.
+         \item bug which causes incorrect result of \verb|Thread::is_running()| call 
+               made before the thread starting under Windows NT is fixed.
+         \item bug being able to cause incorrect \verb|Mutex::try_lock()| behaviour on Windows NT is fixed.
+         \item include file named Threading is not used now; Threading.h is used instead.
+       \end{component}
+
+       \begin{component}{Logger}
+         \item fixed bug in configure which can cause incorrect determination of \verb|ctime_r| on some platforms.
+         \item Added thread-safe guarantues.
+         \item include file named Logger is not used now; Logger.h is used instead. 
+       \end{component}
+
+ \item [1.1.0]:
+
+       \begin{component}{Installing procedure}
+         \item Improvements in error handling scheme
+         \item Fixed yet another bug in building of shared libs on Solaris .
+       \end{component}
+
+       \begin{component}{Threading}
+         \item Fixed typo in \verb|threadsafe_biseq|
+       \end{component}
+
+ \item [1.0.4]:
+
+       \begin{component}{Installing procedure}
+         \item Fixed bug, which can broke install of package on machines without
+              \verb|<prefix>/GradSoft| directories.
+       \end{component}
+
+ \item [1.0.3]:
+
+       \begin{component}{Installing procedure}
+         \item Fixed building of shared libs on Solaris with help of Sun CC.
+       \end{component}
+
+       \begin{component}{Threading}
+           \item \verb|Thread::running_| marked as \verb|volatile|
+       \end{component}
+
+       \begin{component}{ProgOptions}
+           \item Fixed potential error, which can cause program failure during call of ProgOptions destructor. 
+           \item Fixed error, which cause incorrect output of help messages, when one of predefined options is overrided.
+       \end{component}
+
+       \begin{component}{ServiceOptions}
+           \item Fixed compilation with omniORB
+           \item added support for TAO ior tables
+       \end{component}
+
+\end{description}
+
+\section{Changes in documentation set}
+
+\begin{description}
+
+ \item [1.6.0]: Threading programming guide extended. 
+
+ \item [1.5.1]:  oversight in ServiceOptions programming guide removed
+
+ \item [1.5.0]:
+       \begin{itemize}
+         \item added \verb|ptrs| programming guide.
+         \item Threading programming guide extended.
+         \item Administration guide extended.
+       \end{itemize}
+
+ \item [1.4.2]:
+       \begin{itemize}
+         \item ServiceOptions Programming guide:
+               right order of \verb|--config <filename>| support described
+       \end{itemize}
+
+ \item [1.4.1]:
+       \begin{itemize}
+       \item ProgOptions Programming guide:
+             \begin{enumerate}
+             \item support of using \verb|--config <filename>| option described.
+             \end{enumerate}
+       \item DynamicModules Programming guide:
+             \begin{enumerate}
+             \item some visible misfits removed;
+             \item using example made compilable and moved into separate section.
+             \end{enumerate}
+       \end{itemize}
+
+ \item [1.4.0]:
+       \begin{itemize}
+       \item Administration Guide:
+                     \begin{enumerate}
+                     \item overpatching in product set, implementation characterisitcs,
+                     installing procedure for Windows NT reflected
+                     \item record of WIN32 macros being required for compiling under Windows NT added
+                     \end{enumerate}
+       \end{itemize}
+
+ \item [1.3.0]:
+       \begin{itemize}
+       \item Programmers Guide and API for Directory Container is added.
+       \item Some grammar errors in current document removed.
+       \end{itemize}
+
+ \item [1.2.0]: 
+ \begin{itemize}
+   \item Review of Threading Programming Guide
+   \item Review of Logger Programming Guide
+ \end{itemize}
+
+ \item [1.1.0]: 
+ \begin{itemize}
+   \item Fixed few typos in Adminstration Guide.
+   \item Review of Threading Programming Guide
+   \item short README to Threading examples are added.
+ \end{itemize}
+
+ \item [1.0.3]: 
+ \begin{itemize}
+   \item "Changes" are added to documentation set.
+   \item Format attributes of documents are added.
+   \item Review of Administration Guide.
+ \end{itemize} 
+
+ \item [1.0.2]:
+ \begin{itemize}
+    \item API definitiosn added to docvumentation set.
+ \end{itemize} 
+\end{description}
+
+\section{ List of deployed or published versions }
+
+ \begin{itemize}
+  \item 1.6.3
+  \begin{itemize}
+   \item start of supplies - 07.05.2003
+  \end{itemize}
+  \item 1.6.2
+  \begin{itemize}
+   \item start of supplies - 12.10.2002
+   \item actions, must performed for dependent software support: recompilation
+  with next version.
+  \end{itemize}
+  \item 1.6.1
+  \begin{itemize}
+   \item start of supplies - 04.09.2002
+   \item actions, must performed for dependent software support: none
+  \end{itemize}
+  \item 1.6.0
+  \begin{itemize}
+   \item start of supplies - 29.08.2002
+   \item actions, must performed for dependent software support: none
+  \end{itemize}
+  \item 1.5.0
+  \begin{itemize}
+   \item start of supplies - 08.04.2002
+   \item actions, must performed for dependent software support: 
+   \begin{itemize}
+     \item recompile with version 1.6.0
+   \end{itemize}
+  \end{itemize}
+  \item 1.4.2
+  \begin{itemize}
+   \item start of supplies - 06.02.2002
+   \item actions, must performed for dependent software support: see 1.4.1
+  \end{itemize}
+  \item 1.4.1
+  \begin{itemize}
+   \item start of supplies - 31.01.2002
+   \item actions, must performed for dependent software support: see 1.4.0
+  \end{itemize}
+  \item 1.4.0
+  \begin{itemize}
+   \item start of supplies - 17.01.2002
+   \item actions, must performed for dependent software support:
+   \begin{itemize}
+     \item recompile with version 1.5.0
+     \item if compilation of software uses Threading failed - correct exception specifications.
+   \end{itemize}
+  \end{itemize}
+  \item 1.3.0
+  \begin{itemize}
+   \item start of supplies - 27.08.2001
+   \item actions, must performed for dependent software support:
+   \begin{itemize}
+     \item if you use names from \verb|std| C++ namespace, then check,
+      that this namespace is imported in depended code or add \verb|std::|
+      prefix to such names.
+     \item if you use file \verb|ServiceOptions.h| and use ServiceOptions type 
+      without \verb|GradSoft| prefix then import name 
+      \verb|GradSoft::ServiceOptions| in current namespace or change
+      ServiceOptions to \verb|GradSoft::ServiceOptions|.
+     \item if you use file \verb|ServiceOptions|, change one to 
+         \verb|ServiceOptins.h|
+   \end{itemize}
+  \end{itemize}
+  \item 1.2.1
+  \begin{itemize}
+   \item start of supplies - 07.07.2001
+   \item actions, must performed for dependent software support: none
+  \end{itemize}
+  \item 1.2.0
+  \begin{itemize}
+   \item start of supplies - 28.06.2001
+   \item actions, must performed for dependent software support: are absent
+  \end{itemize}
+  \item 1.1.0
+  \begin{itemize}
+   \item start of supplies - 28.04.2001
+   \item end of support - 25.06.2001
+   \item actions, must performed for dependent software support: 
+     \begin{enumerate}
+         \item substitution of Thread::sleep() and Thread::nanosleep() methods
+               used outside the THread::run() 
+               to Thread::sleepCurrent() and Thread::nanosleepCurrent() methods
+         \item recompilation with next version
+     \end{enumerate}
+  \end{itemize}
+  \item 1.0.4 
+  \begin{itemize}
+   \item start of supplies - 14.03.2001
+   \item end of support - 15.05.2001
+   \item actions, must performed for dependent software support: 
+   \begin{itemize}
+     \item recompilation with next version.
+     \item add exceptions handling code if necessary.
+   \end{itemize}
+  \end{itemize}
+  \item 1.0.3
+  \begin{itemize}
+   \item start of supplies - 18.02.2001 
+   \item end of support - 15.05.2001
+   \item actions, must performed for dependent software support: are absent
+  \end{itemize}
+  \item 1.0.2
+  \begin{itemize}
+   \item start of supplies - 14.12.2000
+   \item end of support -  20.02.2001
+   \item actions, must performed for dependent software support: 
+        recompilation with next version.
+  \end{itemize}
+  \item 1.0.1
+  \begin{itemize}
+   \item start of supplies - 30.11.2000
+   \item end of support - 14.12.2000 
+   \item actions, must performed for dependent software support: 
+        relinking with the next version.
+  \end{itemize}
+  \item 1.0
+  \begin{itemize}
+   \item start of supplies - 28.11.2000
+   \item end of support - 14.12.2000 
+   \item actions, must performed for dependent software support: 
+        recompilation with next version.
+  \end{itemize}
+  \item 1.0
+  \begin{itemize}
+   \item start of supplies - 28.10.2000
+   \item end of support - 28.11.2000 
+   \item actions, must performed for dependent software support: 
+        recompilation with next version.
+  \end{itemize}
+ \end{itemize}
+
+\end{document}
+
+

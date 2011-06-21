@@ -1,0 +1,8 @@
+../../include/GradSoft/counted_ptr.h
+../../include/GradSoft/owned_ptr.h
+../../include/GradSoft/ptrExceptions.h
+../../include/GradSoft/ptrsConfig.h
+../../include/GradSoft/ptrsPostConfig.h
+../../include/GradSoft/safe_ptr.h
+../../include/GradSoft/safe_auto_ptr.h
+../../include/GradSoft/ptrs.h

@@ -1,0 +1,86 @@
+#
+# Service Option: part of GradSoft C++ ToolBox
+# (C) Grad-Soft Ltd, 2000-2002
+# $Id: Makefile.in,v 1.10 2002-04-18 09:22:59 rssh Exp $
+#
+PROJECT_ROOT=@project_root@
+include $(PROJECT_ROOT)/config/entry.mak
+GRADSOFT_WEB_ROOT=@docs_web_root@
+
+TEX_FILES=ProgrammingGuide_rus.tex \
+          ProgrammingGuide_eng.tex \
+
+DVI_FILES=ProgrammingGuide_rus.dvi \
+          ProgrammingGuide_eng.dvi
+
+PS_FILES=ProgrammingGuide_rus.ps \
+         ProgrammingGuide_eng.ps
+
+PDF_FILES=ProgrammingGuide_rus.pdf \
+          ProgrammingGuide_eng.pdf
+
+API_FILE=html/ServiceOptions.html
+
+docs: $(PDF_FILES) $(API_FILE)
+
+all: docs web
+
+.SUFFIXES: .tex .dvi .ps .pdf
+
+.tex.dvi:
+	latex $< 
+	latex $< 
+
+.tex.pdf:
+	pdflatex $<
+	pdflatex $<
+
+html/ServiceOptions.html:
+	(cd html; doc++ ../../include/GradSoft/ServiceOptions.h)
+
+build:
+
+clean:
+
+install:
+
+uninstall:
+
+
+HTML_PR_RUS=ProgrammingGuide_rus/index.html
+HTML_PR_ENG=ProgrammingGuide_eng/index.html
+
+HTML_PR_RUS_GRADSOFT=$(GRADSOFT_WEB_ROOT)/rus/Products/ToolBox/ServiceOptions/ProgGuide
+PDF_PR_RUS_GRADSOFT=$(GRADSOFT_WEB_ROOT)/rus/Products/ToolBox/ServiceOptions/pdf
+HTML_PR_ENG_GRADSOFT=$(GRADSOFT_WEB_ROOT)/eng/Products/ToolBox/ServiceOptions/ProgGuide
+PDF_PR_ENG_GRADSOFT=$(GRADSOFT_WEB_ROOT)/eng/Products/ToolBox/ServiceOptions/pdf
+HTML_API_GRADSOFT=$(GRADSOFT_WEB_ROOT)/common/ToolBox/ServiceOptions/API
+
+web: $(API_FILE) $(HTML_PR_RUS) $(HTML_PR_ENG)
+install-web: web all
+	-mkdir -p $(HTML_API_GRADSOFT)
+	for i in html/*.class html/*.html html/*.gif; do \
+	 cp $$i $(HTML_API_GRADSOFT); \
+	done
+	-mkdir -p $(HTML_PR_RUS_GRADSOFT)
+	for i in ProgrammingGuide_rus/*; do\
+	 cp $$i $(HTML_PR_RUS_GRADSOFT); \
+	done
+	-mkdir -p $(HTML_PR_ENG_GRADSOFT)
+	for i in ProgrammingGuide_eng/*; do\
+	 cp $$i $(HTML_PR_ENG_GRADSOFT); \
+	done
+	-mkdir -p $(PDF_PR_RUS_GRADSOFT)
+	cp ProgrammingGuide_rus.pdf $(PDF_PR_RUS_GRADSOFT)
+	-mkdir -p $(PDF_PR_ENG_GRADSOFT)
+	cp ProgrammingGuide_eng.pdf $(PDF_PR_ENG_GRADSOFT)
+
+
+$(HTML_PR_RUS): ProgrammingGuide_rus.tex ProgrammingGuide_rus.pdf
+	latex2html -charset KOI8-R -split 0 -info 0 -address "GradSoft" -local_icons ProgrammingGuide_rus.tex
+
+$(HTML_PR_ENG): ProgrammingGuide_eng.tex ProgrammingGuide_eng.pdf
+	latex2html -split 0 -info 0 -address "GradSoft" -local_icons ProgrammingGuide_eng.tex
+
+install-web-documentation: install-web 
+

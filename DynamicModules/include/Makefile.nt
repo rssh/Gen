@@ -1,0 +1,19 @@
+# part of GradSoft C++ ToolBox
+# (C) Grad-Soft Ltd, Ukraine
+# $Id: Makefile.nt,v 1.2 2001-12-27 16:02:17 kav Exp $
+
+
+SUBDIRS=$(MAKEDIR)\GradSoft
+
+build:
+
+install: 
+	@for %i in ( $(SUBDIRS) ) do \
+		@cd %i && $(MAKE) /F Makefile.nt install
+
+uninstall: 
+	@for %i in ( $(SUBDIRS) ) do \
+		@cd %i && $(MAKE) /F Makefile.nt uninstall
+
+clean:
+

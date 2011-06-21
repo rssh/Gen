@@ -1,0 +1,42 @@
+
+\documentclass[10pt]{article}
+%\usepackage{tex4ht}
+\usepackage[OT1,T2A]{fontenc}
+\usepackage[koi8-u]{inputenc}
+\usepackage{graphicx}
+\usepackage{verbatim}
+
+%\Contribute{TITLE}{\def\LaTeX{LaTeX}}
+\title{ Crypt: Руководство программиста  }
+
+% $Id: ProgrammingGuide_rus.tex,v 1.1 2001-04-10 11:47:42 yad Exp $
+
+\begin{document}
+
+\maketitle{}
+
+%\tableofcontents
+
+\section{ Введение }
+
+ Crypt представляет собой набор инструментов, полезных при работе над
+ криптографическими задачами.
+
+ Этот документ представляет собой неформальное описание, полная спецификация
+пакета приводится в API reference (\verb|www.gradsoft.kiev.ua/common/ToolBox/Crypt/API/index.html|).
+
+\section{ Общее описание механизма работы }
+
+  
+\section{ Простейший пример  }
+
+\section{ Требования к программному окружению  }
+
+\begin{enumerate}
+  \item переменная препроцессора \verb|HAVE_NAMESPACES| должна быть определена 
+  {\em до} включение файла CryptHelper.h, если ваш C++ компилятор
+  поддерживает пространства имен.
+  \item если Вы не пользуетесь MSVC и при этом Ваш компилятор поддерживает тип bool, вам необходимо определить переменную препроцессора \verb|HAVE_BOOL|
+\end{enumerate}
+
+\end{document}

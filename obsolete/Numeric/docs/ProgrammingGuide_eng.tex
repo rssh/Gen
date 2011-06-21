@@ -1,0 +1,47 @@
+
+\documentclass[10pt]{article}
+%\usepackage{tex4ht}
+\usepackage[OT1,T2A]{fontenc}
+\usepackage[koi8-u]{inputenc}
+\usepackage{graphicx}
+\usepackage{verbatim}
+
+%\Contribute{TITLE}{\def\LaTeX{LaTeX}}
+\title{ Numeric: Руководство программиста  }
+
+% $Id: ProgrammingGuide_eng.tex,v 1.1 2001-04-10 11:13:05 yad Exp $
+
+\begin{document}
+
+\maketitle{}
+
+%\tableofcontents
+
+\section{ Introduction }
+
+ Numeric is set of components, which provide extended functionality in handling
+ numeric data. The only component available for now is FixedBigNumber class.
+
+ This document is an unformal description of package, for full specification,
+ please, see API reference. 
+ (\verb|www.gradsoft.kiev.ua/common/ToolBox/Numeric/API/index.html|).
+
+\section{ General description }
+
+ Using of FixedBigNumber must be  follow next pattern:
+
+  
+\section{ Example }
+  which illustrate FixedBigNumber use is follow:
+
+
+\section{ Programming Environment Conventions }
+
+\begin{enumerate}
+  \item if you C++ compiler supports namespaces, preprocesssor variable \verb|HAVE_NAMESPACES| must be defined
+  {\em before} inclusion of file FixedBigNumber or FixedBigNumber.h
+  \item If you compiler does not have builtin  {\bf bool }, you must define this type,
+   with constants {\bf true} and {\bf false } {\em before inclusion } of FixedBigNumber.h 
+\end{enumerate}
+
+\end{document}

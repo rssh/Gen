@@ -1,0 +1,71 @@
+set timeout 100
+
+expect_after {
+     timeout {
+        fail "$test (timeout)"
+     }
+}
+
+
+spawn $toolexe 
+
+set test test-end
+send "\n"  
+expect {
+         -re ".*END" { pass $test }
+       }
+
+spawn $toolexe step1
+set test test-1
+expect {
+ -re ".*OK\[\n\r]*\$" { 
+  send "\n"
+  expect {
+   -re ".*waiters started\[\n\r\]*\$" {
+    send "\n"
+    expect {
+     -re "\[^\n\r\].*finish work\[\n\r]*\$" {
+      send "\n"
+      expect {
+       -re "\[^\n\r\].*finish work\[\n\r]*\$" {
+        send "\n"
+        expect {
+         -re "\[^\n\r\].*finish work\[\n\r]*.*" {
+                                           #.* is word "Exiting on next line"
+          send "\n"
+          pass $test
+}}}}}}}}}}
+
+spawn $toolexe step2
+set test test-2
+expect {
+ -re ".*OK\[\n\r]*\$" { 
+  send "\n"
+  expect {
+   -re ".*waiters started\[\n\r\]*\$" {
+    send "\n"
+    expect {
+     -re "\[^\n\r\].*finish work.*finish work.*finish work.*" {
+      send "\n"
+      send "\n"
+      send "\n"
+      pass $test
+     }
+}}}}}
+
+spawn $toolexe step3
+set test test-3
+expect {
+ -re ".*OK" { 
+  send "\n"
+  expect {
+   -re ".*TestForMessaging::run.*" {
+    send "\n"
+    expect {
+     -re ".*run say: notification received.*stop say: notification .*" {
+      send "\n"
+      expect {
+       -re ".*END" {
+        pass $test
+}}}}}}}}
+

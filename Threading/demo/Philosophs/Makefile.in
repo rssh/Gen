@@ -1,0 +1,19 @@
+PROJECT_ROOT=@project_root@
+include $(PROJECT_ROOT)/../config/entry.mak
+
+Philosophs: Philosophs.o
+	$(CXX) $(CXXFLAGS) -o Philosophs Philosophs.o -L../../src -lThreading $(LIBS)
+	
+Philosophs.o: Philosophs.cpp
+	$(CXX) $(CXXFLAGS) -c Philosophs.cpp
+
+default: build
+
+build: Philosophs
+
+install:
+uninstall:
+
+clean:
+	-rm *.o Philosophs
+	-rm -rf Templates.DB

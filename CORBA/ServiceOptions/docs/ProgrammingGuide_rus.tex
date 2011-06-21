@@ -1,0 +1,175 @@
+
+\documentclass[10pt]{article}
+\usepackage[OT1,T2A]{fontenc}
+\usepackage[koi8-u]{inputenc}
+\usepackage{graphicx}
+\usepackage{verbatim}
+
+\title{ ServiceOptions: Руководство программиста 
+       \newline
+       \small{DocumentId:GradSoft-PR-02.07.2000-v1.0.3}
+      }
+
+% $Id: ProgrammingGuide_rus.tex,v 1.16 2002-05-21 06:28:24 kav Exp $
+
+\begin{document}
+
+\maketitle{}
+
+\tableofcontents
+
+\section{ Введение }
+
+
+ ServiceOptions представляет собой компоненту для обработки опций командной строки стандартного CORBA сервера. 
+
+ Что это означает: обычно CORBA сервер экспортирует в "мир" несколько объектов: т. н. "Корневые Объекты" (Root Objects) сервиса. К примеру, CollectionService экспортирует {\bf CollectionFactory } и { \bf RACollectionFactory }; NamingService экспортирует {\bf RootNamingCotext }. 
+
+ Пользователи сервиса получают доступ к этим объектам с помощью механизмов, специфичных для каждой ORB.
+ 
+ Для стандартных CORBA сервисов это вызов {\em ORB::resolve\_initial\_references(name)}; но процесс задания инициальных ссылок все равно требует знания объектных ссылок во время старта клиента.
+
+ Обычно, "корневые объекты" сервисов экспортируются с помощью:
+ \begin{itemize}
+   \item IOR в стиле corbaloc.
+   \item вывода объектных ссылок в файл.
+   \item регистрации объекта в NamingService.
+   \item регистрации объекта в репозитарии имплементаций.
+ \end{itemize}
+
+ Что делает Service Options: инкапсулирует всю эту работу и использование 
+специфичных непортабельных механизмов ORB в одном вызове. Вы просто указываете
+в коде сервера сервант и его имя; после этого ваш сервант доступен для использования в corbaloc ior-ах и автоматически публикуется другими методами, в зависимости от опций командной строки. 
+
+
+ServiceOptions основан на ProgOptions\\
+(\verb|www.gradsdoft.kiev.ua/rus/Products/ToolBox/ProgOptions/ProgGuide/ProgrammingGuide_rus.html|)
+
+ Этот документ представляет собой неформальное описание,
+ полная спецификация пакета приводится в API reference\\
+(\verb|www.gradsoft.kiev.ua/common/ToolBox/ServiceOptions/API/index.html|).
+
+\section{ Общее описание }
+
+ Программист:
+ \begin{enumerate}
+  \item Создает объект типа ServiceOptions.
+  \item Указывает имена поддерживаемых CORBA сервисов при помощи метода \verb|ServiceOptions::putServiceName|
+  \item Вызывает метод \verb|ServiceOptions::parse| - 
+        командная строка будет разобрана во внутренние структуры ServiceOptions,
+        при этом будут автоматически обработаны опции \verb|--help| и \verb|--config <filename>|
+        (детали смотри в руководстве пограммиста к пакету ProgOptions);
+  \item При старте сервера после создания корневого объекта сервиса вызвает метод \verb|ServiceOptions::bindServiceObject|
+ \end{enumerate}
+ Результатом этих действий будет способность программы воспринимать опции:
+\begin{itemize}
+ \item \verb|--with-naming| - инициальные объекты сервисов отображаются в NameService
+ \item \verb|--ior-stdout| - объектыне ссылки в виде строки печатаются на стандартном выводе программы.
+ \item \verb|--ior-file-<name>| - поместить объектную ссылку сервиса с именем \verb|<name>| в файл аргумента этой опции.
+\end{itemize}
+ в дополнение к стандартным опциям ORB
+  
+\section{ Простейший пример  }
+  иллюстрирующий использование пакета ServiceOption приведен ниже:
+
+  \paragraph{A.} Пусть у нас имеется следующий IDL-интерфейс:
+
+\begin{verbatim}
+interface HelloWorlder
+{
+  void hello_world();
+};
+\end{verbatim}
+
+  \paragraph{B.} Тогда мы можем написать такую программу:
+
+\begin{verbatim}
+
+#include <tao/CORBA.h>                          //
+#include <tao/PortableServer/PortableServer.h>  // Допустим, у нас TAO-1.2
+#include <orbsvcs/CosNamingC.h>                 //
+#include <HelloWorlderS.h>                      //
+
+#include <iostream>
+using namespace std;
+
+#include <GradSoft/ServiceOptions.h>  // не забудь
+using namespace GradSoft;             //
+
+class HelloWorlder_impl:public POA_HelloWorlder           // реализуем
+{                                                         // интерфейс
+public:                                                   //
+  void hello_world() { cout << "Hello, world" << endl; }  //
+};                                                        //
+
+int main(int argc, char** argv)
+{
+ ServiceOptions options;
+ options.putServiceName("HelloService");   // установить имя поддерживаемого сервиса
+ if (!options.parse(argc,argv)) return 1;  // разобрать опции
+
+ // инициализация ORB: используем копию внутреннего
+ // (объединенного) вектора аргументов ServiceOptions,
+ // для того чтобы ORB_init() мог получить опции командной строки
+ // в конфигурационном файле формата ProgOptions:
+
+ ProgOptions::ArgsHolder argsHolder;
+ argsHolder.takeArgv(options);
+ CORBA::ORB_var orb = CORBA::ORB_init(argsHolder.argc,argsHolder.argv);
+
+ CORBA::Object_var poaObj =                                           // стандартные
+     orb->resolve_initial_references("RootPOA");                      // действия
+ PortableServer::POA_var poa = PortableServer::POA::_narrow(poaObj);  //
+ PortableServer::POAManager_var poaManager = poa->the_POAManager();   //
+ poaManager->activate();                                              //
+
+ HelloWorlder_impl helloWorlder_impl;   // создать объект
+
+ HelloWorlder_var helloWorlder = helloWorlder_impl._this();
+
+ options.bindServiceObject(     // главный вызов
+    orb,
+    helloWorlder,
+    &helloWorlder_impl,
+    "HelloService",
+    true
+ );
+
+ orb->run();
+ orb->destroy();
+ return 0;
+}
+
+\end{verbatim}
+
+ Эта программа будет обрабатывать:
+ \begin{enumerate}
+ \item опции \verb|--with-naming|, \verb|--ior-stdout|, \verb|--ior-file-myName|
+       так как это было описано выше;
+ \item опции \verb|--help| и \verb|--config|
+       как было описано в Руководстве программиста к пакету ProgOptions;
+ \item все обычные опции ORB.
+ \end{enumerate}
+
+\section{ Требования к программному окружению  }
+
+\begin{enumerate}
+ \item Должны выполняться требования к программному окружению пакета ProgOptions  (см. ProgOptions Programming Guide)
+ \item Если Вы используете TAO-1.2,
+       вы должны включить заголовочный файл PortableServer.h
+       перед включением ServiceOptions.h
+\end{enumerate}
+
+\section{ Перечень изменений }
+
+  \begin{itemize}
+    \item[06.02.2002] -- модифицирован пример использования:
+                         ORB\_init получает копию "объединенного" вектора аргументов,
+                         полученную при помощи метода getArgsHolder()
+    \item[17.01.2002] -- модифицирован пример использования
+    \item[03.01.2002] -- коррекция под новый релиз GradC++ToolBox 1.4.0
+    \item[18.02.2001] -- просмотр, добавленна ссылка на corbaconf и формальные аттрибуты эксплуатационной документации.
+    \item[02.07.2000] -- первая редакция.
+  \end{itemize}
+
+\end{document}

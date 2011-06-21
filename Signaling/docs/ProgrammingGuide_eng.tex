@@ -1,0 +1,87 @@
+\documentclass[12pt]{article}
+%\usepackage{tex4ht}
+\usepackage[OT1,T2A]{fontenc}
+\usepackage{graphicx}
+\usepackage{verbatim}
+
+\title{Signaling : Programmer's guide.
+       \newline
+       \small{DocumentId:GradSoft-PR-27.09.2001-v1.0.2}
+      }
+% $Id: 
+
+\begin{document}
+
+\maketitle{}
+
+\section{ Introduction }
+   Component \verb|Signaling| is intended for POSIX signal handling. In POSIX 
+system signals are used for processing non-ordinary events which are required
+defined handling.
+  Events could be called by process, user or kernel. In some sense POSIX 
+signal is program implementation of hardware interruption. 
+The set of all signals used in system is enumerate in header-file <signal.h>.
+In <signal.h> every signal has its unique name and number. For getting more
+detail information about signal you can treat to corresponding sources.
+( for example for UNIX see {\bf man signal}) 
+
+\section{ General description of functionality mechanism }
+     Before using in program component Signaling  it has  
+necessary been written signal's handler. Signal handler is represented by defined
+class which inherits from abstract class {\bf SignalHandler}. 
+Signal implementation must be overloaded in method {\bf void handler(
+int insignal\_number) } of {\bf SignalHandler} class. Only one parameter is
+sent to this method which is the signal internal number for which handler is
+called. Signal handler is set by wrapped class Signaling. Signature of
+Signaling constructor is \\
+{\bf Signaling( unsigned long  sigset, SignalHandler\& handler )}\\
+where \\
+\verb|sigset| - the set of signal handlers.(see below)\\
+\verb|handler| - class derived from SignalHandler.\\
+For technical problem component Signaling has its own internal name and number
+for signal which is described in class SignalSet. Internal name coincides with
+standard name plus add prefix "{s}".\\
+{\it
+  {\bf Attention: } For component Signaling use only constant
+   which is defined in class SignalSet.
+}\\
+For defining the set of signals use statement | {"OR"}. If you need to define
+all the signals then you can use internal constant  
+\verb|SignalSet::sENABLE_ALL|.
+(Constant  \verb|SignalSet::sENABLE_ALL| is excluded  signals which 
+could not be caught). Amount all signals is defined in constant 
+\verb|SignalSet::sNSIG|.
+
+\section{ Using }
+At first define signal handler:
+\begin{verbatim}
+/* File demo_handler.h */
+. . .
+class demo_handler : public SignalHandler {
+public :
+      virtual void handler(int signal) {
+        cerr << "Catch signal :" << signal << endl;
+      }
+}
+. . .
+\end{verbatim}
+Set the handler "demo\_handler" for handle all signals.
+\begin{verbatim}
+#include <demo_handler.h>
+. . .
+{
+    Signaling(SignalSet::sENABLE_ALL, demo_handler);
+    . . .
+}
+. . .
+\end{verbatim}
+For more detail information see directory \verb|demo| in distribution.
+\section{Requirements.}
+\begin{itemize}
+  \item Before using Signaling it has been needed to define macro 
+     {\bf HAVE\_SIGACTION} or {\bf HAVE\_SIGNAL} depending on which function
+     will be used for signal handling {\bf sigaction}  or {\bf signal}.
+  \item If compiler supports \verb|namespaces| then macro 
+     {\bf HAVE\_NAMESPACES} will have been defined.
+\end{itemize}
+\end{document}

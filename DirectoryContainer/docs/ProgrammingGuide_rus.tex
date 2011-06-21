@@ -1,0 +1,430 @@
+
+\documentclass[10pt]{article}
+\usepackage[OT1,T2A]{fontenc}
+\usepackage[koi8-u]{inputenc}
+\usepackage{graphicx}
+\usepackage{verbatim}
+
+%\Contribute{TITLE}{\def\LaTeX{LaTeX}}
+\title{ DirectoryContainer: Руководство Программиста
+        \newline
+        \small{DocumentId:GradSoft-PR-r-09.01.2001-v1.0.0}
+}
+
+% $Id: ProgrammingGuide_rus.tex,v 1.6 2002-10-16 10:30:03 rssh Exp $
+
+\begin{document}
+
+\maketitle{}
+
+\tableofcontents
+
+\section{Bведение}
+
+ {\bf DirectoryContainer} - это кроcсплатформенная компонета на C++,
+ предназначенная для навигации по списку имен файлов в директории.
+ Используя {\bf DirectoryIterator}, Вы получаете простое
+ и, важно, одинаковое API для действий, связанных с просмотром директории
+ (таких как поиск файлов), для UNIX и для Windows NT. 
+ Пакет {\bf DirectoryIterator} разработан и поддерживается компанией GradSoft
+ и поставляется в исходных кодах.
+ Домашняя страница разработчика http://www.gradsoft.kiev.ua/
+
+ Этот документ является неформальным описанием пакета. Полная специфиткация
+ находится в описании API 
+  (http://www.gradsoft.kiev.ua/common/ToolBox/DirectoryContainer/API/)
+
+\section{Общий порядок использования}
+
+\subsection{Общие сведения}
+
+Реализованы два следующих подхода к порядку чтения директории: 
+\begin{enumerate}
+\item Объект DirectoryEntry позволяет работать с директорией традиционно как c потоком ввода;
+\item Объект DirectoryContainer позволяет работать с директорией как c STL-контейнером
+      для элементов DirectoryEntry.
+\end{enumerate}
+
+\subsection{Объект DirectoryEntry}
+
+\subsubsection{Общие сведения} 
+
+Объект DirectoryEntry представляет собой позиционируемый объект
+для работы с директорией как c потоком ввода.
+Это значит что:
+\begin{enumerate}
+\item Директория рассматриватся как последовательность элементов,
+      доступ к которым возможен через единственнный доступный указатель на "текущий" элемент;
+
+      DirectoryEntry рассматриватся как средство доступа к единственному
+      (текущему) элементу последовательности,
+      который, однако, можно сменить при помощи собственых средств DirectoryEntry.
+\item Для того, чтобы прочесть директорию, мы должны сначала ее "открыть",
+      а потом (вообще говоря) "закрыть".
+\end{enumerate}
+В нашем случае директория открывается в момент создания объекта DirectoryEntry, поэтому,
+для того, чтобы получить информацию о некотором элементе некоторой директории, мы должны:
+\begin{enumerate}
+\item Создать объект DirectoryEntry для заданной директории и {\em позиционировать} его на заданном элементе;
+\item Вызвать метод, возвращающий информацию о текущем элементе последовательности.
+\end{enumerate}
+
+\paragraph{Пример:}
+
+\begin{verbatim}
+try{
+
+  DirectoryEntry smth(".");  // создать объект и позиционировать его 
+                             // на первом элементе последовательности
+  do {
+
+   cout<<smth.name()<<endl;  // вывести имя текущего элемента
+
+  } while(smth.next());      // позиционировать объект на следующем 
+                             // элементе последовательности
+
+} catch(DirectoryException& ex) {   // см.ниже
+
+  cerr << ex.message << endl;
+}
+\end{verbatim}
+Данный код выводит имена файлов/поддиректорий, расположенных в текущей директории диска
+
+\subsubsection{API}
+
+{\bf Общие сведения:} \\
+
+\noindent Класс DirectoryEntry реализует модели Assignable и EqualityComparable,
+т.е. имеет: 
+\begin{enumerate}
+\item Конструктор копирования и оператор "=";
+\item Операторы "==" и "!=".
+\end{enumerate}
+В то же время класс не является DеfaultConstructable,
+его стандартный конструктор объявлен приватным.
+
+\paragraph{Описание методов:}
+
+\begin{enumerate}
+\item Стандартные средства:
+
+      \begin{itemize}
+      \item {\em DirectoryEntry(const DirectoryEntry\& )};
+      \item {\em DirectoryEntry\& operator=(const DirectoryEntry\& )};
+      \item {\em bool operator==(const DirectoryEntry\& ) const};
+      \item {\em bool operator!=(const DirectoryEntry\& ) const};
+      \end{itemize}
+
+\item Средства управления потоком:
+
+      \begin{itemize}
+      \item {\em DirectoryEntry(const char*)} - открывает директорию и позиционирует объект 
+            на первом элементе последовательности
+
+            {\bf Параметр:} имя директории
+
+      \item {\em bool next()} - позиционирует объект на следующем элементе последовательности
+
+            {\bf Возвращаемое значение:}
+            \begin{list}{-}{}
+            \item {\bf true}, если операция выполнена (объект позиционирован);
+            \item {\bf false}, если достигнут конец списка
+            \end{list}
+
+      \item {\em bool find(const *char)} - позиционирует объект на элементе c заданным именем
+
+            {\bf Параметр:}
+
+            имя файла, который должен быть найден
+
+            {\bf Возвращаемое значение:}
+            \begin{list}{-}{}
+            \item {\bf true}, если операция выполнена (объект позиционирован);
+            \item {\bf false}, если достигнут конец списка
+            \end{list}
+
+      \item {\em close()} - закрывает директорию
+      \item {\em \verb|~|DirectoryEntry()} - вызывает close()
+
+      \end{itemize}
+
+\item Методы, возвращающие информацию о текущем элементе последовательности:
+
+      \begin{itemize}
+      \item {\em const char* name()} - возвращает имя текущего элемента (файла/поддиректории)
+      \item {\em int fsize()} - возвращает размер файла либо 0, если текущий элемент является директорией
+      \item {\em bool is\_directory()} - возвращает {\bf true}, если текущий элемент является директорией и {\bf false} в противном случае
+      \item {\em bool is\_hidden()} - возвращает {\bf true}, если текущий элемент является "скрытым"
+            (что может быть только под Windows) и {\bf false} в противном случае
+      \end{itemize}
+      Внимание: если достигнут конец списка, значения, возвращаемые этими методами, не определены.
+
+\end{enumerate}
+
+\paragraph{Замечания:}
+\begin{list}{}{}
+\item Два объекта DirectoryEntry считаются равными, если они
+      \begin{enumerate}
+      \item Не позиционированы (для каждого достигнут конец списка)
+      \item позиционированы на одной и той же записи одной и той же директории,
+            причем идентификация записи производится по имени описываемого ею элемента.
+      \end{enumerate}
+\end{list}
+
+\subsection{Объект DirectoryContainer}
+
+\subsubsection{Общие сведения}
+
+DirectoryContainer представляет собой класс, который позволяет работать с директорией как c STL-контейнером
+для элементов DirectoryEntry.
+Объект DirectoryEntry при этом рассматривается исключительно как средство доступа
+к одной-единственной записи директории,
+позиционирование объекта DirectoryEntry его собственными средствами запрещено.
+Сопряженный с контейнером итераторный тип реализован объектом DirectoryIterator \ref{DirectoryIterator}
+который представляет собой Forward Iterator для последоватеьности объектов DirectoryEntry \\
+
+\noindent Пример:
+
+\begin{verbatim}
+
+DirectoryContainer dir(".");
+
+DirectoryContainer::iterator it; 
+
+for( it=dir.begin(); it!=dir.end(); ++it ) cout << it->name() << endl;
+
+\end{verbatim}
+
+\noindent Этот код делает то же, что и предыдущий,
+с поправкой на то, что скобки try\{ \}catch здесь опущены.\\
+
+
+\subsubsection{API}
+
+\paragraph{Сопряженные типы:}
+
+\begin{itemize}
+\item value\_type - класс DirectoryEntry
+\item iterator - класс DirectoryIterator (\label{DirectoryIterator})
+\item const\_iterator - то же, что и iterator
+\item reference - ссылка на DirectoryEntry 
+\item const\_reference - константная ссылка на DirectoryEntry
+\item pointer - указатель на DirectoryEntry
+\item distance\_type - тип, представляющий разницу между двумя экземплярами DirectoryIterator (long)
+\item size\_type - long
+\end{itemize}
+
+\paragraph{Описание методов:}
+
+\begin{enumerate}
+\item Стандартные средства:
+
+      \begin{itemize}
+      \item {\em DirectoryContainer(DirectoryContainer\&)};
+      \item {\em DirectoryContainer\& operator=(DirectoryContainer\&)};
+      \item {\em DirectoryIterator begin()};
+      \item {\em static const DirectoryIterator\& end()};
+      \item {\em size\_type size()}; 
+      \item {\em size\_type max\_size()};
+      \item {\em bool empty()};
+      \item {\em void swap(DirectoryContainer\&)};
+      \end{itemize}
+
+\item Специальные средства:
+
+      \begin{itemize}
+      \item {\em DirectoryContainer()} - создает DirectoryContainer для текущей директории диска;
+      \item {\em DirectoryContainer(const char *path)} - создает DirectoryContainer
+            для заданной директории диска;
+            {\bf Параметр:} имя директории
+      \item {\em setPath(const char *path)} - связывает DirectoryContainer
+            с заданной директорией диска;
+            {\bf Параметр:} имя директории
+      \item {\em record\_count()} - возвращает количество записей в директории,
+            исключая ссылку на себя и ссылку на родительский каталог;
+      \item {\em bool no\_records()} - возвращает {\bf true}, если директория не содержит
+            файлов/поддиректорий и {\bf false} в противном случае.
+      \end{itemize}
+
+\end{enumerate}
+
+
+\noindent {\bf Замечания:}
+
+\begin{list}{}{}
+\item Метод size() возвращает общее количество записей в директории,
+      {\em включая} ссылку на себя и ссылку на родительский каталог.
+      В соответствии с этим, метод empty() почти всегда возвращает {\bf false}
+      (исключение составляет проверка полностью пустого диска при работе под Windows).
+      Для того, чтобы узнать, не пуста ли директория в привычном смысле этого слова
+      (нет ли там файлов/поддиректорий), используйте метод no\_files().
+\end{list}
+
+\subsection{Класс DirectoryIterator} \label{DirectoryIterator}
+
+DirectoryIterator представляет собой служебный класс,
+который является Forward-итератором для последовательности элементов DirectoryEntry.
+Как Forward Iterator, он имеет следующие методы:
+      \begin{itemize}
+
+        \item DirectoryIterator(const DirectoryIterator\& );
+
+        \item DirectoryIterator\& operator=(const DirectoryIterator\& );
+
+        \item DirectoryIterator\& operator++();
+
+        \item DirectoryIterator operator++(int);
+
+        \item DirectoryEntry\& operator*();
+
+        \item const DirectoryEntry\& operator*() const;
+
+        \item DirectoryEntry* operator->();
+
+        \item const DirectoryEntry* operator->() const;
+
+        \item bool operator==(const DirectoryIterator\& );
+
+        \item bool operator!=(const DirectoryIterator\& );
+
+      \end{itemize}
+а также стандартный конструктор DirectoryIterator(),
+который дает итератор, указывающий на виртуальный элемент "после последнего"
+
+\subsection{Исключение DirectoryException}
+
+DirectoryException представляет собой исключение,
+которое генерируется следующими методами класса DirectoryEntry:
+\begin{list}{}{}
+\item DirectoryEntry(const char* path);
+\item \verb|~|DirectoryEntry();
+\item DirectoryEntry(const DirectoryEntry\& x);
+\item DirectoryEntry\& operator=(const DirectoryEntry\& x);
+\item bool next();
+\item bool find(const char* name);
+\item void close();
+\end{list}
+при ошибках системы, а также конструктором {\em DirectoryEntry(cont *char)} в том случае,
+когда директория, имя которой передано в виде параметра, не существует.
+Т.к. DirectoryIterator и DirectoryContainer являются надстройками над DirectoryEntry,
+класс DirectoryException может быть послан следующими методами класса DirectoryIterator:
+\begin{list}{}{}
+\item DirectoryIterator(const DirectoryIterator\& );
+\item operator=(const DirectoryIterator\& );
+\item operator++();
+\item operator++(int);
+\end{list}
+а также следующими методами класса DirectoryContainer: 
+\begin{list}{}{}
+\item begin()
+\item record\_count()
+\item no\_files()
+\item size()
+\item empty()
+\end{list}
+
+\paragraph{API:}
+
+\begin{verbatim}
+struct DirectoryException
+{
+  long errno; // номер ошибки ОС
+  string message; // стандартное сообщение о системной ошибке
+}
+
+\end{verbatim}
+
+
+\section{Простой пример}
+
+  Данный пример демонстрирует порядок использования пакета {\bf DirectoryContainer}:
+
+\begin{verbatim}
+
+#include <GradSoft/DirectoryContainer.h>
+
+ifdef HAVE_NAMESPACES
+#include <iostream>
+using namespace std;
+using namespace GradSoft;
+#else
+#include <iostream.h>
+#endif
+
+#include <stdio.h>
+
+int main(int argc, char** argv)
+
+  if (argc!=2) {
+    cerr << "Usage: " << argv[0] << " path" << endl;
+    return 1;
+  }
+
+  cout<<endl<<">>>> 1 >>>>"<<endl;
+  
+  // Usinig DirectoryEntry:
+  
+  try{
+  
+    DirectoryEntry smth(argv[1]);  
+  
+    do {
+  
+     cout<<smth.name()<<endl;  
+  
+    } while(smth.next());  
+  
+  } catch(DirectoryContainer& ex) {
+  
+    cerr << ex.message << endl;
+  }
+  
+  cout<<endl<<">>>> 2 >>>>"<<endl;
+  
+  // Using DirectoryContainer:
+  
+  try{
+  
+    DirectoryContainer dir(argv[1]);
+  
+    Directory::iterator it;
+  
+    for( it=dir.begin(); it!=dir.end(); ++it)
+    {
+      cout << it->name() ;
+      if ( it->is_directory() ) cout << " ( DIR ) ";
+      else cout << " ( " << it->fsize() << " ) ";
+      cout << endl;
+    }    
+  
+  } catch(const DirectoryException& ex) {
+  
+    cerr << ex.message << endl;
+  }
+  return 0;
+}
+
+\end{verbatim}
+
+
+\section{Соглашения относительно программной среды}
+
+Если Вы работаете под управлением Windows NT, Вам необходимо:
+\begin{enumerate}
+  \item определить макрос WIN32 перед включением файла DirectoryContainer.h  
+  \item использовать "новые" библиотеки и, соответственно, заголовочные файлы iostream, fstream и т.п.
+        вместо аналогичных iostream.h, fstream.h и т.п.
+\end{enumerate}
+
+\section{История документа}
+
+ \begin{enumerate}
+   \item[16-10-2002] исправлено несколько опечаток.
+   \item[03-01-2002] обновлен в соответствии с новой версией пакета 1.4.0
+   \item[03-07-2001] DirectoryIterator переименован в DirectoryContainer
+   \item[16-05-2001] Текст приведен в соответствие с изменениями в коде
+   \item[09-01-2001] Первая русская редакция.
+   \item[15-01-2001] FileIterator переименован в DirectoryIterator 
+ \end{enumerate}
+
+\end{document}

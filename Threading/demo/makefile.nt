@@ -1,0 +1,24 @@
+## Makefile for Windows NT
+## part of GradSoft C++ ToolBox
+## $Id: makefile.nt,v 1.9 2003-10-10 15:34:33 rssh Exp $
+
+############################################
+!ifndef PROJECT_ROOT       #               #
+PROJECT_ROOT=$(MAKEDIR)\.. # debug entries #
+!endif                     #               #
+############################################
+
+DIRS=$(MAKEDIR)\Container \
+     $(MAKEDIR)\DeleteThis \
+     $(MAKEDIR)\Hairdresser \
+     $(MAKEDIR)\Philosophs \
+     $(MAKEDIR)\Stress \
+     $(MAKEDIR)\ThreadServices 
+
+build: ;
+
+  @for %i in ( $(DIRS) ) do @cd %i && $(MAKE) /F Makefile.nt PROJECT_ROOT="$(PROJECT_ROOT)" build
+
+build-shared: 
+
+clean: ; @for %i in ( $(DIRS) ) do @cd %i && $(MAKE) /F Makefile.nt clean

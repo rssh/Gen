@@ -1,0 +1,66 @@
+\documentclass[10pt]{article}
+%\usepackage{tex4ht}
+\usepackage[OT1,T2A]{fontenc}
+\usepackage[koi8-u]{inputenc}
+\usepackage{graphicx}
+\usepackage{verbatim}
+
+%\Contribute{TITLE}{\def\LaTeX{LaTeX}}
+
+\title{ SMTPmailer: tool for sending messages }
+
+\begin{document}
+
+\maketitle{}
+
+\tableofcontents
+
+\section{Introduction}
+SMTPmailer is a class that contains the number of methods which  are useful for
+sending messages to reciever or group of recivers. For sending mails SMTPmailer
+uses a uniform interface for different platforms(U*NIX/Windows). Using of 
+the uniform helps creating well-porting program for heterogeneous operation
+system.
+
+\section{Small example}
+
+\hrule \vspace {10pt}
+
+\begin{verbatim}
+
+#include <GradSoft/SMTPmailer.h>
+
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+int main(int argc, char* argv[])
+{
+   const int addr_len = 50;
+   char addr[addr_len];
+   if (argc < 3) {
+      cerr << "Usage : SMTPmailerDemo 
+	      <snmp-server ip address> <e-mail address>" << endl;
+      return 0;
+   }
+   if (strlen(argv[2])<addr_len)  strncpy(addr,argv[2],addr_len);
+   else return 0;
+   SMTPmailer mailer(argv[1]);
+   try {
+      mailer.beginSend("AutomaticSMTPmailer@gradsoft.com.ua",
+					(const char*) addr );
+      mailer << "Hello world !!!\nBye !!!" << "\n....\n";
+      mailer << "..\n.\n.";
+      mailer.endSend();
+   } catch(const SMTPmailer::SMTPError& ex) {
+      cerr << "Error:" <<  ex.error << endl;
+   }
+   return 0;
+}
+
+\end{verbatim}
+
+\hrule \vspace {10pt}
+\section{Changes}
+\end{document}

@@ -1,0 +1,18 @@
+PROJECT_ROOT=@project_root@
+include $(PROJECT_ROOT)/config/entry.mak
+
+INSTALL_INCLUDES=ProgOptions.h StringPtrWithLen.h \
+                 ProgOptionsConfig.h ProgOptionsPostConfig.h
+INSTALL_INCLUDES_DIR=$(prefix)/include/GradSoft
+
+build:
+install:
+	for i in $(INSTALL_INCLUDES); do \
+	 $(INSTALL_DATA) $$i $(INSTALL_INCLUDES_DIR);\
+	done
+
+uninstall:
+	-for i in $(INSTALL_INCLUDES); do \
+	 rm $(INSTALL_INCLUDES_DIR)/$$i; \
+	done
+

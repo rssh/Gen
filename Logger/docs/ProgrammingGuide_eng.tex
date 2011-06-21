@@ -1,0 +1,204 @@
+
+\documentclass[10pt]{article}
+%\usepackage{tex4ht}
+\usepackage[OT1,T2A]{fontenc}
+\usepackage{graphicx}
+\usepackage{verbatim}
+
+%\Contribute{TITLE}{\def\LaTeX{LaTeX}}
+\title{ Logger: Programming Guide  
+       \newline
+       \small{DocumentId:GradSOft-PR-09.08.2000-v1.2.0 }
+      }
+
+% $Id: ProgrammingGuide_eng.tex,v 1.12 2002-06-10 18:08:26 rin Exp $
+
+\begin{document}
+
+\maketitle{}
+
+%\tableofcontents
+
+\section{ Introduction }
+
+ Logger is a C++ component, which allow easy add loggin abilities
+  to you application 
+  and organize event-depended call of user functions. 
+
+ This document is an unformal description of package, for full specification,
+ please, see API reference. 
+ (\verb|www.gradsoft.kiev.ua/common/ToolBox/Logger/API/index.html|).
+
+\section{ General description }
+
+ Using of Logger must be  follow next pattern:
+
+ \begin{itemize}
+   \item Application programmer must create object of type Logger and set it
+ configurable parameters.
+   \item Object of type Logger afford to application programmer virtual streams for messages passing. Five types of messages are predefined: 
+    Debug, Info, Warning, Errors, Fatals.
+   \item For writing to this streams programmer uses next logger attributes:
+    \begin{itemize}
+        \item  Logger::debugs(),  
+        \item  Logger::infos(),  
+        \item  Logger::warnings(),  
+        \item  Logger::errors(),  
+        \item  Logger::fatals(),  
+    \end{itemize}
+    by the next way:
+    \begin{verbatim}
+      logger.errors() << "This is error:" << 334 << endl;
+    \end{verbatim}
+    After execution of this code string \verb|"This is error:334"| will be 
+  writed to log file, and if callback function for errore was set, it will
+  be called with argument \verb|"This is error:334"|
+   \item 
+     For setting callback function, which called when message of some type
+    is outted, application programmer must use method:
+     Logger::setCallback
+ \end{itemize}
+
+\subsection{Compile time settings}
+
+  
+   It is possible to enable or disable output to logger streams in
+  compile time by setting next preprocessor symbols to values true of false:
+  \begin{itemize}
+    \item \verb|LOG_DEBUG_ENABLE| - output to debug stream (i. e. to
+   \verb|logger.debugs()| is enabled. When \verb|LOG_DEBUG_ENABLE| set to
+   true, expression \verb|logger.debugs() << msg << endl()| is evaluated as
+   was described in previous section. Otherwise, this statement reduct to
+   "nothing-do" statement, which must be eliminated by smart C++ compiler.
+   By default \verb|LOG_DEBUG_ENABLE| is set to \verb|false|.
+    \item \verb|LOG_INFO_ENABLE| - enable output to infos stream (i. e. logger.infos() ). It is set to \verb|true| by default.
+    \item \verb|LOG_WARNING_ENABLE| - enable output to warnings stream. 
+ Default value is true.
+    \item \verb|LOG_ERROR_ENABLE| - enable output to error stream. 
+ Default value is true.
+    \item \verb|LOG_FATAL_ENABLE| - enable output to fatals stream. 
+ Default value is true.
+ \end{itemize}
+
+\subsection{Run time settings}
+
+ Also exists next  run-time Logger settings:
+\begin{itemize}
+  \item - file name for logger output.  Appropriative method is:
+\begin{verbatim}
+void Logger::setOutputFile(const char* fname) throw Logger::IOException
+\end{verbatim}
+  This method generate exception \verb|IOException| on unsuccess.
+  \verb|IOException::what()| contains error message.
+  \item - are we want additonally output all messuges to user terminal ?
+\begin{verbatim}
+void Logger::setDuppedToStderr(bool x) 
+\end{verbatim}
+  Default value is false. In addition you can set this option as parameter of
+Logger constructor.
+  \item - are we want generate syslog messages to store messages in system journal ?
+\begin{verbatim}
+void Logger::setSyslogOutput(bool x) 
+\end{verbatim}
+   Default value is true. Note, that under Windows NT this option have no effect.
+\end{itemize}
+
+  
+\section{ Example }
+  which illustrate Logger use is follow:
+
+
+\begin{verbatim}
+
+#define LOG_DEBUG_ENABLE true
+
+#include <GradSoft/Logger.h>
+
+void debug_callback(const char* msg)
+{
+ cerr << "debug_callback:" << msg << endl;
+}
+
+int main(int argc, char** argv)
+{
+ try {
+  GradSoft::Logger logger("file.log");
+  logget.setCallback(GradSoft::Debug,debug_callback);
+ 
+  logger.debugs() << "debug output 1 for " << argv[0] << endl; 
+ }catch(Logger::IOException){
+   cerr << "can't open log file" << endl;
+   return 1;
+ }
+
+ return 0;
+}
+
+\end{verbatim}
+
+\section{ Using Logger in multithreaded applications }
+ 
+ You can use Logger in muiltithreaded applications: all Logger methods
+are thread-safe. But during using of logger output streams via 
+\verb|operator<<| exists potential problem of interference of messages 
+from different streams. For preventing this we reserve mutex for each logger
+stream and define class - lock guard of this mutex which is lock mutex
+on creation and unlock on destruction.
+
+ So, we reccomend use next code fragment as codding pattern:
+\begin{verbatim}
+ {
+  Logger::DebugLocker guard(logger.debugs());
+  Logger.debugs() << "print " << "what " << "you " << "want" << endl;
+ }
+\end{verbatim}
+
+ Now more formal definition and naming scheme for locking classes:
+ 
+ For each event type \verb|Xxx| class \verb|Logger::XxxLocker| is defined.
+The methods of \verb|Logger::XxxLocker| are:
+\begin{itemize} 
+  \item \verb|XxxLocker(XxxStream&)| - own mutex which control output to 
+  \verb|xxxs()|.
+  \item \verb|~XxxLocker()| - free this mutex. 
+\end{itemize} 
+ In case, when appropriative debug stream is disabled, lock class is reduces
+to empty class with empty operations.
+
+
+\section{ Programming Environment Conventions }
+
+\begin{enumerate}
+  \item You standart C++ library must support \verb|string| type.
+  \item Few autoconf-derived macroporocessor variables are defined in file 
+  \verb|LoggerConfig.h| (or \verb|LoggerConfingNT.h| for Windows)
+ which is generated during Logger installation. 
+  {\em before} inclusion of file Logger or Logger.h
+  Potentially names of this macroses can potentially conflict with autoconf names  of other packages or you main program.
+  To prevent this, we reccomend use \verb|#ifdef quards| for you autoconf macroses:
+\begin{verbatim}
+#ifdef HAVE_Xxx  
+#undef HAVE_Xxx  
+#endif
+\end{verbatim}
+  \item Using Logger on Windows NT, you must:
+    \begin{enumerate}
+      \item to define WIN32 macro before inclusion of Logger.h header file;
+      \item to use iostream, fstream, etc. standard headers instead iostream.h, fstream.h, etc. ones.
+    \end{enumerate}
+\end{enumerate}
+
+\section{ Changes }
+
+\begin{itemize}
+ \item [03.01.2002] - updated in accordance with GradC++ToolBox 1.4.0
+ \item [03.07.2001] - changed example: removed using of deprecated header 
+   \verb|GradSoft/Logger|
+ \item [02.06.2001] - changed programming environment and added 
+ sections about 1.2.0 features.
+ \item [18.02.2001] - review, added formal document attributes.
+ \item [09.08.2000] - initial revision.
+\end{itemize}
+
+
+\end{document}

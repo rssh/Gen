@@ -1,0 +1,123 @@
+set timeout 100
+
+
+set test single-thread-blocking
+if { [ catch {system $toolexe single-thread-blocking} message ] } {
+  fail "$test : $message"
+} else {
+  pass $test
+}
+
+set test single-thread-checked
+if { [ catch {system $toolexe single-thread-checked} message ] } {
+  fail "$test : $message"
+} else {
+  pass $test
+}
+
+set test single-thread-reactive-blocked-1 
+if { [ catch {system $toolexe single-thread-reactive 1 blocked} message ] } {
+  fail "$test : $message"
+} else {
+  pass $test
+}
+
+set test single-thread-reactive-blocked-100 
+if { [ catch {system $toolexe single-thread-reactive 100 blocked} message ] } {
+  fail "$test : $message"
+} else {
+  pass $test
+}
+
+set test single-thread-reactive-checked-1 
+if { [ catch {system $toolexe single-thread-reactive 1 checked} message ] } {
+  fail "$test : $message"
+} else {
+  pass $test
+}
+
+set test single-thread-reactive-checked-100 
+if { [ catch {system $toolexe single-thread-reactive 100 checked} message ] } {
+  fail "$test : $message"
+} else {
+  pass $test
+}
+
+set test single-thread-reactive-with-timeout-1-1000 
+if { [ catch {system $toolexe single-thread-reactive 1 with-timeout 1000} message ] } {
+  fail "$test : $message"
+} else {
+  pass $test
+}
+
+set test single-thread-reactive-with-timeout-100-1000 
+if { [ catch {system $toolexe single-thread-reactive 100 with-timeout 1000} message ] } {
+  fail "$test : $message"
+} else {
+  pass $test
+}
+
+set test thread-per-client 
+if { [ catch {system $toolexe thread-per-client} message ] } {
+  fail "$test : $message"
+} else {
+  pass $test
+}
+
+set test thread-pool-1-1-blocked 
+if { [ catch {system $toolexe thread-pool 1 1 blocked} message ] } {
+  fail "$test : $message"
+} else {
+  pass $test
+}
+
+set test thread-pool-10-1-blocked 
+if { [ catch {system $toolexe thread-pool 10 1 blocked} message ] } {
+  fail "$test : $message"
+} else {
+  pass $test
+}
+
+set test thread-pool-1-100-blocked 
+if { [ catch {system $toolexe thread-pool 1 100 blocked} message ] } {
+  fail "$test : $message"
+} else {
+  pass $test
+}
+
+set test thread-pool-10-100-blocked 
+if { [ catch {system $toolexe thread-pool 1 100 blocked} message ] } {
+  fail "$test : $message"
+} else {
+  pass $test
+}
+
+set test thread-pool-1-1-checked
+if { [ catch {system $toolexe thread-pool 1 1 checked} message ] } {
+  fail "$test : $message"
+} else {
+  pass $test
+}
+
+set test thread-pool-10-1-checked
+if { [ catch {system $toolexe thread-pool 10 1 checked} message ] } {
+  fail "$test : $message"
+} else {
+  pass $test
+}
+
+set test thread-pool-1-100-checked
+if { [ catch {system $toolexe thread-pool 1 100 checked} message ] } {
+  fail "$test : $message"
+} else {
+  pass $test
+}
+
+set test thread-pool-10-100-checked
+if { [ catch {system $toolexe thread-pool 10 100 checked} message ] } {
+  fail "$test : $message"
+} else {
+  pass $test
+}
+
+

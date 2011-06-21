@@ -1,0 +1,9 @@
+/**
+ * part of Grad-Soft C++ ToolBox
+ * (C) Grad-Soft Ltd, Kiev, Ukraine
+ * $Id: ptrsConfig.h.in,v 1.1 2002-03-19 20:17:09 rssh Exp $
+ **/
+
+#ifndef HAVE_PARTIAL_SPECIALIZATION
+#undef HAVE_PARTIAL_SPECIALIZATION
+#endif

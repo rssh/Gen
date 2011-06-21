@@ -1,0 +1,4 @@
+
+ for the aim of automnatically including some file in distribution,
+ do not forgott to include it in "flist."-file lying in the project root
+

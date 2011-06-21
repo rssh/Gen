@@ -1,0 +1,446 @@
+
+\documentclass[10pt]{article}
+%\usepackage{tex4ht}
+\usepackage[OT1,T2A]{fontenc}
+\usepackage[koi8-u]{inputenc}
+\usepackage{graphicx}
+\usepackage{verbatim}
+
+%\Contribute{TITLE}{\def\LaTeX{LaTeX}}
+\title{ DirectoryContainer : Programmer Guide
+        \newline
+        \small{DocumentId:GradSoft-PR-e-11.12.2000-v1.0.0}
+}
+% $Id: ProgrammingGuide_eng.tex,v 1.6 2002-10-16 10:30:02 rssh Exp $
+
+\begin{document}
+
+\maketitle{}
+
+\tableofcontents
+
+\section{Introduction}
+
+ This package DirectoryContainer is a cross-platform C++ component for reading file directory.
+ % check this turn of speach is correct
+ Using DirectoryContainer, you receives a simple API for actions such as searching file,
+ the same for UNIX and for Windows 32.
+ The package is supplied as source code.
+ The package is created and suppported by GradSopft company,
+ the home page of GradSoft is http://www.gradsoft.kiev.ua/.
+
+  This document is non-formal description of package, full specification are in
+  API reference. (www.gradsoft.kiev.ua/common/ToolBox/DirectoryContainer/API/).
+
+\section{Principles of using}
+
+
+\subsection{General information}
+
+Two next approach to the reading of the directory is realized:
+\begin{enumerate}
+\item You can use a {\bf DirectoryEntry} object for handling directory like an input stream;
+\item You can use a {\bf DirectoryContainer} object for handling directory like a container
+      for elements of type DirectoryEntry.
+\end{enumerate}
+
+\subsection{Class DirectoryEntry}
+
+\subsubsection{General information} 
+
+DirectoryEntry is a {\em being-positioned} object for handling the directory like an input stream.
+These words means following:
+\begin{enumerate}
+\item \begin{enumerate}
+      \item directory is considered to be a sequence of some (specific) elemets,
+            access to which is possible by unique pointer to the "current" element;
+
+      \item DirectoryEntry is designed to be a mean of handling of a single (the current) element
+            which is replaceable, however, by own methods of DirectoryEntry.
+      \end{enumerate}
+
+\item In order to directory was readed,
+      that must be opend before and closed afterwards.
+\end{enumerate}
+Using DirectoryEntry, the directory claimed will be opend along with object creation, 
+so that to obtain information about certain file you must fulfill the next actions:
+\begin{enumerate}
+\item To create DirectoryEntry and to {\em position} it at the file of interest;
+\item To invoke methods which returns information about current element of sequence.
+\end{enumerate}
+
+\noindent Example:
+
+\begin{verbatim}
+try{
+
+  DirectoryEntry smth(".");  // create object and position it
+                             // at the first element of sequence
+  do {
+
+   cout<<smth.name()<<endl;  // display the name of element
+
+  } while(smth.next());      // position object at the following 
+                             // element of sequence (or break the loop)
+
+} catch(DirectoryException& ex) {   // see below
+
+  cerr << ex.message << endl;
+}
+\end{verbatim}
+This code display the list of files disposed in the current directory.
+
+\subsubsection{API}
+
+{\bf General information:} \\
+
+\noindent DirectoryEntry complies with models Assignable and EqualityComparable, i.e. it has:
+\begin{enumerate}
+\item Copy constructor and operator= ;
+\item operator== and operator!=.
+\end{enumerate}
+Nevertheless, it is'nt DеfaultConstructable, default constructor of it is private.
+
+\paragraph{Description of methods:}
+
+\begin{enumerate}
+\item Means for complying with Assignable and EqualityComparable 
+
+      \begin{itemize}
+      \item {\em DirectoryEntry(const DirectoryEntry\& )};
+      \item {\em DirectoryEntry\& operator=(const DirectoryEntry\& )};
+      \item {\em bool operator==(const DirectoryEntry\& ) const};
+      \item {\em bool operator!=(const DirectoryEntry\& ) const};
+      \end{itemize}
+
+\item Means for creation and closing of stream:
+
+      \begin{itemize}
+      \item {\em DirectoryEntry(const char*)} - open directory and position object
+            at the first element
+
+            {\bf Parameter:} name of directory
+
+      \item {\em close()} - close directory 
+      \item {\em \verb|~|DirectoryEntry()} - invoke close()
+
+      \end{itemize}
+
+\item Means for positioning:
+
+      \begin{itemize}
+      \item {\em bool next()} - position object at the next element of sequence 
+
+            {\bf Return value:}
+            \begin{list}{-}{}
+            \item {\bf true}, if positioning succeeds;
+            \item {\bf false}, if object arrives at the end of file 
+            \end{list}
+
+      \item {\em bool find(const *char)} - position object at the element with 
+            given name
+
+            {\bf Parameter:}
+
+            the name of the file must be found
+
+            {\bf Return value:}
+            \begin{list}{-}{}
+            \item {\bf true}, if positioning succeeds;
+            \item {\bf false}, if object arrives at the end of file
+            \end{list}
+
+      \end{itemize}
+
+\item Methods returning information about current element of sequence:
+
+      \begin{itemize}
+      \item {\em const char* name()} - returns the name of current element (being file or subdirectory)
+      \item {\em int fsize()} - returns a size of file or 0 if current element is subdirectory 
+      \item {\em bool is\_directory()} - returns {\bf true}, if current element is subdirectory and {\bf false} otherwise
+      \item {\em bool is\_hidden()} - returns {\bf true}, if current element is hidden
+            (this may be under Windows) and {\bf false} otherwise
+      \end{itemize}
+      Attention: if the object arrives at the end of file, then values returned by these methods
+      are undefined.
+
+\end{enumerate}
+
+\paragraph{Note:}
+\begin{list}{}{}
+\item Two instances of DirectoryEntry is assigned be equil, if both are:
+      \begin{enumerate}
+      \item not positioned (the end of files are achieved)
+      \item positioned at the same element of the same directory
+            supposing that the element is identified by name.
+      \end{enumerate}
+\end{list}
+
+\subsection{Class DirectoryContainer}
+
+\subsubsection{General information}
+
+DirectoryContainer constitutes a class which provide facilities to work with
+file directory %check this turn of speech is correct?
+like STL-container.
+The value type of DirectoryContainer is class DirectoryEntry,
+the iterator type is class DirectoryIterator (see below \ref{DirectoryIterator})
+being Forward Iterator for sequence of DirectoryEntry.
+In that context DirectoryEntry is considered to be a mean attendant upon fixed record of directory,
+positioning of this object by own means must not be fulfill. \\
+
+\noindent Example:
+
+\begin{verbatim}
+
+try{
+
+  DirectoryContainer dir(".");
+
+  DirectoryContainer::iterator it;
+
+  for( it=dir.begin(); it!=dir.end(); ++it ) cout<< it->name() <<endl;
+
+} catch(DirectoryException& ex) {
+
+  cerr << ex.message << endl;
+}
+
+\end{verbatim}
+This code area has same functionality as that is typed above  
+
+\subsubsection{API}
+
+\paragraph{Associated types:}
+
+\begin{itemize}
+\item value\_type - class DirectoryEntry
+\item iterator - class DirectoryIterator (\ref{DirectoryIterator}),
+\item const\_iterator - the same as iterator
+\item reference - a reference to the DirectoryEntry
+\item const\_reference - a constant reference to the DirectoryEntry
+\item pointer - a pointer to the DirectoryEntry
+\item distance\_type - DirectoryIterator difference type (long)
+\item size\_type - long
+\end{itemize}
+
+\paragraph{Description of methods:}
+
+\begin{enumerate}
+\item Container's means:
+
+      \begin{itemize}
+      \item {\em DirectoryContainer(DirectoryContainer\&)};
+      \item {\em DirectoryContainer\& operator=(DirectoryContainer\&)};
+      \item {\em DirectoryIterator begin()};
+      \item {\em static const DirectoryIterator\& end()};
+      \item {\em size\_type size()};
+      \item {\em size\_type max\_size()};
+      \item {\em bool empty()};
+      \item {\em void swap(DirectoryContainer\&)};
+      \end{itemize}
+
+\item Specific means:
+
+      \begin{itemize}
+      \item {\em DirectoryContainer()} - creates DirectoryContainer
+            associated with current directory;
+            {\bf Parameter:} the name of directory;
+      \item {\em DirectoryContainer(const char *path)} - creates DirectoryContainer
+            associated with given directory;
+            {\bf Parameter:} the name of directory;
+      \item {\em setPath(const char *path)} - associate DirectoryContainer
+            with given directory;
+            {\bf Parameter:} the name of directory;
+      \item {\em record\_count()} - returns a record count of the directory
+            excepting pointer to the directory itself and pointer to the parent direectory;
+            it is a size()-2 in most cases
+      \item {\em bool no\_records()} - returns {\bf true}, if the directory is not contain any records
+            excepting pointer to the directory itself and pointer to the parent direectory,
+            and {\bf false} otherwize.
+
+      \end{itemize}
+
+\end{enumerate}
+
+
+\noindent {\bf Note:}
+
+\begin{list}{}{}
+\item Note a size() method returns the record count including special entry
+      (which is a pointer to the directory itself and a pointer to the parent direectory),
+      and, consequently, an empty() method returns {\bf false} in most cases
+      (excepting case of checking empty disk for Windows platform).
+      Use no\_files() method to check if the directory is empty in usual sense terms.
+\end{list}
+
+\subsection{Class DirectoryIterator} \label{DirectoryIterator}
+
+DirectoryIterator is especial class being a Forward Iterator for sequence of DirectoryEntry.
+Thus, it has next methods:
+      \begin{itemize}
+
+        \item DirectoryIterator(const DirectoryIterator\& );
+
+        \item DirectoryIterator\& operator=(const DirectoryIterator\& );
+
+        \item DirectoryIterator\& operator++();
+
+        \item DirectoryIterator operator++(int);
+
+        \item DirectoryEntry\& operator*();
+
+        \item const DirectoryEntry\& operator*() const;
+
+        \item DirectoryEntry* operator->();
+
+        \item const DirectoryEntry* operator->() const;
+
+        \item bool operator==(const DirectoryIterator\& );
+
+        \item bool operator!=(const DirectoryIterator\& );
+
+      \end{itemize}
+and, then, a defaut constructor DirectoryIterator()
+which makes iterator for past-the-end element.
+
+\subsection{Class DirectoryException}
+
+DirectoryException is a class which may be thrown by DirectoryEntry methods
+\begin{list}{}{}
+\item DirectoryEntry(const char* path);
+\item \verb|~|DirectoryEntry();
+\item DirectoryEntry(const DirectoryEntry\& x);
+\item DirectoryEntry\& operator=(const DirectoryEntry\& x);
+\item bool next();
+\item bool find(const char* name);
+\item void close();
+\end{list}
+in the case of system error occur, and additionally by {\em DirectoryEntry(cont *char)} constructor
+in the case of directory with name being taken is not exist.
+As DirectoryIterator and DirectoryContainer are superstructures under DirectoryEntry,
+this class DirectoryException may be thrown by next DirectoryIterator's methods:
+\begin{list}{}{}
+\item DirectoryIterator(const DirectoryIterator\& );
+\item operator=(const DirectoryIterator\& );
+\item operator++();
+\item operator++(int);
+\end{list}
+and next DirectoryContainer's methods: 
+\begin{list}{}{}
+\item begin()
+\item record\_count()
+\item no\_files()
+\item size()
+\item empty()
+\end{list}
+
+
+\paragraph{API:}
+
+\begin{verbatim}
+struct DirectoryException
+{
+  long errno; // system error number
+  string message; // system error message
+}
+
+\end{verbatim}
+
+ 
+  
+\section{Full-fledged example}
+
+  This code is full-fledged example of using of the package:
+
+% Данный пример демонстрирует порядок использования пакета {\bf DirectoryContainer}:
+
+\begin{verbatim}
+#include <GradSoft/DirectoryContainer.h>
+
+ifdef HAVE_NAMESPACES
+#include <iostream>
+using namespace std;
+using namespace GradSoft;
+#else
+#include <iostream.h>
+#endif
+
+#include <stdio.h>
+
+int main(int argc, char** argv)
+
+  if (argc!=2) {
+    cerr << "Usage: " << argv[0] << " path" << endl;
+    return 1;
+  }
+
+  cout<<endl<<">>>> 1 >>>>"<<endl;
+  
+  // Usinig DirectoryEntry:
+  
+  try{
+  
+    DirectoryEntry smth(argv[1]);  
+  
+    do {
+  
+     cout<<smth.name()<<endl;  
+  
+    } while(smth.next());  
+  
+  } catch(DirectoryContainer& ex) {
+  
+    cerr << ex.message << endl;
+  }
+  
+  cout<<endl<<">>>> 2 >>>>"<<endl;
+  
+  // Using DirectoryContainer:
+  
+  try{
+  
+    DirectoryContainer dir(argv[1]);
+  
+    Directory::iterator it;
+  
+    for( it=dir.begin(); it!=dir.end(); ++it)
+    {
+      cout << it->name() ;
+      if ( it->is_directory() ) cout << " ( DIR ) ";
+      else cout << " ( " << it->fsize() << " ) ";
+      cout << endl;
+    }    
+  
+  } catch(DirectoryException& ex) {
+  
+    cerr << ex.message << endl;
+  }
+  return 0;
+}
+
+\end{verbatim}
+
+
+
+\section{ Programming environment conventions }
+
+Using DirectoryContainer on Windows NT, you must:
+\begin{enumerate}
+  \item to define WIN32 macro before inclusion of DirectoryContainer.h header file;
+  \item to use iostream, fstream, etc. standard headers instead iostream.h, fstream.h, etc. ones.
+\end{enumerate}
+
+\section{ Changes }
+
+\begin{itemize}
+  \item[16-10-2002] fixed incorrect URL for API reference.
+  \item[03-01-2002] updated in accordance with 1.4.0 public release.
+  \item[01-08-2001] last touch before 1.3.0 public release.
+  \item[03-07-2001] name changed to DirectoryContainer
+  \item[17-05-2001] bringing into accordance with changes in code.
+  \item[11-12-2000] initial revision of english text.
+  \item[15-01-2001] name changed to DirectoryIterator.
+\end{itemize}
+
+\end{document}

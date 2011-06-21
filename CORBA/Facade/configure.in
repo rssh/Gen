@@ -1,0 +1,66 @@
+dnl configure.in for CosQuery.
+dnl part of ua.kiev.grad. framework.
+dnl (C) Ruslan Shevchenko <Ruslan@Shevchenko.Kiev.UA>, 1998, 1999
+dnl $Id: configure.in,v 1.1 2000-08-03 20:54:30 rssh Exp $
+dnl
+dnl Process this file with autoconf to produce a configure script.
+
+AC_SUBST(PACKAGE, CORBAFacade)
+AC_SUBST(VERSION, 1.0)
+
+AC_INIT(include/GradSoft/CORBAFacade.h)
+AC_CONFIG_AUX_DIR(../../config)
+
+
+dnl check system type
+AC_CANONICAL_SYSTEM
+
+dnl
+dnl Checks for programs.
+dnl
+AC_CANONICAL_HOST
+AC_PROG_CC
+AC_PROG_CXX
+AC_PROG_CXXCPP
+AC_PROG_RANLIB
+AC_PROG_INSTALL
+AC_PROG_MAKE_SET
+
+RSSH_PROG_CXXAR
+RSSH_PROG_CXXLD
+
+
+RSSH_CHECK_SUNPRO_C
+RSSH_CHECK_SUNPRO_CC
+
+RSSH_RTTI
+RSSH_PIC_FLAG
+
+RSSH_CHECK_ORB
+
+AC_CXX_NAMESPACES
+
+dnl
+dnl define some helper Makefile.in variables.
+dnl
+PROJECT_ROOT=`pwd`
+project_root=$PROJECT_ROOT
+AC_SUBST(PROJECT_ROOT)
+AC_SUBST(project_root)
+
+
+LIBS="$LIBS $LIBS_COLLECTION"
+AC_SUBST(LIBS,"$LIBS")
+
+AC_CONFIG_SUBDIRS(demo)
+
+AC_OUTPUT(Makefile \
+          config/entry.mak \
+          src/Makefile \
+	  include/Makefile \
+	  include/GradSoft/Makefile \
+          docs/Makefile \
+	  )
+
+
+

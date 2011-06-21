@@ -1,0 +1,19 @@
+# part of GradSoft C++ ToolBox
+# (C) Grad-Soft Ltd, Ukraine
+# $Id: Makefile.in,v 1.2 2001-09-18 17:03:52 rssh Exp $
+#
+
+SUBDIRS=GradSoft
+
+@SET_MAKE@
+
+build:
+
+install: 
+	for i in $(SUBDIRS); do (cd $$i; ${MAKE} install); done
+
+uninstall: 
+	for i in $(SUBDIRS); do (cd $$i; ${MAKE} uninstall); done
+
+clean:
+

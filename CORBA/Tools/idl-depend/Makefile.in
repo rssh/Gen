@@ -1,0 +1,22 @@
+
+SUBDIRS=sh
+
+@SET_MAKE@
+
+all:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) all); done
+
+install:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) install); done
+
+uninstall:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) uninstall); done
+
+clean:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) clean); done
+
+reconfigure:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) reconfigure); done
+
+documentation:
+

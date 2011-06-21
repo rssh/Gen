@@ -1,0 +1,20 @@
+## Makefile for Windows NT: Timing usage sample compilation
+## $Id: makefile.nt,v 1.2 2002-04-11 18:07:53 kav Exp $
+
+include ..\..\config\env_inc.nt.mak
+include ..\config\env_inc.nt.mak
+
+
+default: build
+
+build: time.exe
+
+time.exe: time.obj
+	$(LD) time.obj $(LDFLAGS)
+	
+time.obj: time.cpp
+	$(CXX) $(CXXFLAGS) time.cpp
+
+clean::
+	@if exist *.obj $(RM) *.obj
+        @if exist *.exe $(RM) *.exe

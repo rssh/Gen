@@ -1,0 +1,26 @@
+PROJECT_ROOT=@project_root@
+include $(PROJECT_ROOT)/config/entry.mak
+
+SRCS=SMTPMailer.cpp
+OBJS=SMTPMailer.o
+
+LIB=libSMTPMailer.a
+
+build: $(LIB)
+
+install: build
+	$(INSTALL_DATA) $(LIB) $(prefix)/lib
+
+uninstall: 
+	-rm $(prefix)/lib/$(LIB)
+
+clean:
+	-rm *.o *.so $(LIB)
+
+.SUFFIXES: .cpp .o .so
+
+.cpp.o:
+	$(CXX) $(CXXFLAGS) -c -o $*.o $<
+
+$(LIB): $(OBJS)
+	$(AR) $(ARFLAGS) $(LIB) $(OBJS)

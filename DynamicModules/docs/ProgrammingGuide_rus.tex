@@ -1,0 +1,410 @@
+
+\documentclass[10pt]{article}
+%\usepackage{tex4ht}
+\usepackage[OT1,T2A]{fontenc}
+\usepackage[koi8-u]{inputenc}
+\usepackage{graphicx}
+\usepackage{verbatim}
+\usepackage{html}
+
+%\Contribute{TITLE}{\def\LaTeX{LaTeX}}
+\title{ DynamicModules: Руководство Программиста
+        \newline
+        \small{DocumentId:GradSoft-PR-r-15.09.2001-v1.0.0}
+}
+\author{ Ruslan Shevchenko }
+
+% $Id: ProgrammingGuide_rus.tex,v 1.12 2003-09-23 09:42:22 qwerty Exp $
+
+\begin{document}
+
+\maketitle{}
+
+\tableofcontents
+
+\section{Bведение}
+
+ {\bf DynamicModules} - это кроcсплатформенная компонета на C++,
+ предназначенная для динамической загрузки разделяемых библиотек
+ (\verb|lib<smth>.so| для UNIX, \verb|<smth>.dll| для Windows NT)
+
+ Пакет {\bf DynamicModules} разработан и поддерживается компанией GradSoft
+ и поставляется в исходных кодах.
+ Домашняя страница разработчика http://www.gradsoft.kiev.ua/
+
+ Этот документ является неформальным описанием пакета. Полная специфиткация
+ находится в описании API 
+
+\htmladdnormallink{www.gradsoft.kiev.ua/common/Products/Toolbox/DynamicModule/API/}{www.gradsoft.kiev.ua/common/Products/Toolbox/DynamicModule/API/}
+
+\section{Общие сведения}
+
+ Пакет DynamicModules позволяет строить программу в виде набора, состоящего из
+ главного модуля и (нескольких) динамически загружаемых библиотек. 
+  
+ Библиотека реализует некоторый, предоставленный пользователю, интерфейс
+ и обеспечивает доступ к реализации через статический объект,
+ произведенный от класса \verb|DynamicModule| или \verb|DynamicModuleTag|.
+
+ Головная программа получает доступ к такому объекту ("корневому объекту сервиса")
+ с помощью методов класса \verb|DynamicModules| (методы load, unload, getModule),
+ и создает себе классы для конкретной работы через него.
+
+ Разработчик головного модуля компилирует программу с библиотекой
+ \verb|libDynamicModules.{a,so}| для UNIX либо \verb|DynamicModules.lib| для Windows NT.
+
+ \section{Простой пример}
+
+ \subsection{Структура примера}
+
+ Простой пример использования средств DynamicModules состоит из следующих компонент:
+ \begin{enumerate}
+ \item общего заголовочного файла HelloInterface.h,
+       который должен включать заголовочный файл DynamicModules.h
+ \item загружаемого модуля HelloModule.cpp
+ \item основной программы Main.cpp
+ \end{enumerate}
+
+ \subsection{Общий заголовочный файл}
+
+ В общем заголовочном файле описаны cтруктуры данных,
+ которыми пользуются и клиент, и библиотека:
+ \begin{enumerate}
+ \item класс HelloInterface - интерфейс того средства,
+       которое, собственно, будет трудиться.
+ \item класс HelloModule - интерфейс "корневого объекта" сервиса -- т.е. средства,
+       при помощи которого клиент будет получать доступ к реализации HelloInterface
+ \end{enumerate}
+ (в сумме это все, что должно быть известно клиенту):
+
+\begin{verbatim}
+#include <GradSoft/DynamicModules.h>
+
+/**
+ * интерфейс, который требует какой-то нетривиальной реализации:
+ **/
+ class HelloInterface
+ {
+ public:
+   virtual ~HelloInterface() {}
+   virtual void hello() = 0;
+ };
+
+/**
+ * 'корневой объект' сервиса:
+ **/
+ class HelloModule: public GradSoft::DynamicModule
+ {
+ public:
+  /**
+   * возвращает ссылку на экземпляр HelloInterface:
+   **/
+   virtual HelloInterface* create(const char* name) = 0;
+ };
+\end{verbatim}
+
+\subsection{Загружаемый модуль}
+
+Файл HelloModule.cpp содержит реализацию HelloModule и HelloInterface:
+  
+\begin{verbatim}
+
+#include <HelloInterface.h>  
+#include <iostream>
+
+// реализуем основную функциональность:
+
+class Hello: public HelloInterface
+{
+public:
+
+  Hello(const char* x) {}
+  virtual ~Hello() {}
+  virtual void hello() 
+  {
+    std::cerr << "Hi! I'm Hello" << std::endl;
+  }
+};
+
+// и соответствующий 'корневой объект' (или Factory):
+
+class Hello1Module: public HelloModule
+{
+public:
+
+////  
+// Мы должны перегрузить следующие методы класса DynamicModule:
+////
+   
+  // имя сервиса
+  const char* name() const { return "Hello"; }
+
+  // информация о версии
+  int versionMajor() const { return 1; }
+  int versionMinor() const { return 0; }
+  int versionSubMinor() const { return 0; }
+
+  // автор
+  const char* author() const { return "Grad-Soft LTD"; }
+
+////
+// И реализовать специфический метод HelloModule:
+////
+
+  HelloInterface* create(const char* args)
+  {
+    return new Hello(args);
+  }
+
+};
+
+// теперь создаем модуль:
+Hello1Module tagHelloModule;
+
+// и экспортируем объект:
+EXPORT_OBJECT(tagHelloModule)
+
+\end{verbatim}
+
+\subsection{Головной модуль}
+
+\begin{verbatim}
+#include <HelloInterface.h>
+#include <memory>
+#include <iostream>
+
+using namespace GradSoft;
+
+int main()
+{
+ try {
+
+  // Загружаем модуль Hello из текущей директории:
+  DynamicModule& dmHello = DynamicModules::load("tagHelloModule","./Hello");
+
+  // Для того, чтобы вызвать create, преобразуем к типу HelloModule:
+  // Сначала вручную проверяем тип, так как static_cast такой проверки не осуществляет
+  // Конечно, изящнее было бы использовать dynamic_cast, но он не работает со
+  // статическими библиотеками при сборке с помощью gcc 3 и более поздними версиями
+  // (впрочем, в FAQ по GCC предложен способ обхода этого ограничения, но он в данном
+  // случае не функционирует).
+  std::string s=typeid(dmHello).name();
+  if (s.find("Hello1Module")==std::string::npos) {
+     throw std::bad_typeid();
+  }
+  HelloModule& helloModule = static_cast<HelloModule&>(dmHello);
+
+  // Используем:
+  {
+   std::auto_ptr<HelloInterface> h1 ( helloModule.create("xxx") );
+   h1->hello();
+  }
+
+  // Выгружаем модуль:
+  DynamicModules::unload("tagHelloModule");
+
+ }catch(const DynamicModules::Error& ex){
+
+  // Сообщаем о случившемся:
+  std::cerr << "Error during loading DynamicModule" << std::endl;
+  std::cerr << ex.what() << std::endl;
+  return 1;
+ }catch (std::bad_typeid) {
+   std::cerr << "Wrong type in dynamic module" << std::endl;
+ }
+ return 0;
+}
+\end{verbatim}
+
+\subsection{Собираем все вместе}
+
+Для того, чтобы собрать описанную программу, необходимо:
+\begin{enumerate}
+
+  \item Скомпилировать разделяемую библиотеку \verb|Hello.{so,dll}| при помощи команды типа:
+   \begin{enumerate}
+    \item Для UNIX с компилятором GCC:
+\begin{verbatim}
+    g++ -shared -o Hello.so [...] HelloModule.cpp
+\end{verbatim}
+    \item Для Windows NT:
+\begin{verbatim}
+    cl Hello1Module.cpp /MD /GR /GX /D "WIN32" [...] /link -DLL /out:Hello.dll
+\end{verbatim}
+    (Внимание: флаги /MD /GR /D "WIN32" должны использоваться обязательно)
+   \end{enumerate}
+
+  \item Cкомпилировать Main.cpp c библиотекой \verb|libDynamicModules.{a,so}| для UNIX
+        либо \verb|DynamicModules.lib| для Windows NT:
+   \begin{enumerate}
+    \item Для Linux с компилятором GCC:
+\begin{verbatim}
+    g++ Main.cpp -ldl [...] libDynamicModules.a
+\end{verbatim}
+    \item Для Windows NT:
+\begin{verbatim}
+    cl Main.cpp /MD /GR /GX /D "WIN32" [...] /link DynamicModules.lib 
+\end{verbatim}
+   \end{enumerate}
+
+\end{enumerate}
+Запустив полученный таким образом выполняемый файл, получаем следующий результат:
+\begin{verbatim}
+Hi! I'm Hello
+\end{verbatim}
+
+
+\section{ API DynamicModule }
+
+\subsection{Класс DynamicModule}
+
+ DynamicModule - это абстрактный C++ класс, конкретный экземпляр которого
+должен определяться в разделяемой бибилиотеке.
+
+ Программист должен перегузить в нем следующие методы:
+\begin{itemize}
+ \item \verb|const char* name() const| - возвращает имя модуля.
+ \item \verb|const char* author() const| - возвращает имя автора модуля.
+ \item \verb|int versionMajor() const| - возвращает основной номер версии.
+ \item \verb|int versionMinor() const| - возвращает второй номер версии.
+ \item \verb|int versionSubMinor() const| - возвращает третий номер версии.
+\end{itemize}
+ 
+ Несколько слов о нумерации версий: мы в своих продуктах используем
+трехзначные номера версий, где знаки имеют следующий смысл:
+\begin{itemize}
+ \item[1] - основной номер версии. Он меняется, если мы изменяем API 
+   программиста несовместимым образом.
+ \item[2] - второй номер версии. Он меняется, если мы изменяем бинарное
+   представление или протокол передачи данных (в сетевом случае)  
+ \item[3] - третий номер версии. Изменение третьего номера версии должно
+   сохранять бинарную совместимость.
+\end{itemize}
+
+  Заметим, что в случае разделяемых библиотек, на бинарную совместимость влияют
+ размеры классов, так что если Вы добавили в какой-то интерфейсный класс
+ внутреннюю переменную, то вам надо менять {\em второй номер версии }.
+ Поэтому мы рекомендуем включать в совместно-используемые интерфейсные
+ залоловки только абстрактные классы либо использовать \verb|Pimpl| идиому.
+ 
+\subsection{Тег библиотеки}
+
+ Один из C++ модулей библиотеки должен содержать глобальную переменную
+того же типа, что и модуль,
+с уникальным, среди всех загружаемых главной программой модулей, именем,
+которое мы рекомендуем строить как \verb|tag<ИмяМодуля>| или \verb|<имяМодуля>Tag|
+
+ Как Вы видели в примерах, мы дополнительно пишем
+\begin{verbatim}
+EXPORT_OBJECT(tag<ИмяМодуля>)
+\end{verbatim}
+
+ Это синтаксический сахар для сокрытия особенностей Windows API (где
+Вы должны использовать специальное ключевое слово для экспортирования
+функциональности библиотеки)
+
+ Одна особенность: это определение должно находиться {\em вне} любого
+пространства имен C++.
+
+Т. е. ваш файл с определением модуля должен выглядеть следующим образом:
+\begin{verbatim}
+ ... includes ..
+
+namespace MyCompany {
+
+....
+
+class MyModule: public DynamicModule
+{
+ ...
+};
+
+} // end of namespace (MyCompany)
+
+MyCompany::MyModule tagMyModule;
+
+
+\end{verbatim}
+
+Кстати, Вам имеет смысл добавлять имена пространств имен (извините за 
+тавтологию! ) к именам модулей.
+
+Т. е. может быть лучше поступить так:
+\begin{verbatim}
+MyCompany::MyModule tagMyCompany_MyModule;
+\end{verbatim}
+
+\subsection{Класс DynamicModules}
+
+ Класс DynamicModules - это синглетон, который обеспечивает управление
+библиотеками.
+
+Основные методы, это:
+
+\begin{verbatim}
+DynamicModules::load(const char* moduleName, const char* fname);
+\end{verbatim}
+
+ - загружает модуль \verb|<fname>.so| (для UNIX),
+ либо \verb|<fname>.dll| (для Windows NT), и запоминает его под именем \verb|moduleName|
+ (внимание: при работе под UNIX \verb|moduleName| должно совпадать с именем той глобальной переменной,
+ которая была экспортирована при помощи макроса \verb|EXPORT_OBJECT|).
+
+\begin{verbatim}
+DynamicModules::unload(const char* moduleName);
+\end{verbatim}
+
+ - уменьшает внутренний счетчик ссылок и выгружает модуль, если этот
+счетчик ссылок оказывается равным нулю.
+
+ После выгрузки модуля,
+сcылка на этот модуль, возвращенная \verb|load|, становится недействительной,
+любое ее использование приводит к неопределенному поведению программы.
+
+\begin{verbatim}
+DynamicModules::getModule(const char* moduleName);
+\end{verbatim}
+
+ - то же самое, что и \verb|load| за тем исключением, что когда модуль уже 
+загружен, счетчик ссылок не изменяется.
+
+\section{ Обработка ошибок } 
+
+ Методы DynamicModules могут генерировать исключения типа
+ \verb|DynamicModules::Error|.
+
+ Как обычно, метод what() возвращает строку - описание ошибки.
+ Конкретный перечень возможных сообщений зависит от операционной
+ системы.
+
+\section{ Заключительные замечания } 
+
+ Эта библиотека предоставляет возможность использовать модель слабо связных
+компонент на С++. Она более удобна, чем COM или XPCOM для реализации
+функциональности plugin вследствие своей простоты, с другой стороны
+она не ограничивает программиста в использовании либо реализации
+других компонентых моделей - вы можете совмещать, а не выбирать.
+
+ Кстати, одна из областей ее применения - реализация выбора между
+двумя технологиями [в стандартной архитектуре сервисов \verb|GradSoft|
+ вы можете выбирать низлежащий СОM или CORBA сервис, просто определив
+в системе одну из двух библиотек-прослоек].
+
+\section{ Перечень изменений }
+
+ \begin{itemize}
+   \item[24-01-2002] \begin{enumerate}
+                     \item пример использования:
+                           \begin{enumerate}
+                           \item выделен в отдельную секцию;
+                           \item упрощен;
+                           \item сделан компилируемым;
+                           \end{enumerate}
+                     \item исправлены отдельные ошибки в описании API.
+                     \end{enumerate}
+   \item[24-09-2001] коррекция опечаток.
+   \item[21-09-2001] первая полная версия.
+   \item[15-09-2001] создан.
+ \end{itemize}
+
+\end{document}

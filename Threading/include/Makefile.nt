@@ -1,0 +1,12 @@
+## Makefile for Windows NT: Threading include files installation 
+## $Id: Makefile.nt,v 1.3 2003-10-10 17:18:54 rssh Exp $
+
+DIRECTORIES=$(MAKEDIR)\GradSoft $(MAKEDIR)\GradSoft\ThreadServices
+
+install:
+  @for %i in ( $(DIRECTORIES) ) do @cd %i && $(MAKE) /F Makefile.nt install
+
+install-shared: install
+
+uninstall:
+  @for %i in ( $(DIRECTORIES) ) do @cd %i && $(MAKE) /F Makefile.nt uninstall

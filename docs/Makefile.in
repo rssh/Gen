@@ -1,0 +1,116 @@
+
+TEX_FILES=AdministrationGuide_rus.tex \
+          AdministrationGuide_eng.tex \
+          Changes_rus.tex \
+          Changes_eng.tex 
+
+DVI_FILES=AdministrationGuide_rus.dvi \
+          AdministrationGuide_eng.dvi \
+          Changes_rus.dvi \
+          Changes_eng.dvi 
+
+PS_FILES=AdministrationGuide_rus.ps \
+         AdministrationGuide_eng.ps \
+         Changes_rus.ps \
+         Changes_eng.ps 
+
+PDF_FILES=AdministrationGuide_rus.pdf \
+          AdministrationGuide_eng.pdf \
+          Changes_rus.pdf \
+          Changes_eng.pdf 
+
+build:
+
+clean:
+	-rm -f *.log *.aux *.bib *.dvi *.ps *.pdf
+	-rm -rf AdministrationGuide_rus AdministrationGuide_eng
+
+install:
+
+uninstall:
+
+reconfigure:
+
+docs: $(PDF_FILES) $(API_FILE)
+
+all: 
+
+.SUFFIXES: .tex .dvi .ps .pdf
+
+.tex.dvi:
+	latex $< 
+	latex $< 
+
+.tex.pdf:
+	pdflatex $<
+	pdflatex $<
+
+
+
+HTML_AD_RUS=AdministrationGuide_rus/index.html
+HTML_CH_RUS=Changes_rus/index.html
+HTML_AD_ENG=AdministrationGuide_eng/index.html
+HTML_CH_ENG=Changes_eng/index.html
+
+
+GRADSOFT_WEB_ROOT=@docs_web_root@
+HTML_AD_RUS_GRADSOFT=$(GRADSOFT_WEB_ROOT)/rus/Products/ToolBox/AdminGuide
+PDF_AD_RUS_GRADSOFT=$(GRADSOFT_WEB_ROOT)/rus/Products/ToolBox/pdf
+HTML_AD_ENG_GRADSOFT=$(GRADSOFT_WEB_ROOT)/eng/Products/ToolBox/AdminGuide
+PDF_AD_ENG_GRADSOFT=$(GRADSOFT_WEB_ROOT)/eng/Products/ToolBox/pdf
+HTML_CH_RUS_GRADSOFT=$(GRADSOFT_WEB_ROOT)/rus/Products/ToolBox/Changes
+PDF_CH_RUS_GRADSOFT=$(GRADSOFT_WEB_ROOT)/rus/Products/ToolBox/pdf
+HTML_CH_ENG_GRADSOFT=$(GRADSOFT_WEB_ROOT)/eng/Products/ToolBox/Changes
+PDF_CH_ENG_GRADSOFT=$(GRADSOFT_WEB_ROOT)/eng/Products/ToolBox/pdf/
+
+HTML_FILES=$(HTML_AD_RUS) $(HTML_AD_ENG) $(HTML_CH_RUS) $(HTML_CH_ENG)
+
+web: $(API_FILE) $(HTML_FILES)
+install-web: web all
+	-mkdir -p $(HTML_AD_RUS_GRADSOFT)
+	for i in AdministrationGuide_rus/*; do\
+	 cp $$i $(HTML_AD_RUS_GRADSOFT); \
+	done
+	-mkdir -p $(HTML_AD_ENG_GRADSOFT)
+	for i in AdministrationGuide_eng/*; do\
+	 cp $$i $(HTML_AD_ENG_GRADSOFT); \
+	done
+	-mkdir -p $(PDF_AD_RUS_GRADSOFT)
+	cp AdministrationGuide_rus.pdf $(PDF_AD_RUS_GRADSOFT)
+	-mkdir -p $(PDF_AD_ENG_GRADSOFT)
+	cp AdministrationGuide_eng.pdf $(PDF_AD_ENG_GRADSOFT)
+	-mkdir -p $(HTML_CH_RUS_GRADSOFT)
+	for i in Changes_rus/*; do\
+	 cp $$i $(HTML_CH_RUS_GRADSOFT); \
+	done
+	-mkdir -p $(PDF_CH_RUS_GRADSOFT)
+	cp Changes_rus.pdf $(PDF_CH_RUS_GRADSOFT)
+	-mkdir -p $(HTML_CH_ENG_GRADSOFT)
+	for i in Changes_eng/*; do\
+	 cp $$i $(HTML_CH_ENG_GRADSOFT); \
+	done
+	-mkdir -p $(PDF_CH_ENG_GRADSOFT)
+	cp Changes_eng.pdf $(PDF_CH_ENG_GRADSOFT)
+
+
+install-web-distributive: install-web 
+	-mkdir -p $(GRADSOFT_WEB_ROOT)/common/ToolBox
+	cp ../../Gen-@VERSION@.tar.gz $(GRADSOFT_WEB_ROOT)/common/ToolBox
+	cp ../../Gen-@VERSION@.zip $(GRADSOFT_WEB_ROOT)/common/ToolBox
+
+install-web-documentation: install-web
+documentation: all
+
+
+$(HTML_AD_RUS): AdministrationGuide_rus.tex AdministrationGuide_rus.pdf
+	latex2html -charset KOI8-R -split 0 -info 0 -address "GradSoft" -local_icons AdministrationGuide_rus.tex
+
+$(HTML_AD_ENG): AdministrationGuide_eng.tex AdministrationGuide_eng.pdf
+	latex2html -split 0 -info 0 -address "GradSoft" -local_icons AdministrationGuide_eng.tex
+
+$(HTML_CH_RUS): Changes_rus.tex Changes_rus.pdf
+	latex2html -charset KOI8-R -split 0 -info 0 -address "GradSoft" -local_icons Changes_rus.tex
+
+$(HTML_CH_ENG): Changes_eng.tex Changes_eng.pdf
+	latex2html -split 0 -info 0 -address "GradSoft" -local_icons Changes_eng.tex
+

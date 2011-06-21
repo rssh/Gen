@@ -1,0 +1,18 @@
+PROJECT_ROOT=@project_root@
+include $(PROJECT_ROOT)/config/entry.mak
+
+SMTPmailerDemo: SMTPmailerDemo.o
+	$(CXX) -o SMTPmailerDemo SMTPmailerDemo.o -L../src -lSMTPMailer
+	
+SMTPmailerDemo.o: SMTPmailerDemo.cpp
+	$(CXX) $(CXXFLAGS) -c SMTPmailerDemo.cpp
+
+default:
+
+build: SMTPmailerDemo
+
+install:
+uninstall:
+
+clean:
+	-rm *.o SMTPmailerDemo

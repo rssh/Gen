@@ -1,0 +1,204 @@
+
+\documentclass[10pt]{article}
+%\usepackage{tex4ht}
+\usepackage[OT1,T2A]{fontenc}
+\usepackage[koi8-u]{inputenc}
+\usepackage{graphicx}
+\usepackage{verbatim}
+
+\title{ Logger: Руководство программиста  
+       \newline
+       \small{DocumentId:GradSoft-PR-09.08.2000-v1.2.0}
+      }
+
+% $Id: ProgrammingGuide_rus.tex,v 1.18 2002-06-10 18:08:26 rin Exp $
+
+\begin{document}
+
+\maketitle{}
+
+%\tableofcontents
+
+\section{ Введение }
+
+ Logger представляет собой компоненту для организации вывода сообщений в
+log файл и организации вызова пользовательских функций по событиям.
+
+ Этот документ представляет собой неформальное описание, полная спецификация
+пакета приводится в API reference (\verb|www.gradsoft.kiev.ua/common/ToolBox/Logger/API/index.html|).
+
+\section{ Общее описание механизма работы }
+
+ Процесс работы пользовательского приложения с Logger выглядит следующим
+ образом:
+
+ \begin{itemize}
+   \item Пользователь создает объект типа Logger, указывая там основные параметры.
+   \item Объект типа Logger предоставляет виртуальные потоки вывода для
+   каждого из типов сообщений. Предопределенны 5 типов сообщений: Debug, Info, Warning, Errors, Fatals.
+   \item При необходимости выполнения определенных действий, при наступлении
+     событий из набора определенных типов, вызывает процедуру 
+     Logger::setCallback
+   \item Для записи потока пользоватeль использует аттрибуты:
+    \begin{itemize}
+        \item  Logger::debugs(),  
+        \item  Logger::infos(),  
+        \item  Logger::warnings(),  
+        \item  Logger::errors(),  
+        \item  Logger::fatals(),  
+    \end{itemize}
+    следующим образом:
+    \begin{verbatim}
+      logger.errors() << "This is error:" << 334 << endl;
+    \end{verbatim}
+    После выполнения этой строки в log файл будет записана строка \verb|"This is error:334"| и если была установленна callback функция для ошибок, то она будет вызванна с аргументом \verb|"This is error:334"|
+ \end{itemize}
+
+\subsection{ Конфигурирование времени компиляции }
+
+   Возможно отключать (или включать) запись в потоки вывода во время компиляции, определяя соответствующие препроцессорные символы в true или false:
+  \begin{itemize}
+    \item \verb|LOG_DEBUG_ENABLE| -  включить вывод в поток отладки. 
+      Когда \verb|LOG_DEBUG_ENABLE| установленно в \verb|true|, 
+      выражение \verb|logger.debugs() << msg << endl;| выполняется так,
+      как было описанно выше. В противном случае это выражение на 
+      этапе компиляции редуцируется в предложение, не выполняющее никаких 
+      операций. По умолчанию этот символ установлен в \verb|false|.
+    \item \verb|LOG_INFO_ENABLE| -  включить вывод в информационный поток. 
+      По умолчанию этот символ установлен в \verb|true|.
+    \item \verb|LOG_WARNING_ENABLE| -  включить вывод в поток предупреждений. 
+      По умолчанию этот символ установлен в \verb|true|.
+    \item \verb|LOG_ERROR_ENABLE| -  включить вывод в поток ошибок. 
+      По умолчанию этот символ установлен в \verb|true|.
+    \item \verb|LOG_FATAL_ENABLE| -  включить вывод в поток критических ошибок. 
+      По умолчанию этот символ установлен в \verb|true|.
+  \end{itemize}
+
+\subsection{ Конфигурирование времени выполнения }
+
+ Также, во время выполнения можно установить следующие свойства \verb|Logger|:
+ \begin{itemize} 
+   \item - установить имя файла, в который направляется стандартный вывод.
+ Соотвествующий метод:
+\begin{verbatim}
+void Logger::setOutputFile(const char* fname) throw(Logger::IOException)
+\end{verbatim}
+  Этот метод генерирует прерывание \verb|IOException| в случае неудачи.
+ \verb|IOException.what()| возвращает в строке сообщение об ошибке.
+   \item - установить дополнительный вывод сообщений на терминал.
+\begin{verbatim}
+void Logger::setDuppedToStderr(bool x) 
+\end{verbatim}
+   \item - отключить/включить генерирование syslog сообщений.
+\begin{verbatim}
+void Logger::setSysLogOutput(bool x) 
+\end{verbatim}
+     Этот метод устанавливает флаг генерирования \verb|SysLog| сообщений.
+   По умолчанию, Logger записывает сообщение в системный журнал (для UNIX).
+   \verb|setSysLogOutput(false)| отключает это свойство, 
+  \verb|setSysLogOutput(true)| -- включает.
+  Заметим, что в Windows NT эта опция не имеет никакого эффекта.
+ \end{itemize} 
+  
+\section{ Простейший пример  }
+  иллюстрирующий использование пакета Logger приведен ниже:
+
+
+\begin{verbatim}
+
+#define LOG_DEBUG_ENABLE true
+
+#include <GradSoft/Logger.h>
+
+void debug_callback(const char* msg)
+{
+ cerr << "debug_callback:" << msg << endl;
+}
+
+int main(int argc, char** argv)
+{
+ try {
+  GradSoft::Logger logger("file.log");
+  logger.setCallback(GradSoft::Debug,debug_callback);
+ 
+  logger.debugs() << "debug output 1 for " << argv[0] << endl; 
+ }catch(Logger::IOException){
+   cerr << "can't open log file" << endl;
+   return 1;
+ }
+
+ return 0;
+}
+
+\end{verbatim}
+
+\section{ Использование Logger в мультипоточном режиме } 
+
+ Вы можете использовать \verb|Logger| в мультипоточных программах:
+вызов всех методов \verb|Logger| безопасен; При обращении к
+потокам вывода Logger существует потенциальноая опасность
+интерференции сообщений, поступающих из разных потоков. 
+Для предотвращения этого мы резервируем для каждого типа сообщений
+соответствующий mutex и определяем класс - блокировщик доступа
+к этому mutex-у, который блокирует его при создании и разблокирует
+при удаленнии.
+
+ Соответствующий фрагмент кода приведен ниже:
+\begin{verbatim}
+  { 
+    Logger::DebugLocker guard(logger.debugs());
+    logger.debugs() << "print " << what << " you want";
+  }
+\end{verbatim}
+
+ Теперь повторим то-же самое более формально с указанием схемы наименования:
+ 
+ Для каждого типа событий \verb|<Xxx>EventType| определен класс 
+   \verb|Loggex::<Xxx>Locker|  у которого определенны следующие методы:
+   \begin{itemize}
+    \item \verb|XxxLocker(XxxStream&)| - конструктор,
+           принимает во владение 
+        mutex, блокирующий операторы вывода в соответствующий поток, 
+    \item \verb|~XxxLocker()| - освобождает его.
+   \end{itemize}
+     В случае когда вывод в соответствующи поток отключен,
+    этот класс редуцируется до пустого класса с пустыми операциями.
+   
+
+\section{ Требования к программному окружению  }
+
+\begin{enumerate}
+  \item Ваша стандартная билиотека C++ должна содержать класс string.
+  \item Несколько переменных макропроцессора определены в файле
+  \verb|LoggerConfig.h|, генерируемом при компиляции пакета (для UNIX),
+  и \verb|LoggerConfigNT.h| для NT.
+  Потенциально возможен конфликт между определениями в этом файле 
+   и определениями из других макропакетов. Для того, что-бы этого не
+ произошло мы рекомендуем заключать ваши макроопределения  autoconf в 
+ предложения условной компиляции:
+\begin{verbatim}
+#ifndef HAVE_Xxx
+#undef HAVE_Xxx
+#endif
+\end{verbatim}
+  \item Если Вы работаете под управлением Windows NT, Вам необходимо:
+    \begin{enumerate}
+      \item определить макрос WIN32 перед включением файла Logger.h
+      \item использовать только "новые" библиотеки и, соответственно,
+            заголовочные файлы iostream, fstream и т.п.
+            вместо аналогичных iostream.h, fstream.h и т.п.
+    \end{enumerate}
+\end{enumerate}
+
+
+\section{ Перечень изменений  }
+
+  \begin{itemize}
+      \item[03.01.2002] - обновление в соответствии с новой версией GradC++ToolBox 1.4.0
+      \item[03.07.2001] - изменен пример: заголовочный файл \verb|GradSoft/Logger| больше не используется.
+      \item[29.05.2001] - изменение структуры, добавлена глава о установках свойств времени выполнения, отражена смена требований к программному окружению.
+      \item[18.02.2001] - просмотр, добавлены формальные атрибуты эксплуатационной документации.
+      \item[09.08.2000] - первая версия.
+  \end{itemize}
+
+\end{document}

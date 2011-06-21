@@ -1,0 +1,25 @@
+#
+# part of GradSoft C++ ToolBox
+# (C) GradSoft 2000, 2001
+# http://www.gradsoft.com.ua
+# $Id: Makefile.in,v 1.7 2001-05-24 14:37:01 rssh Exp $
+#
+
+SUBDIRS=Philosophs Container Hairdresser Stress DeleteThis ThreadServices
+
+default-build: default
+
+build: default
+
+default:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) default ); done
+
+clean:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) clean); done
+
+install:
+uninstall:
+
+install-client:
+uninstall-client:
+

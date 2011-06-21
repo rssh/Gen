@@ -1,0 +1,465 @@
+
+\documentclass[10pt]{article}
+%\usepackage{tex4ht}
+\usepackage[OT1,T2A]{fontenc}
+\usepackage{graphicx}
+\usepackage{verbatim}
+
+\title{ ProgOptions: Programmers Guide  
+       \newline
+       \small{DocumentId:GradSoft-PR-e-26.09.2000-v1.0.3} 
+      }
+
+% $Id: ProgrammingGuide_eng.tex,v 1.20 2002-04-11 15:06:57 kav Exp $
+
+\begin{document}
+
+\maketitle{}
+
+\tableofcontents
+
+\section{ Introduction }
+
+ ProgOptions is a component for handling of program command string options.
+
+ Using ProgOptions it is possible to simply implement following facilities:
+ \begin{enumerate}
+    \item ascertaining the presence in the command line of some (previously determined) options
+    \item getting option arguments ( - note the ProgOptions allows to use a few syntax style,
+          for example, the
+\begin{verbatim}
+                  --a Oh 
+\end{verbatim}
+          syntax for "a" option with "Oh" argument is valid as well as the
+\begin{verbatim}
+                  --a="Say Oh"
+\end{verbatim}
+          syntax for the same option with another "Say Oh" argument;
+    \item as soon as the presence of sertain option is ascertained, invoking the function connected.
+ \end{enumerate}
+
+
+ This document is a non-formal description of package, the full specification is present in
+ API reference. \\
+ (\verb|www.gradsoft.kiev.ua/common/ToolBox/ProgOptions/API/index.html|).
+
+\section{ The basic way of using }
+\label{base}
+
+ The "basic" way of ProgOption usage is suitable for the case of command line accessble through
+ the pair (argc,argv) with personnels determined as (int) and (char**) obtained through the "main"
+ function arguments.
+ If this case is present, obtaining of ProgOptions functionality needs following steps:
+
+ \begin{itemize}
+   \item Construct a new instance of ProgOptions keeping in mind the ProgOptions::ProgOptions
+   	     is defined as follows:
+
+         ProgOptions::ProgOptions(const char* optPrefix="--",
+                                  const char* pkgPrefix="",
+                                  bool allowUnknownOptions=false);
+
+         where
+   \begin{enumerate}
+   \item optPrefix is the prefix by means of which end user must marking out options recognizable
+         (i.e. previously described)
+   \item pkgPrefix is a substring for marking out special options "help" and "config" 
+         (see following for them)
+   \item allowUnknownOptions is boolean adjusting precedence rule for the case of don't recognizable
+         option(s) appear. The "true" is mind that the presence of don't recognizable options will
+         be ignored while the "false" is mind that the parsing of command line will be interrupted
+         and error message will be dispatched to stdandart error stream.
+   \end{enumerate}
+
+   \item Describe some options will be recognized and it's connected actions using method ProgOptions::put
+         and set additional help messages using method ProgOptions::setAdditionalHelp
+
+   \item Call ProgOptions::parse for parsing argv. After this step the command line divided to
+         argv will be parsed, and options recognized will be placed to internal structures
+         of ProgOptions, and all callback functions will be called.
+
+   \item After this with usage of \verb|ProgOptions::is_set("option")| you can check option setting.
+         For options with argument you can read value of argument by using 
+         ProgOptions::argument("option")
+ \end{itemize}
+
+Example:
+
+\begin{verbatim}
+
+#include <GradSoft/ProgOptions.h>  // first step
+
+GradSoft::ProgOptions options;   // construct a new instance of ProgOptions: 
+
+void init()
+{
+ options.put("qqq", "qqq option", false );           // discribe the option "qqq"
+                                                     // which not need arguments
+ options.put("zzz", "option with argument", true );  // discribe the option "zzz"
+                                                     // which need an argument
+
+ options.setAdditionalHelp(true,                     // 
+   "This program illustate usage of GradSoft library"// set additional help messages
+ );                                                  //  
+ options.setAdditionalHelp(false,                    // 
+   "and this is shown at the end of usage screen"    // 
+ );                                                  //
+};
+
+int main(int argc, char** argv)                      
+{
+ init();                                       
+
+ if (!options.parse(argc,argv)) return 1;      // parse options
+
+ if (options.is_set("qqq")) {                  // find out, is the option seted
+   cout << "qqq is set" << endl;
+ }
+                                               // find out, is the option seted
+                                               // and get his argument if yes
+ if (options.is_set("zzz")) {
+   cout << "zzz is set with argument:" << options.argument("zzz") << endl;
+ }
+ return 0;
+}
+
+\end{verbatim}
+
+Now run this program:
+
+\begin{verbatim}
+./a.out --qqq --zzz zz-arg
+qqq is set
+zzz is set with argument:zz-arg
+\end{verbatim}
+
+And now run with option not described:
+
+\begin{verbatim}
+./a.out --Go
+a:Go:unknown option
+\end{verbatim}
+
+
+\subsection{ Special options help and config}
+
+
+  In addition to set of options, described by programmer, ProgOptions define
+two specially acting options: \verb|--<pkgPrefix>help| and \verb|--<pkg>config|.
+The result of calling program with option \verb|--<pkgPrefix>help| is passing
+to stdandart error stream (cerr) a standard help message (which is the list of options
+with descriptions inputted on the step of using ProgOptions::put) added by additional
+help messages specified via ProgOptions::setAdditionalHelp.
+The result of calling program with \verb|--<pkg>config fname| is parsing options described
+in the file \verb|<fname>| (see next section \ref{Additional resources} for more details).
+
+Example:
+
+	Start program mentioned with option \verb|--help:|:
+
+\begin{verbatim}
+./a.out --help
+This program illustate usage of ProgOptions library
+  --qqq 		qqq option
+  --zzz <argument> 	option with argument
+and this is shown at the end of usage screen
+\end{verbatim}
+
+\noindent {\bf Note:}
+Using \verb|--config <filename>| leads to some troubles for us
+when some part of options must be passed into "external" software,
+let us, into function ORB\_init().
+The point is that the ProgOptions::parse(argc,argv) method merge all options,
+given in argv vector and extracted from the file 
+in especial argument vector being used then, and do not change starting argv.
+Therefore, if you call ORB\_init() with argc and argv being parameters of main(),
+options from the file will be lost.
+Therefore, if you want to pass command-line options from the file into ORB\_init() really,
+you must:
+\begin{enumerate}
+\item parse initial argument vector using "parse(argc,argv)";
+\item pass to ORB\_init() an argument vector and its length
+      having been created during parsing.
+\end{enumerate}
+At the same time, since an external software can remove options recognized by itself,
+it's the most correctly to give it a copy of argument vector created, and its length, 
+in which purpose wrapper-class ProgOptions::ArgsHolder can be used:
+\begin{verbatim}
+ProgOptions options("--","",true);
+if (!options.parse(argc,argv)) return 1;
+
+ProgOptions::ArgsHolder argsHolder;
+argsHolder.takeArgv(options);
+
+CORBA::ORB_var orb = CORBA::ORB_init(argsHolder.argc,argsHolder.argv);
+\end{verbatim}
+It is handly, because new argv created via argsHolder::takeArgv(const ProgOptions\&)
+will be deleted automatically when destructor of argsHolder will be called.
+
+\noindent {\bf Note:} to date, syntax \verb|--config=<filename>| do not possible
+for special option \verb|--config|. Use \verb|--config=<filename>| instead. \\
+
+You can overload special option \verb|--help| and \verb|--config|
+using method ProgOption::put. Overloaded option has no feature and default action.
+
+
+\section{ callback functions  }
+
+ Yet one way of handling options handling: callback functions. You can specify
+ such function in parameter |callback| of method \verb|ProgOptions::put| and
+ it will be called during parsing appropriate option.
+
+ To illustrate this, let's add to our program next piece of code:
+
+\begin{verbatim}
+
+bool zz1Callback(const GradSoft::ProgOptions* options, const char* argument,
+                 void* )
+{
+ cout << "zz1:callback called with argument " << 
+            ((!argument) ? "NULL" : argument) << endl;
+ return true;
+}
+
+void init()
+{
+ .....
+ options.put("zz1", "option with argument and callback", true, zz1Callback );
+};
+
+\end{verbatim}
+
+ Now run program with this option:
+
+\begin{verbatim}
+/a.out --zz1 xx
+zz1:callback called with argument xx
+\end{verbatim}
+
+ Callback function is called during each occurence of option in command string,
+ so you can organize handling of few identical options.
+
+\begin{verbatim}
+/a.out --zz1 xx --zz1 yy
+zz1:callback called with argument xx
+zz1:callback called with argument yy
+\end{verbatim}
+
+
+\section{ Additional resources }
+
+\subsection{ Settiong of ProgOptions properties }
+
+ \begin{itemize}
+  \item optPrefix, pkgPrefix (const char*)-- this properties control syntax, for options, handled by ProgOptions: it looks for options in form: \\
+    \verb|<optPrefix><pkgPrefix><optionName>|.
+   \begin{itemize}
+     \item Default value: \verb|--| and empty string accordinally 
+     \item Way of setting: parameters of constructor.
+   \end{itemize}
+  \item allowUnknownOptions (bool) -- if this property is set to true,
+  than during parsing ProgOptions ignore elements of command string, which
+   do not follow ProgOptions syntaxm or options, which was not set via
+   ProgOptions::put. If this property is set to false, than ProgOptions::parse
+   break parsing and return false on first occurence of such element.
+   \begin{itemize}
+     \item Default value: false
+     \item Way of setting: 
+     \begin{itemize}
+       \item via parameter of constructor 
+       \item \verb|ProgOptions::setAllowUnknownOptions(bool);|
+     \end{itemize}
+     \item reading: \verb|bool ProgOptions::getAllowUnknownOptions()|
+   \end{itemize}
+ \end{itemize}
+
+
+
+\label{Additional resources}
+
+\subsection{ Using of the config file }
+
+  As it will be mentioned above, if you use ProgOptions::parse in you program,
+it will lead to options described in the file \verb|fname| will be parsed
+if the end user of program apply \verb|--config fname| in the command line.
+
+  The additional possibility is that:  you may read options from file and parse them
+independently of end user choice using special method
+ProgOptions::parseFile(const char* configFname, const char* executable="unspecified").
+For example, calling
+
+\begin{verbatim}
+
+        options.parseFile("D:\Demo\config.ini");
+
+\end{verbatim}
+(where options is instance of ProgOptions)
+means that the text in the \verb|D:\Demo\config.ini| will be readed, parts of text
+recognized as "options" will be extracted and then interpreted as well as
+these options be in command line. (Second parameter of this method constitutes the name
+of the program asking for options and is optional: you may set it
+in the case of call of ProgOptions::parse not precede the call of ProgOptions::parseFile.)
+
+  The next mean allow you to combine all option parsed by ProgOptions::parse,
+ProgOptions::parseFile and ProgOptions::parseString (see following for the latter)
+and save these into the file specified using method
+\verb|ProgOptions::saveToFile|.
+For example, using 
+
+\begin{verbatim}
+
+        ProgOptions options;
+        ...
+        options.parse(argc,argv);
+        ...
+        options.parseFile("D:\Demo\config.ini");
+        ...
+        options.saveToFile("D:\Democonfig1.ini");
+
+\end{verbatim}
+
+in continuous block leads to all options gotten by argv and readed from the file
+\verb|D:\Demo\config.ini| (either recognized and not recognized) will be saved in formatted
+file \verb|D:\Demo\config1.ini|, and will be obtained again if programmer use ProgOptions::parseFile.
+
+{\sf It is important:}
+
+  Bouth ProgOptions::parseFile and ProgOptions::saveToFile methods return boolean value, which
+indicate success or unsuccess of operatuion. In the case of ProgOptions::saveToFile, if
+the method return false, than the system error has been occured and error information
+is aviable via operation system errno interface.
+Thus, the standard code fragment for storing options in file looks like the
+next example:
+
+\begin{verbatim}
+ if (!optios.saveToFile(configFname)) {
+    perror(options.argv(0));
+    ....
+ } 
+ ....
+\end{verbatim}
+
+In the case of ProgOptions::parseFile the precidence rule analogous is not valid because
+ProgOptions::parseFile return false in few different cases:
+\begin{enumerate}
+ \item system error occur,
+ \item config file formated incorrectly,
+ \item parsing of options is impossible.
+\end{enumerate}
+If the system error or bad format error occur, ProgOptions::parseFile
+signals about situation by means of message which dispatchs to standard error stream.
+
+
+\subsection{Format of ProgOptions config file}
+\label{format}
+
+   The file to parse must been formatted: 
+\begin{enumerate}
+\item The file must being a text formed by meaningful words,
+      symbol-separators and comments. 
+      The options to parse are meaningful words only.
+\item The (single) meaningful word is <sequence>[<sequence>...] 
+      where <sequence> is unbroken sequence of "visible" characters,
+      sequence of visible characters, spaces and tabulators in double inverted commas,
+      or sequence of sequences described. 
+
+Example:
+\begin{verbatim}
+
+   aaa_bbb "aaa bbb" aaa" bbb ccc"
+
+\end{verbatim}
+will be interpreted as three separate words \verb|'aaa_bbb'|, \verb|'aaa bbb'| and \verb|'aaa bbb ccc'|
+
+\item Comments are:
+      \begin{enumerate}
+      \item markers \verb|'/*'| and \verb|'*/'| and every characters standing between them;
+      \item marker \verb|'//'| and part of string after it;
+      \item the string begining from the \verb|'#'|.
+      \end{enumerate}
+
+Examples:
+
+\begin{verbatim}
+# This string will be ignored
+
+  aaa /* This part of string will be ignored */ bbb
+
+  ccc // This part of string will be ignored too
+\end{verbatim}
+
+\item The file must contain a marker being @"ProgOptions config file" or "@ProgOptions config file"
+      (or analogous) as the first meaningful word in the first 10000 bytes of the file
+      (hence, the first string of file could not be empty)
+
+\item Effects:
+   \begin{enumerate}
+    \item if the commas is not closed, the bounds of word is end of line;
+    \item if the double comma must be member of meanigful word, it may be used as '\verb|\"|'.
+   \end{enumerate}
+
+\end{enumerate}
+
+
+\subsection {Trivial example of config file}
+
+The trivial example which illustrate the structure of ProgOptions config file is follow:
+
+%\label{example-of-config-file}
+
+\begin{verbatim}
+
+@"ProgOptions config file"
+
+# The list of options: 
+
+    --a          /* single option */
+    --b c        // option with argument 
+    --d="a b c"  // another option with argument
+
+\end{verbatim}
+
+
+\subsection { Usage of ProgOptions::parseString }
+
+  The next additional possibility is that you may parse the string in C-style
+with result the same as string has been readed from file.
+The methodv ProgOptions::parseFile(const char* configFname, const char* executable="unspecified") do it. 
+The small difference in acting of ProgOptions::parseFile and ProgOptions::parseString methods
+is that the file marker \verb|'@ProgOptions Config File'| and symbol \verb|'#'| at the begining of string
+must not have and have any special sence in latter case.
+
+
+\section{ Programming environment conventions }
+\label{environment}
+
+Using Progoptions on Windows NT, you must:
+\begin{enumerate}
+  \item to define WIN32 macro before inclusion of ProgOptions.h header file;
+  \item to use iostream, fstream, etc. standard headers instead iostream.h, fstream.h, etc. ones.
+\end{enumerate}
+
+
+\section{Changes}
+
+\begin{itemize}
+  \item[31.01.2002] - support of using \verb|--config <filename>| option described
+  \item[24.01.2002] - warning concerning impossibility of \verb|--config=<filename>| syntax
+                      for non-overloaded option \verb|--config| added.
+  \item[03.01.2002] - next points updated in accordance with version 1.4.0 of ToolBox:
+                      \begin{enumerate}
+                      \item example in section \ref{base}
+                            (include file \verb|GradSoft/ProgOptions| don't used from date);
+                      \item descripton of configuration file parsing procedure in section \ref{format}
+                            (the way to use '//','/*', and '*/' constructs in option body arised); 
+                      \item environment conventions in section \ref{environment}
+                            ("old" standard headers such as iostream.h, fstream.h and so on
+                            must not be used from date).
+                      \end{enumerate}
+  \item[17.02.2001] - corrections, formal attributes of documentation set is added, susection abbout properties is added.
+  \item[29.06.2000] - initial version. 
+\end{itemize}
+
+
+
+\end{document}

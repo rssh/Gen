@@ -1,0 +1,69 @@
+
+$Id: WebSiteStructure,v 1.4 2000-11-17 18:40:51 rssh Exp $
+
+For GradSoft Web site:
+ documentation is installed on /1/rssh/GradSoftWeb
+ (GRADSOFT_WEB_ROOT in docs/Makefile.in-s) in web site layout.
+ updationg website to new version of documentation is simple
+ make install-web in all docs directories, than copying $GRADSOFT_WEB_ROOT
+ to actuall www directory).
+
+So, documentation layout:
+
+GradC++ToolBox:
+
+common/ToolBox/ProgOptions/API
+common/ToolBox/ServiceOptions/API
+common/ToolBox/Logger/API
+
+common/ToolBox/distributive
+
+rus/Products/ToolBox/AdminGuide/
+eng/Products/ToolBox/AdminGuide/
+
+rus/Products/ToolBox/AdminGuide/pdf
+eng/Products/ToolBox/AdminGuide/pdf
+
+rus/Products/ToolBox/ProgOptions/ProgGuide
+eng/Products/ToolBox/ProgOptions/ProgGuide
+
+rus/Products/ToolBox/ProgOptions/pdf
+eng/Products/ToolBox/ProgOptions/pdf
+
+rus/Products/ToolBox/ServiceOptions/ProgGuide
+eng/Products/ToolBox/ServiceOptions/ProgGuide
+
+rus/Products/ToolBox/ServiceOptions/pdf
+eng/Products/ToolBox/ServiceOptions/pdf
+
+rus/Products/ToolBox/Logger/ProgGuide
+eng/Products/ToolBox/Logger/ProgGuide
+
+rus/Products/ToolBox/Logger/pdf
+eng/Products/ToolBox/Logger/pdf
+
+
+For internal techdoc site:
+
+ all the same, but Make variable is GRADSOFT_WEB_INTERNAL_ROOT
+                    (GradSoftWebInternal)
+ Makefile targer: install-internal-web
+
+documentation layout:
+ 
+
+GradC++ToolBox:
+
+tehndoc/ToolBox/ProgOptions/API
+tehndoc/ToolBox/ProgOptions/ProgrammingGuide_rus
+
+tehndoc/ToolBox/ServiceOptions/API
+tehndoc/ToolBox/ServiceOptions/ProgrammingGuide_rus
+
+tehndoc/ToolBox/Logger/API
+tehndoc/ToolBox/Logger/ProgGuide
+tehndoc/ToolBox/AdminGuide/
+
+
+ 
+

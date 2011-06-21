@@ -1,0 +1,32 @@
+
+@SET_MAKE@
+project_root=@project_root@
+include $(project_root)/config/entry.mak
+
+SUBDIRS=src include docs demo
+CONFIG_SUBDIRS=
+
+default: build
+
+all:build
+
+build:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) build); done
+
+install:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) install); done
+
+uninstall:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) uninstall); done
+
+clean:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) clean); done
+	-rm -rf *.cache
+
+documentation:
+	(cd docs; $(MAKE) all)
+
+reconfigure:
+	-rm -rf *.cache
+	autoconf -l ../config
+

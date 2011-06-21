@@ -1,0 +1,135 @@
+#ifndef __GradSoft_CryptHelper
+#define __GradSoft_CryptHelper
+
+#include <GradSoft/FixedBigNumber.h>
+#include <climits>
+#include <string>
+
+/**
+ * Set of helper functions for cryptography. Uses FixedBigNumber implementation.
+ *
+ * (C) GradSoft, 2001
+ * @author Alexander Yanovetz
+ */
+
+#ifdef _MSC_VER
+#define HAVE_NAMESPACES
+
+
+#ifndef HAVE_BOOL
+#define HAVE_BOOL
+#endif
+
+#endif
+
+#ifdef HAVE_NAMESPACES
+namespace GradSoft {
+#endif
+
+
+class CryptHelper {
+public:
+
+    static short maxRandomBit() {
+        static short max = FixedBigNumber::maxSignificantBit(RAND_MAX);
+        return max;
+    }
+
+    static bool witness(const FixedBigNumber& a, const FixedBigNumber& n,
+            const FixedBigNumber& b);
+
+    static FixedBigNumber modExp(const FixedBigNumber& m,
+            const FixedBigNumber& e, const FixedBigNumber& n);
+
+    static FixedBigNumber getRandom(const FixedBigNumber& fr,
+            const FixedBigNumber& to);
+
+    static bool isPrime(const FixedBigNumber& n, short s);
+
+    static bool getInverse(FixedBigNumber x1, FixedBigNumber x0,
+            FixedBigNumber& b);
+
+    static FixedBigNumber gcd(FixedBigNumber a, FixedBigNumber b);
+
+    class RsaKey {
+        FixedBigNumber power_;
+        FixedBigNumber module_;
+    public:
+        RsaKey(const FixedBigNumber& power, const FixedBigNumber& module):
+                power_(power), module_(module) {}
+        const FixedBigNumber& power() const {
+            return power_;
+        }
+        const FixedBigNumber& module() const {
+            return module_;
+        }
+        FixedBigNumber crypt(FixedBigNumber m) const{
+            return modExp(m, power_, module_);
+        }
+    };
+
+    class RsaKeyPair {
+        RsaKey pub_;
+        RsaKey prv_;
+    public:
+        RsaKeyPair(RsaKey pub, RsaKey prv):pub_(pub), prv_(prv) {}
+        const RsaKey& getPublic() const {
+            return pub_;
+        }
+        const RsaKey& getPrivate() const {
+            return prv_;
+        }
+    };
+
+    static void seed(unsigned int s) {
+        srand(s);
+    }
+
+    static RsaKeyPair generateRSA(short dimention,
+            short primeVerification);
+};
+
+
+
+/**
+ * Implementation of SHA-1 as defined in 
+ * Federal Information Processing Standard (FIPS 180-1) Secure Hash Standard
+ * @author Alexander Yanovetz
+ */
+class SHA1 {
+private:
+    static unsigned long s(short n, unsigned long x);
+    static unsigned long f(short t, unsigned long b, unsigned long c,
+            unsigned long d);
+    static const unsigned long& k(short t);
+
+    class PaddedData {
+    private:
+        const unsigned char* data_;
+        unsigned long len_;
+        const unsigned char one_;
+        const unsigned char empty_;
+        unsigned long emptyLen_;
+        unsigned char bits_[8];
+    public:
+        PaddedData(const void* data, unsigned long bytes);
+        unsigned char at (unsigned long pos);
+        unsigned long blockCount();
+        unsigned long getWord32(unsigned long blockNum, short wordNum);
+    };
+    static void appendHashString(unsigned long x, std::string& res);
+    static std::string getHex(const std::string& x);
+public:
+    /*
+     * If isData false then result formed in hex, otherwise plain data returned.
+     */
+    static std::string getDigest(const void* data, unsigned long len,
+            bool isData = false);
+};
+
+#ifdef HAVE_NAMESPACES
+}
+#endif
+
+
+#endif

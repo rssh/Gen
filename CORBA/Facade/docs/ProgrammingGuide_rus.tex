@@ -1,0 +1,127 @@
+
+\documentclass[10pt]{article}
+\usepackage[OT1,T2A]{fontenc}
+\usepackage[koi8-u]{inputenc}
+\usepackage{graphicx}
+\usepackage{verbatim}
+
+\title{ Facade: Руководство программиста }
+
+% $Id: ProgrammingGuide_rus.tex,v 1.2 2000-08-03 19:31:56 rssh Exp $
+
+\begin{document}
+
+\maketitle{}
+
+\tableofcontents
+
+\section{ Введение }
+
+
+ Facade представляет собой набор классов для упрощения работы с CORBA API
+
+ Этот документ представляет собой неформальное описание, полная спецификация
+пакета приводится в API reference. (www.internal.grad.kiev.ua/techdocs/Facade/API).
+
+\section{ Общее описание  }
+
+ Facade состоит из двух частей:
+ \begin{enumerate}
+  \item \verb|PersistentServantBase| - базовый класс, перегружающий некоторые стандартные функции \verb|PortableServer::RefCountServantBase|, на основе которого реализуются т. н. постоянные серванты (PERSISTENT SERVANTS), [наиболее часто используемое приложение -- реализация корневых объектов CORBA сервисов]
+  \item \verb|CORBAFacade| - статичесткий класс, реализующий часто используемые функции.
+ \end{enumerate}
+
+ При работе с PersistentServantBase у программиста есть два варианта:
+ \begin{enumerate}
+  \item регистрировать созданный объект в уже существующем POA
+  \item создавать новый POA
+ \end{enumerate}
+
+ В обоих случаях для этого программисту необходимо наследовать имплементацию 
+от PersistentServantBase (при этом не нужно наследоваться от 
+PortableServer::RefCountServantBase, во избежение неоднозначности вызова 
+перегруженных методов).
+
+
+ В случае, когда есть необходимость в содании нового POA, необходимо в 
+конструктор передать его имя (имя должно быть уникальным), иначе, необходимо 
+передать существующий POA (см. пример)
+
+
+\section{ Простейший пример  }
+  иллюстрирующий использование PersistentServantBase и CORBAFacade приведен 
+ниже:
+
+
+\begin{verbatim}
+
+\verb|<Test1_impl.h>|
+
+#include <GradSoft/PersistentServantBase>
+#include <GradSoft/CORBAFacade.h>
+
+using namespace Tests;
+using namespace GradSoft;
+
+class Test1_impl: virtual public POA_Tests::Test1,
+                  public PersistentServantBase
+{
+
+public:
+
+  Test1_impl( const char* POA_name, ORB_ptr orb )
+                           : PersistentServantBase(POA_name, orb) {}
+  ~Test1_impl() {}
+
+  void hello_CORBA();
+
+  void destroy();
+
+};
+
+\verb|<Test1_impl.cpp>|
+
+#ifndef __test1_Test1_impl_h
+#include <test1/Test1_impl.h>
+#endif
+
+#ifdef _MSC_VER
+using namespace std;
+#endif
+
+void Test1_impl::hello_CORBA()
+{ cout << "Hello, CORBA! Persistent POA." << endl; }
+
+void Test1_impl::destroy()
+{ CORBAFacade::deactivate_object(this); }
+
+
+\end{verbatim}
+
+\section{ Пример создания объекта }
+
+\verb|TestServer.cpp|
+
+\begin{verbatim}
+#ifndef __test1_TestServer_h
+#include <test1/TestServer.h>
+#endif
+
+const char* SERVICE_POA_NAME = "Test1POA";
+const char* SERVICE_NAME = "Test1";
+
+Test1_ptr createTestManager( ORB_ptr orb, ServiceOptions& options )
+{
+  Test1_impl* m_impl = new Test1_impl( SERVICE_POA_NAME, orb );
+  options.putServiceName(SERVICE_NAME);
+  options.bindPersistentPOAServiceObject( 
+                 m_impl->_default_POA(), orb, m_impl, SERVICE_NAME );
+  Test1_ptr manager = m_impl->_this();
+  options.create_object_ior( orb, manager, SERVICE_NAME );
+  m_impl->_remove_ref();
+
+  return manager;
+}
+\end{verbatim}
+
+\end{document}

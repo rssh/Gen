@@ -1,0 +1,168 @@
+
+\documentclass[10pt]{article}
+\usepackage{graphicx}
+\usepackage{verbatim}
+
+\title{ ServiceOptions: Programming Guide 
+       \newline
+       \small{DocumentId:GradSoft-PR-e-02.07.2000-v1.0.3}
+      }
+
+% $Id: ProgrammingGuide_eng.tex,v 1.11 2002-05-20 18:38:45 kav Exp $
+
+\begin{document}
+
+\maketitle{}
+
+\tableofcontents
+
+\section{ Introduction }
+
+ ServiceOptions is a component for handling of typical command options of 
+ CORBA Service-like program.
+
+
+ What it mean: usual CORBA Service export to "world" few objects: so called
+ "Root Objects" of the service. For example, Collecion Service exports {\bf CollectionFactory } and {\bf RACollectionFactory }; NamingService exports {\bf RootNamingContext}.
+ Service users obtaine access to such services via propierty mechanizme of ORB.
+ 
+ For standart CORBA services this is call of {\em ORB::resolve\_initial\_references(name)}; but process of setting initial references in ORB with -ORBIntRef option require knowing  IOR-s of using objects during start of the program.
+
+ Usually, "root objects" of the service are exported by
+ \begin{itemize}
+   \item Setting corbaloc-style IOR-s.
+   \item Publishing objects IOR-s in file.
+   \item Registering objects in naming service.
+   \item Registering objects in IMR.
+ \end{itemize}
+
+ What do ServiceOptions: It's incapsulate all this work in one method call. I. e. you just point to serlet and name; after this you object is accessible via corbaloc-style IOR and optionally is published in other ways, depends from command line options of you server.
+
+ ServiceOptions is based on ProgOptions\\
+ (\verb|www.gradsdoft.kiev.ua/eng/Products/ToolBox/ProgOptions/ProgGuide/ProgrammingGuide_eng.html|)
+
+ This document is an unformal description, for full specification, please, use API reference \\
+ (\verb|http://www.gradsoft.kiev.ua/common/ToolBox/ServiceOptions/API/index.html|).
+
+\section{ General Description  }
+
+ Programmer must perform the next steps:
+ \begin{enumerate}
+  \item Create object of type ServiceOptions.
+  \item Set names for provided CORBA objects by calling \verb|ServiceOptions::putServiceName|
+  \item Call \verb|ServiceOptions::parse| for parsing options (options
+        \verb|--help| and \verb|--config <filename>|, if exist, will be handled,
+        see ProgOptions ProgrammingGuide for detail)
+  \item After creating root objects call method \verb|ServiceOptions::bindServiceObject|
+ \end{enumerate}
+ In result, root object references will be accessible via corbaloc-style URL
+ (corbaloc::host:port/Name) and program will understood next options:
+\begin{itemize}
+ \item \verb|--with-naming| - initial objects are registered in NameService
+ \item \verb|--ior-stdout| - stringifized object references are printed on standart output of a program.
+ \item \verb|--ior-file-<name>| - IOR of object wiht name \verb|<name>| will be published to file with name \verb|<argument of thid option>|
+\end{itemize}
+in addition to common ORB options.
+  
+\section{ Trivial example  }
+  Trivial example which illustrate ServiceOptions usage is follow:
+
+ \paragraph{A.} Once the following IDL-interface exist:
+
+\begin{verbatim}
+interface HelloWorlder
+{
+  void hello_world();
+};
+\end{verbatim}
+
+  \paragraph{B.} Then we can write next programm:
+
+\begin{verbatim}
+
+#include <tao/CORBA.h>                          //
+#include <tao/PortableServer/PortableServer.h>  // for TAO-1.2
+#include <orbsvcs/CosNamingC.h>                 //
+#include <HelloWorlderS.h>                      //
+
+#include <iostream>
+using namespace std;
+
+#include <GradSoft/ServiceOptions.h>  // do'nt forget
+using namespace GradSoft;             //
+
+class HelloWorlder_impl:public POA_HelloWorlder           // interface
+{                                                         // implementation
+public:                                                   //
+  void hello_world() { cout << "Hello, world" << endl; }  //
+};                                                        //
+
+int main(int argc, char** argv)
+{
+ ServiceOptions options;
+ options.putServiceName("HelloService");   // set service name
+ if (!options.parse(argc,argv)) return 1;  // parse options set
+
+// use copy of ServiceOptions's internal (argument count,argument vector) pair
+// to make it possible
+// ORB_init() takes comand-line options in ProgOptions config file:
+
+ ProgOptions::ArgsHolder argsHolder;
+ argsHolder.takeArgv(options);
+ CORBA::ORB_var orb = CORBA::ORB_init(argsHolder.argc,argsHolder.argv);
+
+ CORBA::Object_var poaObj =                                             // standard
+     orb->resolve_initial_references("RootPOA");                        // steps
+ PortableServer::POA_var poa = PortableServer::POA::_narrow(poaObj);    //
+ PortableServer::POAManager_var poaManager = poa->the_POAManager();     //
+ poaManager->activate();                                                //
+
+ HelloWorlder_impl helloWorlder_impl;   // create object
+
+ HelloWorlder_var helloWorlder = helloWorlder_impl._this();
+
+ options.bindServiceObject(     // principal call
+    orb,
+    helloWorlder,
+    &helloWorlder_impl,
+    "HelloService",
+    true
+ );
+
+ orb->run();
+ orb->destroy();
+ return 0;
+}
+
+\end{verbatim}
+
+ This program handle next options:
+ \begin{enumerate}
+ \item \verb|--with-naming|, \verb|--ior-stdout|, \verb|--ior-file-myName|
+       as it was described above;
+ \item опции \verb|--help| и \verb|--config|
+       as it was described in Programming guide for ProgOptions package;
+ \item current ORB options.
+ \end{enumerate}
+
+
+\section{ Programming Environment Conventions  }
+
+\begin{enumerate}
+ \item ProgOptions Programming Environment Conventions must be set. (see ProgOptions Programming Guide)
+ \item Using ServiceOptions with TAO-1.2,
+       you must to include header file PortableServer.h before including of ServiceOptions.h.
+\end{enumerate}
+
+\section{Changes}
+
+ \begin{itemize}
+    \item[06.02.2002] - example modified: run ORB\_init with copy of argument vector
+                        obtained by using getArgsHolder() is accepted
+   \item [17.01.2002] - example verified
+   \item [03.01.2002] - touch before 1.4.0 public release.
+   \item [18.02.2001] - review, added formal document attributes.
+   \item [02.07.2000] - initial revision.
+ \end{itemize}
+
+\end{document}

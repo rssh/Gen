@@ -1,0 +1,39 @@
+# 
+# Gen/Threading/Makefile.in
+# (C) GradSoft, 2000 <info@gradsoft.kiev.ua>
+# author: Ruslan Shevchenko <Ruslan@Shevchenko.Kiev.UA>
+# $Id: Makefile.in,v 1.5 2008-01-08 17:14:07 rssh Exp $
+
+@SET_MAKE@
+project_root=@project_root@
+include $(project_root)/config/entry.mak
+
+SUBDIRS=src include docs demo
+CONFIG_SUBDIRS=demo
+
+default: build
+
+all:build
+
+build:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) build); done
+
+install:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) install); done
+
+uninstall:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) uninstall); done
+
+clean:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) clean); done
+	-rm config.cache
+
+documentation:
+	(cd docs; $(MAKE) all)
+
+install-web-distributive:
+	(cd docs; $(MAKE) install-web-distributive)
+
+reconfigure:
+	autoconf --include ../config
+	for i in $(CONFIG_SUBDIRS); do (cd $$i; autoconf -l ../../config);done

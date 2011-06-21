@@ -1,0 +1,521 @@
+\documentclass[10pt]{article}
+\usepackage[OT2,T2A]{fontenc}
+\usepackage[koi8-u]{inputenc}
+
+\usepackage{html}
+
+%\verb|$Id: Changes_rus.tex,v 1.44 2003-05-08 10:31:31 rssh Exp $|
+
+\title{ GradC++ToolBox: Перечень версионных изменений \newline
+        \small{DocumentId:GradSof-r-ch-09.04.2000-1.6.2}
+      }
+
+\begin{document}
+
+\maketitle{}
+
+\tableofcontents
+
+%\newpage
+
+\newenvironment{component}[1]{\par#1:\begin{itemize}}{\end{itemize}}
+
+
+\section{Последняя версия}
+
+1.6.3
+
+\section{Изменения в составе продукта }
+
+\begin{description}
+  \item [1.6.3] нет:
+  \item [1.6.2] нет:
+  \item [1.6.1] нет:
+  \item [1.6.0] Threading:
+              \begin{itemize}
+                \item Добавлен \verb|ThreadContext|
+              \end{itemize}
+  \item [1.5.0] добавлен пакет \verb|ptrs|.
+  \item [1.4.0] добавлен пакет DynamicModules
+  \item [1.3.0] добавлен пакет DirectoryContainer
+  \item [1.2.0] Threading:
+              \begin{itemize}
+              \item добавлены сервисы потоков.
+              \item добавлено несколько примеров.
+              \end{itemize}
+  \item [1.1.0] Threading: 
+              \begin{itemize}
+              \item добавлен класс ThreadEvent.
+              \item добавлено примеров.
+              \end{itemize}
+\end{description}
+
+\section{Изменения в характеристиках компонент}
+
+\subsection{Изменения в интерфейсных спецификациях}
+
+\begin{description}
+\item [1.6.3]: нет.
+\item [1.6.2]: нет.
+\item [1.6.1]: 
+      \begin{component}{ptrs}
+      \item изменен шаблон \verb|owned_ptr| - добавлен метод \verb|get_ownity|
+      \end{component}
+\item [1.6.0]: 
+      \begin{component}{Threading}
+      \item Изменен интерфейс  \verb|Thread| - добавлен метод \verb|getThreadContext|
+      \item добавлен интерфейс \verb|ThreadContext|
+      \end{component}
+\item [1.5.0]: 
+      \begin{component}{Threading}
+      \item добавлен шаблон \verb|counted_mt_ptr|;
+      \item изменены спецификации исключений;
+      \end{component}
+      \begin{component}{DynamicModules}
+      \item расширена спецификация;
+      \end{component}
+      \begin{component}{ProgOptions}
+      \item методы ProgOptions::parseFile и ProgOptions::parseString теперь имеют два параметра,
+            второй - это имя выполняемой программы, по умолчанию "unspecified".
+      \item изменился интерфейс и порядок использования класса ProgOptions::ArgsHolder: 
+            \begin{itemize}
+            \item конструктор ArgsHolder(int,char**) и вызывавший его метод
+                  ProgOptions::createArgsHolder() удалены;
+            \item вместо них предоставлены:
+                  \begin{enumerate}
+                  \item конструктор ArgsHolder() (позабытый в прошлых версиях);
+                  \item метод ArgsHolder::takeArgv(const ProgOptions\&);
+                  \end{enumerate}
+            \end{itemize}
+      \end{component}
+
+\item [1.4.1]:
+
+      \begin{component}{ProgOptions}
+      \item добавлен класс ProgOptions::ArgsHolder и метод ProgOptions::createArgsHolder(), 
+            для получения экземпляра этого класса
+      \end{component}
+
+\item [1.4.0]: 
+
+      \begin{component}{Общие требования}
+      \item использование пространств имен C++ стало обязательным.
+      \item пространство имен C++ не импортируется во включаемых файлах пакета.
+      \end{component}
+
+      \begin{component}{ServiceOptions}
+      \item включаемый файл ServiceOptions заменен на ServiceOptions.h
+      \end{component}
+
+\item [1.2.0]:
+
+      \begin{component}{Threading}
+      \item Общедоступные статические методы Thread::sleep() и Thread::nanosleep()
+            перестали быть статическими и стали защищенными; вместо них появились
+            общедоступные статические методы Thread::sleepCurrent() и Thread::nanosleepCurrent().
+      \end{component}
+      \begin{component}{Logger}
+      \item Включаемый файл \verb|Logger| удален.
+      \item Файл \verb|Logger.h| не импортирует определения в текущее пространство имен.
+      \item Добавлен методы \verb|Logger::setDuppedToStderr(bool)| и 
+            \verb|Logger::setSyslogOutput(bool);|
+      \item Добавлены блокировщики вывода в потоки Logger.
+      \end{component}
+
+\item [1.1.0]:
+
+      \begin{component}{Threading}
+      \item добавлены спецификации исключений во все методы.
+      \end{component}
+
+\item [1.0.3]:
+
+      \begin{component}{ProgOptions}
+      \item добавлен метод \verb|ProgOptions::allowUnknownOptions|
+      \end{component}
+
+\end{description}
+
+\subsection{Изменения в функциональных характеристиках}
+
+\begin{description}
+\item [1.4.0]:
+      \begin{component}{ProgOptions}
+      \item  изменен порядок обработки конфигурационного файла
+      \end{component}
+\end{description}
+
+\subsection{Изменения в реализационных характеристиках}
+
+\begin{description}
+\item [1.6.3]:
+      \begin{itemize}
+        \item Поддерживается gcc-3.2
+        \item В список поддерживаемых ORB добавлена MICO
+        \item Небольшие изменения в реализации \verb|counted_mt_ptr|.
+      \end{itemize}
+\item [1.6.2]:
+      \begin{component}{Threading}
+      \item исправлена опечатка в документации.
+      \end{component}
+\item [1.6.1]:
+      \begin{component}{ServiceOptions}
+      \item исправлена опечатка.
+      \end{component}
+
+\item [1.6.0]:
+
+      \begin{component}{Threading}
+      \item исправлена ошибка в преобразовании типа данных кода ошибки для 
+            Win32
+            из-за которой иногда может выводится неверный номер ошибки.
+      \end{component}
+
+      \begin{component}{ServiceOptions}
+      \item исправлена одноразовая утечка памяти, возникающая при добавлении сервиса.
+      \end{component}
+
+\item [1.4.2]:
+
+      \begin{component}{Инсталляция}
+      \item добавлен Gen/DynamicModules/configure
+      \end{component}
+
+\item [1.4.1]:
+
+      \begin{component}{Инсталляция}
+      \item исправлена ошибка в процедуре инсталляции для UNIX:
+            файл DirectoryContainerPostConfig.h включен в список инсталлируемых файлов
+      \end{component}
+
+      \begin{component}{ServiceOptions}
+      \item исправлена ошибка в файле CORBA/ServiceOptions/demo/configure.in,
+            из-за которой примеры использования ServiceOptions
+            не компилировались под Linux
+      \end{component}
+
+      \begin{component}{DynamicModules}
+      \item исправлена ошибка в файле DynamicModules.h,
+            из-за которой под Windows NT макрос EXPORT\_OBJECT
+            работал только в пространстве имен GradSoft
+      \end{component}
+
+\item [1.4.0]:
+
+      \begin{component}{Инсталляция}
+      \item добавлены средства,
+            позволяющие собирать пакет с использованием omniORB-3.0.4 и TAO-1.2
+            под Windows NT
+      \item исправлены ошибки в Makefile - лах
+      \item Поддерживается Forte C++ 6.2 и Sun Solaris 2.8 
+            вместо Forte C++ 4.2 и Sun Solaris 2.6
+      \item Изменены общие требования к компилятору C++.
+      \end{component}
+
+      \begin{component}{Logger}
+      \item исправлена ошибка, которая может привести к сбою при выдаче фатального сообщения об ошибках.
+      \end{component}
+
+      \begin{component}{ProgOptions}
+      \item исправлено небольшое несоответствие между спецификацией и реальностью.
+      \end{component}
+
+\item [1.3.0]:
+      \begin{component}{Инсталляция}
+      \item Исправленна ошибка в системе управления инсталляцией для UNIX,
+            которая может привести к сбою инсталляции пакета Logger,
+            если в окружении инсталляции по умолчанию вызывается не GNU make.
+      \end{component}
+
+\item [1.2.1]:
+      \begin{component}{Инсталляция}
+      \item исправлена ошибка в системе управления компиляцией под Windows NT
+      \end{component}
+
+\item [1.2.0]:
+
+      \begin{component}{Инсталляция}
+      \item изменена процедура создания разделяемых библиотек.
+      \end{component}
+
+      \begin{component}{Treading}
+      \item вызов "\verb|delete this;|" из подклассов Thread, размещенных в куче,
+            теперь работает.
+      \item обеспечена посылка исключений группы ThreadingExceptions на Windows NT.
+      \item исправлены ошибки, приводившие к утечке памяти
+            при вызове деструкторов классов Mutex, Thread и ThteadEvent на Windows NT.
+      \item исправлена неточость, приводившая к возникновению ошибки времени выполнения
+            программы при вызове деструктора класса Thread непосредственно после старта
+            потока выполнения на Windows NT.
+      \item исправлена ошибка, приводившая к неправильной работе метода
+            \verb|Thread::is_running()| при его вызове перед стартом потока выполнения на Windows NT.
+      \item исправлена ошибка, которая могла приводить к неправильной работе
+            метода \verb|Mutex::try_lock()| на Windows NT.
+      \item заголовочный файл Threading больше не используется. 
+            Вместо него используется файл Threading.h
+      \end{component}
+
+      \begin{component}{Logger}
+      \item исправлена ошибка в конфигурации \verb|ctime_r|
+      \item добавлена поддержка многопоточности
+      \item заголовочный файл Logger больше не используется. 
+            Вместо него используется файл Logger.h
+      \end{component}
+
+
+\item [1.1.0]:
+
+      \begin{component}{Инсталляция}
+      \item изменена процедура создания разделяемых библиотек.
+      \end{component}
+      \begin{component}{Threading}
+      \item исправленна опечатка в \verb|threadsafe_biseq|
+      \end{component}
+
+\item [1.0.4]:
+
+      \begin{component}{Инсталляция}
+      \item Исправленна ошибка, возникавшая при инсталляции пакета на компьютер,
+            с отутствующей директорией \verb|<prefix>/GradSoft>|
+
+      \end{component}
+
+\item [1.0.3]:
+
+      \begin{component}{Инсталляция}
+      \item Исправлено некорректное построение разделяемых библиотек на Sun Solaris с помощью Sun CC
+      \end{component}
+
+      \begin{component}{Threading}
+      \item \verb|Thread::running_| помеченна как volatile
+      \end{component}
+
+      \begin{component}{ProgOptions}
+      \item Исправленна потенциальная ошибка, которая может привести к сбою
+            программы при вызове деструктора ProgOptions
+      \item Исправлена ошибка, приводившая к формированию неправильного текста help-сообщения
+            при переопределении предопределенных опций \verb|--config| или \verb|--help|
+      \end{component}
+
+      \begin{component}{ServiceOptions}
+      \item Исправленна ошибка компиляции с omniORB 
+      \item Добавлена обработка таблицы ключей для TAO
+      \end{component}
+
+\end{description}
+
+\section{Изменения в документации}
+
+\begin{description}
+
+\item [1.6.2]: исправлены опечатки в руководстве программиста по 
+ \verb|Threading| и в описании API.
+\item [1.6.0]: Дополнено руководство программиста по \verb|Threading|
+      
+\item [1.5.1]: Устранен недосмотр в руководстве программиста к пакету ServiceOptions
+
+\item [1.5.0]: 
+      \begin{itemize}
+      \item Добавлено руководство программиста к пакету ptrs
+      \item Дополнено руководство программиста к пакету Threading
+      \item Дополнено руководство администратора.
+      \end{itemize}
+
+\item [1.4.2]:
+      \begin{itemize}
+      \item Руководство программиста к пакету ServiceOptions:
+            описан правильный способ поддержки для опции \verb|--config <filename>|. 
+      \end{itemize}
+
+\item [1.4.1]:
+      \begin{itemize}
+      \item Руководство программиста к пакету ProgOptions:
+            \begin{enumerate}
+            \item описанa поддержка опции \verb|--config <filename>|.
+            \end{enumerate}
+      \item Руководство программиста к пакету DynamicModules:
+            \begin{enumerate}
+            \item исправлены существенные неточности;
+            \item пример использования сделан компилируемым и вынесен в отдельный раздел;
+            \end{enumerate}
+      \end{itemize}
+
+\item [1.4.0]:
+      \begin{itemize}
+      \item Руководство Администратора:
+                    \begin{enumerate}
+                    \item отражены изменения в составе продукта, реализационных характеристиках,
+                          порядке инсталляции пакета под Windows NT
+                    \item вставлено упоминание о макросе WIN32, необходимом при компиляции под Windows NT
+                    \end{enumerate}
+      \end{itemize}
+
+\item [1.3.0]:
+      \begin{itemize}
+      \item добавлено описание пакета DirectoryContainer.
+      \item Исправлены некоторые грамматические ошибки в \verb|Changes_eng|.
+      \end{itemize}
+
+\item [1.2.0]:  
+      \begin{itemize}
+      \item Пересмотрено руководство программиста по \verb|Threading|
+      \item Пересмотрено руководство программиста по \verb|Logger|
+      \end{itemize}
+
+\item [1.1.0]:  
+      \begin{itemize}
+      \item Пересмотрено руководство программиста по \verb|Threading|
+      \item добавлены файлы README к примерам использования пакета Threading.
+      \item Исправлено несколько опечаток в руководстве администратора.
+      \end{itemize}
+
+\item [1.0.3]: 
+      \begin{itemize}
+      \item "Перечень изменений" добавлен в комплект документации.
+      \item В текст документации добавлены формальные атрибуты эксплуатационных документов.
+      \item Исправлены замеченные неточности и опечатки в руководстве администратора
+      \end{itemize} 
+
+\item [1.0.2]: 
+      \begin{itemize}
+      \item Описание API добавлено к перечню документации.
+      \end{itemize} 
+
+\end{description}
+
+\section{Перечень внедренных или  опубликованных версий}
+
+ \begin{itemize}
+ \item 1.6.3
+        \begin{itemize}
+        \item начало поставок - 08.05.2003
+        \end{itemize}
+ \item 1.6.2
+        \begin{itemize}
+        \item начало поставок - 12.09.2002
+        \item действия по поддержке зависящих программных комплексов: перекомпиляция с верисей 1.6.3
+        \end{itemize}
+ \item 1.6.1
+        \begin{itemize}
+        \item начало поставок - 04.09.2002
+        \item действия по поддержке зависящих программных комплексов: нет.
+        \end{itemize}
+ \item 1.6.0
+        \begin{itemize}
+        \item начало поставок - 29.08.2002
+        \item действия по поддержке зависящих программных комплексов: нет.
+        \end{itemize}
+ \item 1.5.0
+        \begin{itemize}
+        \item начало поставок - 12.04.2002
+        \item действия по поддержке зависящих программных комплексов: 
+        \begin{itemize}
+          \item Перекомпиляция с версией 1.6.0
+        \end{itemize}
+        \end{itemize}
+ \item 1.4.2
+        \begin{itemize}
+        \item начало поставок - 06.02.2002
+        \item действия по поддержке зависящих программных комплексов: см. 1.4.1
+        \end{itemize}
+ \item 1.4.1
+        \begin{itemize}
+        \item начало поставок - 31.01.2002
+        \item действия по поддержке зависящих программных комплексов: 
+        \begin{itemize}
+          \item перекомпиляция с версией 1.5.0
+          \item Если у вас не компилируется ПО, использующее threading,
+            измените в нем спецификации прерываний.
+        \end{itemize}
+        \end{itemize}
+ \item 1.4.0
+        \begin{itemize}
+        \item начало поставок - 17.01.2002
+        \item действия по поддержке зависящих программных комплексов: 
+        \begin{itemize}
+         \item Если вы используете имена из пространства имен \verb|std|,
+         убедитесь, что эти имена импортируются в вашем коде или добавьте
+         к ним префикс \verb|std::|.
+         \item Если вы используете включаемый файл \verb|ServiceOptions.h|
+         и тип \verb|ServiceOption|, то либо примпортируйте имя \verb|GradSoft::ServiceOptions| либо добавьте к нему префикс \verb|GradSoft::| в своих программах.
+         \item Если вы используете включаемый файл \verb|ServiceOptions|,
+          замените его на \verb|ServiceOptions.h|.
+        \end{itemize}
+        \end{itemize}
+  \item 1.3.0
+  \begin{itemize}
+   \item начало поставок - 21.09.2001
+   \item действия по поддержке зависящих программных комплексов: нет.
+  \end{itemize}
+  \item 1.2.1
+  \begin{itemize}
+   \item начало поставок - 07.07.2001
+   \item действия по поддержке зависящих программных комплексов: нет.
+  \end{itemize}
+  \item 1.2.0
+  \begin{itemize}
+   \item начало поставок - 28.06.2001
+   \item действия по поддержке зависящих программных комплексов:
+         \begin{enumerate}
+         \item замена вызовов Thread::sleep() и Thread::nanosleep() 
+               вне метода Thread::run()
+               на вызовы Thread::sleepCurrent() и Thread::nanosleepCurrent()
+               соответственно.
+         \item перекомпиляция со следующей версией.
+         \end{enumerate}
+  \end{itemize}
+  \item 1.1.0
+  \begin{itemize}
+   \item начало поставок - 28.04.2001
+   \item прекращение поддержки - 04.06.2001
+   \item действия по поддержке зависящих программных комплексов: 
+         перекомпиляция со следующей версией.
+  \end{itemize}
+  \item 1.0.4 
+  \begin{itemize}
+   \item начало поставок - 14.03.2001
+   \item прекращение поддержки - 14.05.2001
+   \item действия по поддержке зависящих программных комплексов: 
+      \begin{itemize}
+        \item Вставка кода обработки ошибок при необходимости.
+      \end{itemize}
+  \end{itemize}
+  \item 1.0.3
+  \begin{itemize}
+   \item начало поставок - 19.02.2001
+   \item прекращение поддержки : 15.03.2001
+   \item действия по поддержке зависящих программных комплексов: 
+       перекомпиляция со следующей версией.
+  \end{itemize}
+  \item 1.0.2
+  \begin{itemize}
+   \item начало поставок - 14.12.2000
+   \item прекращение поддержки - 20.02.2001 
+   \item действия по поддержке зависящих программных комплексов: 
+       перекомпиляция со следующей версией.
+  \end{itemize}
+  \item 1.0.1
+  \begin{itemize}
+   \item начало поставок - 30.11.2000
+   \item прекращение поддержки - 14.12.2000 
+   \item действия по поддержке зависящих программных комплексов: 
+       перекомпиляция со следующей версией.
+  \end{itemize}
+  \item 1.0
+  \begin{itemize}
+   \item начало поставок - 28.11.2000
+   \item прекращение поддержки - 20.02.2000 
+   \item действия по поддержке зависящих программных комплексов: 
+       перекомпиляция со следующей версией.
+  \end{itemize}
+  \item 0.9
+  \begin{itemize}
+   \item начало поставок - 09.04.2000
+   \item прекращение поддержки - 28.11.2000 
+   \item действия по поддержке зависящих программных комплексов: перекомпиляция с версией 1.0.1
+  \end{itemize}
+ \end{itemize}
+
+\end{document}
+
+

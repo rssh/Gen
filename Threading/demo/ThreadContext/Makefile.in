@@ -1,0 +1,19 @@
+PROJECT_ROOT=@project_root@
+include $(PROJECT_ROOT)/../config/entry.mak
+
+ThreadContextChecker: ThreadContextChecker.o
+	$(CXX) $(CXXFLAGS) -o ThreadContextChecker ThreadContextChecker.o -L../../src -lThreading $(LIBS)
+	
+ThreadContextChecker.o: ThreadContextChecker.cpp
+	$(CXX) $(CXXFLAGS) -c ThreadContextChecker.cpp
+
+default: build
+
+build: ThreadContextChecker 
+
+install:
+uninstall:
+
+clean:
+	-rm *.o ThreadContextChecker 
+	-rm -rf Templates.DB

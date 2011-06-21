@@ -1,0 +1,4 @@
+
+proc ThreadServiceDemo_exit {} {}
+proc ThreadServiceDemo_version {} {}
+

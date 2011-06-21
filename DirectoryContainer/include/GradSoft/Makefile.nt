@@ -1,0 +1,17 @@
+## Makefile for Windows NT: DirectoryContainer include files installation 
+## $Id: Makefile.nt,v 1.3 2002-01-03 09:28:30 kav Exp $
+
+include ..\..\..\config\Win32\environment.nt.mak
+include ..\..\config\common_settings.nt.mak
+
+TARGET_DIR=$(INSTALL_INC_DIR)\GradSoft
+PURVEYANCE=DirectoryContainer.h DirectoryContainerConfigNT.h DirectoryContainerPostConfig.h 
+
+install: makedir
+   @for %i in ( $(PURVEYANCE) ) do @$(INSTALL) %i $(TARGET_DIR)
+
+makedir:
+   @if not exist $(TARGET_DIR) mkdir $(TARGET_DIR)
+
+uninstall:
+   @for %i in ( $(PURVEYANCE) ) do @if exist $(TARGET_DIR)\%i $(REMOVE) $(TARGET_DIR)\%i

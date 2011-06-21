@@ -1,0 +1,35 @@
+
+@SET_MAKE@
+project_root=@project_root@
+include $(project_root)/config/entry.mak
+
+SUBDIRS=src include docs demo
+
+default: build
+
+all:build
+
+build:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) build); done
+
+install:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) install); done
+
+uninstall:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) uninstall); done
+
+clean:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) clean); done
+	-rm config.cache
+	-rm -rf Templates.DB
+
+docs: documentation
+
+documentation:
+	(cd docs; $(MAKE) all)
+
+install-web-distributive:
+	(cd docs; $(MAKE) install-web-distributive)
+
+reconfigure:
+	autoconf -l ../config

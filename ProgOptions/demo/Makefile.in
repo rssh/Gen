@@ -1,0 +1,23 @@
+PROJECT_ROOT=@project_root@
+include $(PROJECT_ROOT)/config/entry.mak
+
+ProgOptionsDemo: ProgOptionsDemo.o
+	$(CXX) -o ProgOptionsDemo ProgOptionsDemo.o -L../src -lProgOptions $(LIBS)
+
+ProgOptionsDemo1: ProgOptionsDemo1.o
+	$(CXX) -o ProgOptionsDemo1 ProgOptionsDemo1.o -L../src -lProgOptions $(LIBS)
+        
+ProgOptionsDemo1.o: ProgOptionsDemo1.cpp
+	$(CXX) $(CXXFLAGS) -I.. -c ProgOptionsDemo1.cpp
+
+default:
+
+build: ProgOptionsDemo  ProgOptionsDemo1 
+
+install:
+uninstall:
+
+clean:
+	-rm *.o ProgOptionsDemo
+	-rm *.o ProgOptionsDemo1
+	-rm -rf Templates.DB

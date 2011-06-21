@@ -1,0 +1,38 @@
+PROJECT_ROOT=@project_root@
+include $(PROJECT_ROOT)/config/entry.mak
+
+SRCS=CryptHelper.cpp
+OBJS=CryptHelper.o
+SOBJS=CryptHelper.so
+
+LIB=libCrypt.a
+SLIB=libCrypt.so
+
+build: $(LIB) $(SLIB)
+
+install: build
+	$(INSTALL_DATA) $(LIB) $(prefix)/lib
+	$(INSTALL_DATA) $(SLIB) $(prefix)/lib
+
+uninstall: 
+	-rm $(prefix)/lib/$(LIB)
+	-rm $(prefix)/lib/$(SLIB)
+
+clean:
+	-rm *.o $(LIB) $(SLIB)
+
+.SUFFIXES: .cpp .o .so
+
+.cpp.o:
+	$(CXX) -I../../Numeric/include $(CXXFLAGS) -c -o $*.o $<
+
+.cpp.so:
+	$(CXX) -I../../Numeric/include $(CXXSFLAGS) -c -o $*.o $<
+	mv $*.o $*.so
+
+$(LIB): $(OBJS)
+	$(AR) $(ARFLAGS) $(LIB) $(OBJS)
+
+$(SLIB): $(SOBJS)
+	$(LD) $(LD_CREATE_FLAGS) $(SLIB) $(SOBJS)
+

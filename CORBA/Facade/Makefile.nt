@@ -1,0 +1,32 @@
+# Main Makefile for ServiceOptions  project  for WinNT
+# $Id: Makefile.nt,v 1.1 2000-08-02 09:05:57 alik Exp $
+
+include env_inc.nt.mak
+
+SUBDIRS=$(PROJECT_ROOT)\src $(PROJECT_ROOT)\tests
+INSTALL_DIRS=$(PROJECT_ROOT)\src $(PROJECT_ROOT)\include
+
+default: build
+clean: obj-clean
+idl: generate
+
+build-generated: build
+build-idl: build
+build-client: build
+install-client: install
+
+build::
+	@for %i in ( $(SUBDIRS) ) do \
+		@cd %i && $(MAKE) /F Makefile.nt default-build
+
+install::
+	@for %i in ( $(INSTALL_DIRS) ) do \
+		@cd %i && $(MAKE) /F Makefile.nt install
+
+generate:
+	@cd demo && $(MAKE) /F Makefile.nt generate
+
+obj-clean::
+	@for %i in ($(SUBDIRS)) do \
+		@cd %i && $(MAKE) /F Makefile.nt clean
+

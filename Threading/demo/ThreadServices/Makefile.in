@@ -1,0 +1,19 @@
+PROJECT_ROOT=@project_root@
+include $(PROJECT_ROOT)/../config/entry.mak
+
+ThreadServiceDemo: ThreadServiceDemo.o
+	$(CXX) $(CXXFLAGS) -o ThreadServiceDemo ThreadServiceDemo.o -L../../src -lThreading $(LIBS)
+	
+ThreadServiceDemo.o: ThreadServiceDemo.cpp
+	$(CXX) $(CXXFLAGS) -c ThreadServiceDemo.cpp
+
+default: build
+
+build: ThreadServiceDemo 
+
+install:
+uninstall:
+
+clean:
+	-rm *.o ThreadServiceDemo 
+	-rm -rf Templates.DB

@@ -1,0 +1,18 @@
+## Project ptrs; Makefile for Windows; compilation of test application
+## $Id: Makefile.nt,v 1.1 2002-03-16 19:03:59 kav Exp $
+
+###############################################
+!ifndef PROJECT_ROOT          #               #
+PROJECT_ROOT=$(MAKEDIR)\..\.. # debug entries #
+!endif                        #               #
+###############################################
+
+include ..\..\config\common_settings.nt.mak
+
+build: demo.exe
+
+demo.exe: demo.obj ; $(LD) demo.obj $(LDFLAGS)  
+
+clean: ; @for %i in ( demo.exe demo.obj ) do @if exist %i $(REMOVE) %i
+
+

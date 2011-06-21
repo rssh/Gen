@@ -1,0 +1,67 @@
+## (C) GradSoft 2002
+#
+#  This is config file to show how ThreadEvent->wait() call
+#  could jamm program.
+#  NOTE: Configure PROJECT_DIR, MSVC_DIR and
+#  GRADCTOOLBOX_INSTALL_DIR variables to compile the project.
+#
+
+
+
+##########################
+# Project dirs
+#
+PROJECT_DIR="Z:\JammedThread"
+PROJECT_SRC_DIR=$(PROJECT_DIR)
+INCLUDES=-I$(PROJECT_SRC_DIR)
+LIBS=
+
+
+
+##########################
+# GradCToolBox
+#
+GRADCTOOLBOX_INSTALL_DIR=R:\GradCToolBox\Release
+GRADCTOOLBOX_INC_DIR=$(GRADCTOOLBOX_INSTALL_DIR)\include
+GRADCTOOLBOX_LIB_DIR=$(GRADCTOOLBOX_INSTALL_DIR)\lib
+GRADCTOOLBOX_LIBS=$(GRADCTOOLBOX_LIB_DIR)\ProgOptions.lib $(GRADCTOOLBOX_LIB_DIR)\ServiceOptions.lib $(GRADCTOOLBOX_LIB_DIR)\Logger.lib $(GRADCTOOLBOX_LIB_DIR)\Threading.lib
+INCLUDES=$(INCLUDES) -I$(GRADCTOOLBOX_INC_DIR)
+LIBS=$(LIBS) $(GRADCTOOLBOX_LIBS)
+
+
+
+
+##########################
+# OS commands
+#
+REMOVE_FILES=del
+COPY_FILES=copy
+GO_TO_DIR=cd
+CREATE_DIR=md
+
+
+##########################
+# Compiling and linking
+#
+# MSVC settings
+#
+MSVC_DIR="D:\Program files\Microsoft Visual Studio\VC98"
+MSVC_INCLUDES=-I$(MSVC_DIR)\include
+MSVC_LIB_DIR=$(MSVC_DIR)\lib
+MSVC_LIBS=$(MSVC_LIB_DIR)\uuid.lib $(MSVC_LIB_DIR)\user32.lib $(MSVC_LIB_DIR)\advapi32.lib $(MSVC_LIB_DIR)\wsock32.lib $(MSVC_LIB_DIR)\msvcrt.lib $(MSVC_LIB_DIR)\msvcprt.lib $(MSVC_LIB_DIR)\msvcirt.lib $(MSVC_LIB_DIR)\OLDNAMES.LIB $(MSVC_LIB_DIR)\kernel32.lib
+INCLUDES=$(INCLUDES) $(MSVC_INCLUDES)
+LIBS=$(LIBS) $(MSVC_LIBS)
+#
+# Compiler
+#
+C_COMMAND=cl /c  
+CPPFLAGS=/D "WIN32" /D "CONSOLE" 
+INCLUDES=$(INCLUDES)
+C_FLAGS=/nologo /MD /GR /GX $(CPPFLAGS) $(INCLUDES)
+C_COMPILE=$(C_COMMAND) $(C_FLAGS)
+#
+# Linker
+#
+LD=cl
+LDFLAGS= $(LIBS)
+

@@ -1,0 +1,57 @@
+dnl configure.in for CosQuery.
+dnl part of ua.kiev.grad. framework.
+dnl (C) Ruslan Shevchenko <Ruslan@Shevchenko.Kiev.UA>, 1998, 1999
+dnl $Id: configure.in,v 1.6 2008-06-12 10:52:17 rssh Exp $
+dnl
+dnl Process this file with autoconf to produce a configure script.
+
+AC_SUBST(PACKAGE, ServiceOptionsDemo)
+AC_SUBST(VERSION, 1.0)
+
+AC_INIT(ServiceOptionsDemoPostConfig.h)
+AC_CONFIG_AUX_DIR(../../../config)
+
+
+dnl check system type
+AC_CANONICAL_SYSTEM
+
+dnl
+dnl Checks for programs.
+dnl
+AC_CANONICAL_HOST
+AC_PROG_CC
+AC_PROG_CXX
+AC_PROG_CXXCPP
+AC_PROG_RANLIB
+AC_PROG_INSTALL
+AC_PROG_MAKE_SET
+
+RSSH_PROG_CXXAR
+RSSH_PROG_CXXLD
+
+AC_CXX_NAMESPACES
+AC_CXX_BOOL
+RSSH_RTTI
+RSSH_ENABLE_PTHREADS
+
+RSSH_CHECK_STL
+RSSH_CHECK_IOSTREAMS
+
+AC_CHECK_LIB(ssl, EVP_CIPHER_CTX_init, LIBS="-lssl $LIBS")
+
+RSSH_CHECK_ORB
+echo "LIBS now: $LIBS"
+LIBS="$ORB_COSNAMING_LIB $LIBS"
+
+AC_CHECK_LIB(dl,dlopen) 
+
+PROJECT_ROOT=`pwd`
+project_root=$PROJECT_ROOT
+AC_SUBST(PROJECT_ROOT)
+AC_SUBST(project_root)
+
+AC_CONFIG_HEADER(ServiceOptionsDemoConfig.h)
+
+
+AC_OUTPUT(Makefile) 
+

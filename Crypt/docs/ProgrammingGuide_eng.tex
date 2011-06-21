@@ -1,0 +1,43 @@
+
+\documentclass[10pt]{article}
+%\usepackage{tex4ht}
+\usepackage[OT1,T2A]{fontenc}
+\usepackage[koi8-u]{inputenc}
+\usepackage{graphicx}
+\usepackage{verbatim}
+
+%\Contribute{TITLE}{\def\LaTeX{LaTeX}}
+\title{ Crypt: Руководство программиста  }
+
+% $Id: ProgrammingGuide_eng.tex,v 1.1 2001-04-10 11:47:41 yad Exp $
+
+\begin{document}
+
+\maketitle{}
+
+%\tableofcontents
+
+\section{ Introduction }
+
+ Crypt provides set of cryptographic facilities.
+
+ This document is an unformal description of package, for full specification,
+ please, see API reference. 
+ (\verb|www.gradsoft.kiev.ua/common/ToolBox/Crypt/API/index.html|).
+
+\section{ General description }
+
+  
+\section{ Example }
+
+
+\section{ Programming Environment Conventions }
+
+\begin{enumerate}
+  \item if you C++ compiler supports namespaces, preprocesssor variable \verb|HAVE_NAMESPACES| must be defined
+  {\em before} inclusion of file CryptHelper or CryptHelper.h
+  \item If you compiler does not have builtin  {\bf bool }, you must define this type,
+   with constants {\bf true} and {\bf false } {\em before inclusion } of CryptHelper.h 
+\end{enumerate}
+
+\end{document}

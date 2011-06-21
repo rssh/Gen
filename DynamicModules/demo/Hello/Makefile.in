@@ -1,0 +1,33 @@
+PROJECT_ROOT=@project_root@
+include $(PROJECT_ROOT)/config/entry.mak
+LIBS=@LIBS@
+
+Hello: Main.o Hello1.so Hello2.so
+	$(CXX) -o Hello Main.o -L../../src -lDynamicModules $(LIBS)
+        
+Main.o: Main.cpp
+	$(CXX) $(CXXFLAGS) -I. -c Main.cpp
+
+Hello1.o: Hello1.cpp
+	$(CXX) $(CXXSFLAGS) -I. -c Hello1.cpp
+
+Hello2.o: Hello2.cpp
+	$(CXX) $(CXXSFLAGS) -I. -c Hello2.cpp
+
+Hello1.so: Hello1.o
+	$(LD) $(LD_CREATE_FLAGS) Hello1.so Hello1.o
+
+Hello2.so: Hello2.o
+	$(LD) $(LD_CREATE_FLAGS) Hello2.so Hello2.o
+
+default:
+
+build: Hello
+
+
+install:
+uninstall:
+
+clean:
+	-rm *.o *.so Hello
+	-rm -rf Templates.DB

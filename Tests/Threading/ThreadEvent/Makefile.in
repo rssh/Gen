@@ -1,0 +1,28 @@
+#
+# Part of Testing Suite for GradSoft C++ ToolBox
+# $Id: Makefile.in,v 1.2 2001-06-05 08:59:31 rssh Exp $
+#
+PROJECT_ROOT=@project_root@
+include ../../config/entry.mak
+
+default: build
+
+build: TestForWait
+
+check: build build-site.exp
+	(cd testsuite; runtest -de)
+
+build-site.exp:
+	echo "global toolexe" > testsuite/site.exp
+	echo "set toolexe `pwd`/TestForWait" >> testsuite/site.exp
+
+clean:
+	-rm *.o TestForWait
+	-rm -rf Templates.DB
+
+TestForWait: TestForWait.o
+	$(CXX) $(CXXFLAGS) -o TestForWait TestForWait.o -L../../../Threading/src -lThreading $(LIBS)
+
+TestForWait.o: TestForWait.cpp
+	$(CXX) $(CXXFLAGS) -c TestForWait.cpp
+

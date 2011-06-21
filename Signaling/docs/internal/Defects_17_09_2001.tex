@@ -1,0 +1,114 @@
+\documentclass[10pt]{article}
+%\usepackage{tex4ht}
+\usepackage[OT1,T2A]{fontenc}
+\usepackage[koi8-u]{inputenc}
+\usepackage{graphicx}
+\usepackage{verbatim}
+
+\title{ Signaling: Defect Reports \newline
+        DocumentId:GradSoft-DF-17-09-2001-I1 }
+
+\begin{document}
+
+\maketitle{}
+
+\section{Описание дефектов}
+
+\begin{enumerate}
+  \item Грамматическая ошибка: должно быть всюду SIgnalling вместо Signaling ?
+  \begin{itemize}
+    \item Действия: проверить и изменить.
+    \item Сроки:
+    \item Ответственный.
+  \end{itemize}
+  \item Документация: отсуствует введение и образец использования.
+  \begin{itemize}
+    \item Действия: написать введение.
+    \item Сроки:
+    \item Ответственность:
+  \end{itemize}
+  \item Документация: отсуствует DocumentId, перечень изменений.
+  \begin{itemize}
+    \item Действия: добавить эти разделы.
+    \item Сроки:
+    \item Ответственность:
+  \end{itemize}
+  \item Образец использования: невозможно передать параметр.
+  Более подробно: стандартная функция обработчика сигнала имеет прототип
+\begin{verbatim}
+  void fun(int signal)
+\end{verbatim}
+  На практике нам надо передавать туда параметры. Обычно это делается с 
+  помощью глобальных переменных.
+  Следовательно, нам надо самим определить  область глобальных переменных.
+  Может быть имеет смысл определить обработчик события как пользовательский 
+  класс:
+\begin{verbatim}
+class SignalHandler
+{
+public:
+  virtual ~SignalHandler();
+  virtual void run(int signal) = 0;
+};
+\end{verbatim}
+  \begin{itemize}
+    \item Действия: продумать образец использования и встроить в Signalling
+     эту функциональность>
+    \item Сроки:
+    \item Ответственность:
+  \end{itemize}
+  \item Образец использования: невозможно определить одну функцию для
+   совокупности сигналов.
+   Так, например, если нам нужно поставить функции на все сигналы, то
+   необходимо что-то вроде:
+   \begin{verbatim} 
+     Signalling(fun,0); 
+     Signalling(fun,2); 
+     ..................
+     Signalling(fun,15); 
+#if defined(NSIG) && NSIG=32
+     Signalling(fun,16); 
+     ....
+     Signalling(fun,31); 
+#endif
+   \end{verbatim} 
+    Понятно, что такой код можно только в страшном сне написать.
+   \begin{itemize}
+    \item Действия: Определить маску сигналов как битовый флаг, с константами,
+    имеющие те-же имена, чтол и в станадрате с префиксом en.
+    Определить функции: haveSignal(int) которая возворащает true или false,
+    в зависимости от того: есть ли такой сигнал в данной ОС.
+    Также определить Signalling::enALL
+    \item Сроки:
+    \item Ответственность:
+   \end{itemize}
+  \item Образец использования: точно-ли верифицированно, что поведение одинаковое на Windows и UNIX. У меня возникло ощущения, что вы говорили разные вещи.
+   \begin{itemize}
+    \item Действия: Верифицировать.
+    \item Сроки:
+    \item Ответственность:
+   \end{itemize}
+  \item Отсуствует namespace GradSoft.
+   \begin{itemize}
+    \item Действия: добавить.
+    \item Сроки:
+    \item Ответственность:
+   \end{itemize}
+\end{enumerate}
+
+\section{Аттрибуты документа}
+
+\begin{itemize}
+ \item Author: Руслан Шевченко.
+ \item State: Открыто.
+ \item DocumentId: \verb|GradSoft-DF-17-09-2001-I1|
+ \item CVS location: \verb|Gen/Signaling/docs/internal/Defects_17_09_2001.tex|
+\end{itemize}
+
+\section{Перечень изменений}
+
+\begin{itemize}
+ \item[17.09.2001] Создан.
+\end{itemize}
+
+\end{document}

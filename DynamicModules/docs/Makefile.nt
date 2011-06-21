@@ -1,0 +1,79 @@
+#
+# Gen/DynamicModules/docs/Makefile.in
+# (C) GradSoft, 2000
+# (C) Ruslan Shevchenko, 200
+# $Id: Makefile.nt,v 1.4 2002-01-14 13:00:49 kav Exp $
+include ..\..\config\Win32\environment.nt.mak
+include ..\config\common_settings.nt.mak
+
+
+TEX_FILES=ProgrammingGuide_rus.tex \
+          ProgrammingGuide_eng.tex 
+
+DVI_FILES=ProgrammingGuide_rus.dvi \
+          ProgrammingGuide_eng.dvi
+
+PS_FILES=ProgrammingGuide_rus.ps \
+         ProgrammingGuide_eng.ps
+
+PDF_FILES=ProgrammingGuide_rus.pdf \
+          ProgrammingGuide_eng.pdf
+
+API_FILE=html/DynamicModules.html
+HTML_PR_RUS=ProgrammingGuide_rus/index.html
+HTML_PR_ENG=ProgrammingGuide_eng/index.html
+
+# patch:
+SUBSIDIARY_FILES=\
+ ProgrammingGuide_eng.aux\
+ ProgrammingGuide_eng.bbl\
+ ProgrammingGuide_eng.blg\
+ ProgrammingGuide_eng.log\
+ ProgrammingGuide_eng.toc\
+\
+ ProgrammingGuide_rus.aux\
+ ProgrammingGuide_rus.bbl\
+ ProgrammingGuide_rus.blg\
+ ProgrammingGuide_rus.log\
+ ProgrammingGuide_rus.toc
+
+build: 
+
+clean:
+	@for %i in ( $(SUBSIDIARY_FILES) $(DVI_FILES) $(API_FILE) $(PDF_FILES) ) do \
+                @if exist %i $(REMOVE) %i
+#	$(RMDIR) ProgrammingGuide_eng
+#	$(RMDIR) ProgrammingGuide_rus
+
+install:
+
+uninstall:
+
+docs: $(PDF_FILES) $(API_FILE)
+
+all: docs
+
+.SUFFIXES: .tex .dvi .ps .pdf
+
+.tex.dvi:
+	latex $< 
+	-bibtex $*
+	latex $< 
+
+.tex.pdf:
+	pdflatex $<
+	-bibtex $*
+	pdflatex $<
+
+html/DynamicModules.html:
+	@cd html && doc++ -I FILES
+
+
+
+$(HTML_PR_RUS): ProgrammingGuide_rus.tex ProgrammingGuide_rus.pdf
+	latex2html -charset KOI8-R -split 0 -info 0 -address "GradSoft" -local_icons ProgrammingGuide_rus.tex
+
+$(HTML_PR_ENG): ProgrammingGuide_eng.tex ProgrammingGuide_eng.pdf
+	latex2html -split 0 -info 0 -address "GradSoft" -local_icons ProgrammingGuide_eng.tex
+
+

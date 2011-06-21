@@ -1,0 +1,28 @@
+# $Id: Makefile.nt,v 1.1 2000-08-02 09:07:18 alik Exp $
+
+include ../../env_inc.nt.mak
+
+IDL_DIRS=idl
+
+PROJECT_INCLUDE=-Isrc -Iidl -Isrc/include $(PROJECT_INCLUDE)
+
+default: build
+
+default-build: idl build
+build: idl test1
+install:
+
+include idl/mkidl.nt.mak
+include src/mksrc.nt.mak
+
+idl::
+	@for %i in ( $(IDL_DIRS) ) do \
+		@cd %i && $(MAKE) /F Makefile.nt generate
+
+clean::
+	@for %i in ( $(IDL_DIRS) ) do \
+		@cd %i && $(MAKE) /F Makefile.nt idl-clean
+        @if exist *.obj $(RM) *.obj
+        @if exist *.lib $(RM) *.lib
+        @if exist *.exe $(RM) *.exe
+

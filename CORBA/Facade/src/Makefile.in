@@ -1,0 +1,38 @@
+PROJECT_ROOT=@project_root@
+include $(PROJECT_ROOT)config/entry.mak
+
+CORBAFACADE_SRCS=CORBAFacade.cpp PersistentServantBase.cpp
+CORBAFACADE_CORBAFACADE_OBJS=CORBAFacade.o PersistentServantBase.o
+CORBAFACADE_CORBAFACADE_SOBJS=CORBAFacade.so PersistentServantBase.so
+
+CORBAFACADE_LIB=libCORBAFacade.a
+CORBAFACADE_SLIB=libCORBAFacade.so.1.0
+
+build: $(CORBAFACADE_LIB) $(CORBAFACADE_SLIB)
+
+install: build
+	$(INSTALL_DATA) $(CORBAFACADE_LIB) $(prefix)/lib
+	$(INSTALL_DATA) $(CORBAFACADE_SLIB) $(prefix)/lib
+
+uninstall:
+	-rm -f $(prefix)/lib/$(CORBAFACADE_LIB)
+	-rm -f $(prefix)/lib/$(CORBAFACADE_SLIB)
+
+clean:
+	-rm *.o $(CORBAFACADE_LIB) $(CORBAFACADE_SLIB)
+
+.SUFFIXES: .cpp .o .so
+
+.cpp.o:
+	$(CXX) $(CXXFLAGS) -c -o $*.o $<
+
+.cpp.so:
+	$(CXX) $(CXXSFLAGS) -c -o $*.o $<
+	mv $*.o $*.so
+
+$(CORBAFACADE_LIB): $(CORBAFACADE_OBJS)
+	$(AR) $(ARFLAGS) $(CORBAFACADE_LIB) $(CORBAFACADE_OBJS)
+
+$(CORBAFACADE_SLIB): $(CORBAFACADE_SOBJS)
+	$(LD) $(LD_CREATE_FLAGS) $(CORBAFACADE_SLIB) $(CORBAFACADE_SOBJS)
+

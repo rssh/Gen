@@ -1,0 +1,11 @@
+
+ This demos illustrate usage of threadsafe container adapters.
+
+Container1.cpp - simulation of Brown movement
+Container2.cpp - stohastick population
+Container3.cpp - same as container 2, but with multiset.
+
+ Note, that Conatiner2 and Container3 shows the quality of rand()
+algorithm under WIndows NT :(
+
+

@@ -1,0 +1,29 @@
+#
+# part of GradSoft C++ ToolBox: Logger
+# (C) GradSoft, 2000, 2001
+# author: Ruslan Shevchenko <Ruslan@Shevchenko.Kiev.UA>, 
+# 2000, 2001
+# $Id: Makefile.in,v 1.5 2001-05-29 15:42:36 rssh Exp $
+#
+
+PROJECT_ROOT=@project_root@
+include $(PROJECT_ROOT)/config/entry.mak
+
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+
+INSTALL_INCLUDES=Logger.h LoggerConfig.h LoggerPostConfig.h
+INSTALL_INCLUDES_DIR=$(prefix)/include/GradSoft
+
+
+build:
+install:
+	for i in $(INSTALL_INCLUDES); do \
+	 $(INSTALL_DATA) $$i $(INSTALL_INCLUDES_DIR);\
+	done
+
+uninstall:
+	-for i in $(INSTALL_INCLUDES); do \
+	 rm $(INSTALL_INCLUDES_DIR)/$$i; \
+	done
+

@@ -1,0 +1,26 @@
+## Makefile for Windows NT: Threading include files installation 
+## (C) GradSoft 2000, 2001
+## $Id: Makefile.nt,v 1.2 2001-12-11 21:16:30 kav Exp $
+
+include ..\..\..\..\config\Win32\environment.nt.mak
+include ..\..\..\config\common_settings.nt.mak
+
+TARGET_DIR=$(INSTALL_INC_DIR)\GradSoft\ThreadServices
+PURVEYANCE=\
+      QueueOfRunnables.h \
+      SingleThreadBlocking.h \
+      SingleThreadChecking.h \
+      SingleThreadReactive.h \
+      ThreadPerClient.h \
+      ThreadPool.h \
+      ThreadServiceStateWrapper.h 
+
+install: makedir
+   @for %i in ( $(PURVEYANCE) ) do @$(INSTALL) %i $(TARGET_DIR)
+
+makedir:
+   @if not exist $(TARGET_DIR) mkdir $(TARGET_DIR)
+
+uninstall:
+   @for %i in ( $(PURVEYANCE) ) do @if exist $(TARGET_DIR)\%i $(REMOVE) $(TARGET_DIR)\%i
+

@@ -1,0 +1,18 @@
+#
+# part of gradSoft C++ ToolBox
+# (C) GradSoft 2000,2001
+# http://www.gradsoft.com.ua
+# $Id: entry.mak.in,v 1.4 2002-04-18 09:23:23 rssh Exp $
+#
+SUBDIRS=@SUBDIRS@
+PLAIN_SUBDIRS=@PLAIN_SUBDIRS@
+
+prefix=@prefix@
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+INSTALL_LIB=@INSTALL_DATA@
+
+RANLIB=@RANLIB@
+LORDER=@LORDER@
+

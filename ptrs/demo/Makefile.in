@@ -1,0 +1,28 @@
+#
+# part of GradSoft C++ ToolBox
+# (C) GradSoft 2000, 2001
+# http://www.gradsoft.com.ua
+# $Id: Makefile.in,v 1.2 2002-03-15 20:26:50 rssh Exp $
+#
+
+@SET_MAKE@
+SUBDIRS=auto_array_ptr owned_ptr safe_ptr
+
+default-build: default
+
+build: default
+
+default:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) default ); done
+
+clean:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) clean); done
+
+install:
+uninstall:
+
+install-client:
+uninstall-client:
+
+reconfigure:
+	autoconf -l ../../config

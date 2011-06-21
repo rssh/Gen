@@ -1,0 +1,89 @@
+
+#ifndef HAVE_IOSTREAM
+#undef HAVE_IOSTREAM
+#endif
+
+#ifndef HAVE_SET
+#undef HAVE_SET
+#endif
+#ifndef HAVE_SET_H
+#undef HAVE_SET_H
+#endif
+
+#ifndef HAVE_MAP
+#undef HAVE_MAP
+#endif
+#ifndef HAVE_MAP_H
+#undef HAVE_MAP_H
+#endif
+
+#ifndef HAVE_DEQUE
+#undef HAVE_DEQUE
+#endif
+#ifndef HAVE_DEQUE_H
+#undef HAVE_DEQUE_H
+#endif
+
+
+#ifndef CORBA_H
+#undef CORBA_H
+#endif
+
+#ifndef COSNAMING_H
+#undef COSNAMING_H
+#endif
+
+#ifndef CORBA_MODULE_CLASS_MAPING
+#undef CORBA_MODULE_CLASS_MAPPING
+#endif
+
+#ifndef CORBA_MODULE_NAMESPACE_MAPING
+#undef CORBA_MODULE_NAMESPACE_MAPPING
+#endif
+
+#ifndef CORBA_MODULE_C_MAPING
+#undef CORBA_MODULE_C_MAPING
+#endif
+
+#ifndef CORBA_HAVE_POA
+#undef CORBA_HAVE_POA
+#endif
+
+#ifndef STREAMBUF_HAVE_PUBSEEKPOS
+#undef STREAMBUF_HAVE_PUBSEEKPOS
+#endif
+
+#ifndef HAVE_NAMESPACES
+#undef HAVE_NAMESPACES
+#endif
+
+#ifndef HAVE_BOOL
+#undef HAVE_BOOL
+#endif
+
+#ifndef ORBACUS
+#undef ORBACUS
+#endif
+
+#ifndef RSSH_TAO
+#undef RSSH_TAO
+#endif
+
+#ifndef TAO_HAVE_IORTABLE_ADAPTER
+#undef TAO_HAVE_IORTABLE_ADAPTER
+#endif
+
+#ifndef TAO_HAVE_PORTABLE_SERVER_H
+#undef TAO_HAVE_PORTABLE_SERVER_H
+#endif
+
+#ifndef OMNIORB
+#undef OMNIORB
+#endif
+
+#ifndef MICO
+#undef MICO
+#endif
+
+
+

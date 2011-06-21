@@ -1,0 +1,17 @@
+## Makefile for Windows NT: ptrs include files installation 
+## $Id: Makefile.nt,v 1.2 2002-04-05 17:03:23 kav Exp $
+
+include ..\..\..\config\Win32\environment.nt.mak
+include ..\..\config\common_settings.nt.mak
+
+TARGET_DIR=$(INSTALL_INC_DIR)\GradSoft
+PURVEYANCE=counted_ptr.h owned_ptr.h ptrExceptions.h ptrs.h ptrsPostConfig.h safe_auto_ptr.h safe_ptr.h 
+
+install: makedir
+   @for %i in ( $(PURVEYANCE) ) do @$(INSTALL) %i $(TARGET_DIR)
+
+makedir:
+   @if not exist $(TARGET_DIR) mkdir $(TARGET_DIR)
+
+uninstall:
+   @for %i in ( $(PURVEYANCE) ) do @if exist $(TARGET_DIR)\%i $(REMOVE) $(TARGET_DIR)\%i

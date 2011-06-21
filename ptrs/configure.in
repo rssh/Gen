@@ -1,0 +1,57 @@
+dnl Gen/Threading
+dnl part of GradSoft C++ ToolBox
+dnl (C) Ruslan Shevchenko <Ruslan@Shevchenko.Kiev.UA>, 1998
+dnl (C) GradSoft, 2000, 2001
+dnl $Id: configure.in,v 1.3 2002-04-18 09:23:26 rssh Exp $
+dnl
+dnl Process this file with autoconf to produce a configure script.
+
+AC_SUBST(PACKAGE, ptrs)
+AC_SUBST(VERSION, 1.0)
+
+AC_INIT(include/GradSoft/ptrs.h)
+AC_CONFIG_AUX_DIR(../config)
+
+dnl Checks for programs.
+AC_PATH_PROG(MAKE,make)
+AC_SET_MAKE
+AC_PROG_CC
+AC_PROG_CPP
+AC_PROG_CXX
+AC_PROG_CXXCPP
+AC_PROG_RANLIB
+AC_PROG_INSTALL
+
+AC_CXX_NAMESPACES
+AC_CXX_BOOL
+AC_CXX_MUTABLE
+AC_CXX_TYPENAME
+AC_CXX_PARTIAL_SPECIALIZATION
+
+dnl
+project_root=`pwd`
+AC_SUBST(project_root)
+
+dnl root, where web documentation will be installed.
+
+AC_ARG_WITH(docs-web-root,docs-web-root (internal usage): where web documentation will be installed (default:<prefix>/doc/GradSoft))
+if test "x$with_docs_web_root" = "x" -o "x$with_docs_web_root" = "xno"
+then
+ docs_web_root="\$(prefix)/share/doc/GradSoft"
+else
+ docs_web_root=$with_docs_web_root
+fi
+AC_SUBST(docs_web_root)
+
+
+
+AC_CONFIG_SUBDIRS(demo)
+
+AC_CONFIG_HEADER(include/GradSoft/ptrsConfig.h)
+
+AC_OUTPUT(Makefile \
+          include/Makefile \
+          include/GradSoft/Makefile \
+          docs/Makefile \
+          config/entry.mak \
+          )

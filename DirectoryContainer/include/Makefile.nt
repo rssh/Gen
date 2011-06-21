@@ -1,0 +1,10 @@
+## Makefile for Windows NT: DirectoryContainer include files installation 
+## $Id: Makefile.nt,v 1.2 2001-12-11 21:22:45 kav Exp $
+
+DIRECTORIES=$(MAKEDIR)\GradSoft
+
+install:
+  @for %i in ( $(DIRECTORIES) ) do @cd %i && $(MAKE) /F Makefile.nt install
+
+uninstall:
+  @for %i in ( $(DIRECTORIES) ) do @cd %i && $(MAKE) /F Makefile.nt uninstall

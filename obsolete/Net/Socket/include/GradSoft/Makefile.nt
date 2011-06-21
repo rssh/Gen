@@ -1,0 +1,20 @@
+## Makefile for Windows NT: SMTPmailer include files installation 
+## $Id: Makefile.nt,v 1.1 2001-02-09 15:02:39 yad Exp $
+
+include ..\..\..\..\config\env_inc.nt.mak
+#include ..\..\config\env_inc.nt.mak
+
+install: install-headers
+
+DIR=GradSoft
+GradSoft_INSTALL=\
+	Socket.h
+
+install-headers::
+	@if not exist $(INSTALL_INC_DIR) mkdir $(INSTALL_INC_DIR)
+	@if not exist $(INSTALL_INC_DIR)\$(DIR) mkdir $(INSTALL_INC_DIR)\$(DIR)
+	@for %i in ( $(GradSoft_INSTALL) ) do \
+		xcopy /s %i $(INSTALL_INC_DIR)\$(DIR)
+uninstall:
+	@for %i in ( $(GradSoft_INSTALL) ) do \
+	@if exist $(INSTALL_INC_DIR)\$(DIR)\%i del $(INSTALL_INC_DIR)\$(DIR)\%i

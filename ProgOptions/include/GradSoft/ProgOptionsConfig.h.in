@@ -1,0 +1,53 @@
+#ifndef __GradSoft_ProgOptionsConfig_h
+#define __GradSoft_ProgOptionsConfig_h
+
+/*
+ * part of GradSoft C++ ToolBox: Logger
+ * (C) GradSoft, 2000, 2001
+ * author: Ruslan Shevchenko <Ruslan@Shevchenko.Kiev.UA>, 
+ * 2000, 2001
+ * $Id: ProgOptionsConfig.h.in,v 1.1 2001-12-11 20:56:34 kav Exp $
+ */
+
+
+#ifndef HAVE_BOOL
+#undef HAVE_BOOL
+#endif
+
+#ifndef HAVE_NAMESPACES
+#undef HAVE_NAMESPACES
+#endif
+
+#ifndef IOS_HAVE_NOCREATE
+#undef IOS_HAVE_NOCREATE
+#endif
+
+#ifndef IFSTREAM_HAVE_ISOPEN
+#undef IFSTREAM_HAVE_ISOPEN
+#endif
+
+#ifndef HAVE_STRSTREAM
+#undef HAVE_STRSTREAM
+#endif
+
+#ifndef HAVE_IOSTREAM
+#undef HAVE_IOSTREAM
+#endif
+
+#ifndef HAVE_FSTREAM
+#undef HAVE_FSTREAM
+#endif
+
+#ifndef HAVE_DEQUE
+#undef HAVE_DEQUE
+#endif
+
+#ifndef HAVE_MAP
+#undef HAVE_MAP
+#endif
+
+#ifndef HAVE_SET
+#undef HAVE_SET
+#endif
+
+#endif

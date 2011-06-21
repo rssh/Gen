@@ -1,0 +1,19 @@
+include .\environment.nt
+
+default: build
+
+
+build:	main.exe
+
+FILES_TO_CLEAN= *.obj main.exe
+clean:
+	for %i in ($(FILES_TO_CLEAN)) do if exist %i $(REMOVE_FILES) %i
+	
+
+main.exe: main.obj
+	$(LD) /Femain.exe main.obj $(LDFLAGS)
+	$(REMOVE_FILES) main.obj
+
+main.obj: main.cpp
+	$(C_COMPILE) main.cpp
+

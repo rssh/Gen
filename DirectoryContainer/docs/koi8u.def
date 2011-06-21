@@ -1,0 +1,104 @@
+%% 
+%% This is file `koi8.def',
+%%    (koi8u  encoding for writing in Russian and Ukrainian, 
+%%      use koi8 code table)
+%%   (C) Ruslan Shevchenko, 1997 - 1998
+%% 
+%%  $Id: koi8u.def,v 1.1 2001-07-03 04:32:52 kav Exp $ 
+%% 
+  \ProvidesFile{koi8.def}
+   [1996/05/10 v0.9r Input encoding file
+                        (test version: liable to change)]
+\NeedsTeXFormat{LaTeX2e}[1995/12/01]
+\ProvideTextCommandDefault{\textcent}
+   {\TextSymbolUnavailable\textcent}
+\ProvideTextCommandDefault{\textyen}
+   {\TextSymbolUnavailable\textyen}
+\ProvideTextCommandDefault{\textbrokenbar}
+   {\TextSymbolUnavailable\textbrokenbar}
+\providecommand{\mathdegree}{{^\circ}}
+\providecommand{\mathtwosuperior}{{^2}}
+\providecommand{\maththreesuperior}{{^3}}
+\providecommand{\mathordmasculine}{{^o}}
+\providecommand{\mathordfeminine}{{^a}}
+%\providecommand{\cyr}
+\DeclareTextCommand{\cyr}{OT1}{\fontencoding{OT2}\fontfamily{wncyr}\selectfont}
+\DeclareTextCommand{\cyr}{OT2}{}
+\DeclareInputText{"0A3}{{\cyr{\"e}}}
+\DeclareInputText{"0A4}{{\cyr{\ee}}}
+\DeclareInputText{"0A6}{{\cyr{\i}}}
+\DeclareInputText{"0A7}{{\cyr{\"{\i}}}}
+\DeclareInputText{"0AD}{{\cyr{\'{g}}}}
+\DeclareInputText{"0B3}{{\cyr{\"E}}}
+\DeclareInputText{"0B4}{{\cyr{\Ee}}}
+\DeclareInputText{"0B6}{{\cyr{\I}}}
+\DeclareInputText{"0B7}{{\cyr{\"{\I}}}}
+\DeclareInputText{"0BD}{{\cyr{\'{G}}}}
+\DeclareInputText{"0C0}{{\cyr{yu}}}
+\DeclareInputText{"0C1}{{\cyr{a}}}
+\DeclareInputText{"0C2}{{\cyr{b}}}
+\DeclareInputText{"0C3}{{\cyr{ts}}}
+\DeclareInputText{"0C4}{{\cyr{d}}}
+\DeclareInputText{"0C5}{{\cyr{e}}}
+\DeclareInputText{"0C6}{{\cyr{f}}}
+\DeclareInputText{"0C7}{{\cyr{g}}}
+\DeclareInputText{"0C8}{{\cyr{kh}}}
+\DeclareInputText{"0C9}{{\cyr{i}}}
+\DeclareInputText{"0CA}{{\cyr{\U{i}}}}
+\DeclareInputText{"0CB}{{\cyr{k}}}
+\DeclareInputText{"0CC}{{\cyr{l}}}
+\DeclareInputText{"0CD}{{\cyr{m}}}
+\DeclareInputText{"0CE}{{\cyr{n}}}
+\DeclareInputText{"0CF}{{\cyr{o}}}
+\DeclareInputText{"0D0}{{\cyr{p}}}
+\DeclareInputText{"0D1}{{\cyr{ya}}}
+\DeclareInputText{"0D2}{{\cyr{r}}}
+\DeclareInputText{"0D3}{{\cyr{s}\kern0pt}}
+\DeclareInputText{"0D4}{{\cyr{t}\kern0pt}}
+\DeclareInputText{"0D5}{{\cyr{u}}}
+\DeclareInputText{"0D6}{{\cyr{zh}}}
+\DeclareInputText{"0D7}{{\cyr{v}}}
+\DeclareInputText{"0D8}{{\cyr{\soft}}}
+\DeclareInputText{"0D9}{{\cyr{y}}}
+\DeclareInputText{"0DA}{{\cyr{z}}}
+\DeclareInputText{"0DB}{{\cyr{sh}}}
+\DeclareInputText{"0DC}{{\cyr{\e}}}
+\DeclareInputText{"0DD}{{\cyr{shch}}}
+\DeclareInputText{"0DE}{{\cyr{ch}}}
+\DeclareInputText{"0DF}{{\cyr{\hard}}}
+\DeclareInputText{"0E0}{{\cyr{Yu}}}
+\DeclareInputText{"0E1}{{\cyr{A}}}
+\DeclareInputText{"0E2}{{\cyr{B}}}
+\DeclareInputText{"0E3}{{\cyr{Ts}}}
+\DeclareInputText{"0E4}{{\cyr{D}}}
+\DeclareInputText{"0E5}{{\cyr{E}}}
+\DeclareInputText{"0E6}{{\cyr{F}}}
+\DeclareInputText{"0E7}{{\cyr{G}}}
+\DeclareInputText{"0E8}{{\cyr{Kh}}}
+\DeclareInputText{"0E9}{{\cyr{I}}}
+\DeclareInputText{"0EA}{{\cyr{\U{I}}}}
+\DeclareInputText{"0EB}{{\cyr{K}}}
+\DeclareInputText{"0EC}{{\cyr{L}}}
+\DeclareInputText{"0ED}{{\cyr{M}}}
+\DeclareInputText{"0EE}{{\cyr{N}}}
+\DeclareInputText{"0EF}{{\cyr{O}}}
+\DeclareInputText{"0F0}{{\cyr{P}}}
+\DeclareInputText{"0F1}{{\cyr{Ya}}}
+\DeclareInputText{"0F2}{{\cyr{R}}}
+\DeclareInputText{"0F3}{{\cyr{S}\kern0pt}}
+\DeclareInputText{"0F4}{{\cyr{T}\kern0pt}}
+\DeclareInputText{"0F5}{{\cyr{U}}}
+\DeclareInputText{"0F6}{{\cyr{Zh}}}
+\DeclareInputText{"0F7}{{\cyr{V}}}
+\DeclareInputText{"0F8}{{\cyr{\Soft}}}
+\DeclareInputText{"0F9}{{\cyr{Y}}}
+\DeclareInputText{"0FA}{{\cyr{Z}}}
+%\DeclareInputText{"0FB}{{\cyr{Yu}}}
+\DeclareInputText{"0FB}{{\cyr{Sh}}}
+\DeclareInputText{"0FC}{{\cyr{\E}}}
+\DeclareInputText{"0FD}{{\cyr{Shch}}}
+\DeclareInputText{"0FE}{{\cyr{Ch}}}
+\DeclareInputText{"0FF}{{\nobreakspace}}
+\endinput
+%% 
+%% End of file `koi8.def'.

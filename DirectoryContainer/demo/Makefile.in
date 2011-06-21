@@ -1,0 +1,18 @@
+PROJECT_ROOT=@project_root@
+include $(PROJECT_ROOT)/config/entry.mak
+
+DirectoryContainerDemo: DirectoryContainerDemo.o
+	$(CXX) -o DirectoryContainerDemo DirectoryContainerDemo.o -L../src -lDirectoryContainer
+	
+DirectoryContainerDemo.o: DirectoryContainerDemo.cpp
+	$(CXX) $(CXXFLAGS) -c DirectoryContainerDemo.cpp
+
+default:
+
+build: DirectoryContainerDemo
+
+install:
+uninstall:
+
+clean:
+	-rm *.o DirectoryContainerDemo

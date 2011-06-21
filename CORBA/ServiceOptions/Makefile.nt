@@ -1,0 +1,27 @@
+# Main Makefile for ServiceOptions  project  for WinNT
+# $Id: Makefile.nt,v 1.5 2001-12-11 21:01:51 kav Exp $
+
+
+SUBDIRS=$(MAKEDIR)\src $(MAKEDIR)\demo 
+
+INSTALL_DIRS=$(MAKEDIR)\src $(MAKEDIR)\include
+
+
+default: build
+
+
+build:
+	@for %i in ( $(SUBDIRS) ) do \
+		@cd %i && $(MAKE) /F Makefile.nt PROJECT_ROOT="$(MAKEDIR)" build
+
+install:
+	@for %i in ( $(INSTALL_DIRS) ) do \
+		@cd %i && $(MAKE) /F Makefile.nt install
+
+uninstall:
+	@for %i in ( $(INSTALL_DIRS) ) do \
+		@cd %i && $(MAKE) /F Makefile.nt uninstall
+
+clean:
+	@for %i in ($(SUBDIRS)) do \
+		@cd %i && $(MAKE) /F Makefile.nt clean

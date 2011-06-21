@@ -1,0 +1,39 @@
+# Makefile for ServiceOptions project for WinNT: source code compilation
+# $Id: Makefile.nt,v 1.10 2001-12-11 21:01:58 kav Exp $
+
+include ..\..\..\config\Win32\environment.nt.mak
+include ..\..\config\Win32\environment.nt.mak
+include ..\..\config\Win32\ORB_description.nt.mak
+
+#############################
+!ifndef PROJECT_ROOT        #
+PROJECT_ROOT=$(MAKEDIR)\..  # debug entries
+!endif                      #
+#############################
+
+include ..\config\common_settings.nt.mak
+
+OBJS=ServiceOptions.obj 
+
+LIBS=$(SLIB)
+
+build: $(LIBS) 
+
+$(SLIB): $(OBJS) ; $(AR) $(AR_FLAGS) $(OBJS)
+
+install: $(LIBS) makedir ;
+
+    @for %i in ( $(LIBS) ) do @copy %i $(INSTALL_LIB_DIR)
+
+uninstall: ;
+
+    @for %i in ( $(LIBS) ) do \
+        @if exist $(INSTALL_LIB_DIR)\%i erase $(INSTALL_LIB_DIR)\%i
+
+clean:
+    @for %i in ( $(LIBS) $(OBJS) ) do @if exist %i erase %i
+
+.cpp.obj::
+	$(CPP) $(CPPFLAGS) $<
+
+makedir: ; @if not exist $(INSTALL_LIB_DIR) mkdir $(INSTALL_LIB_DIR)

@@ -1,0 +1,227 @@
+
+\documentclass[10pt]{article}
+%\usepackage{tex4ht}
+\usepackage[OT1,T2A]{fontenc}
+\usepackage[koi8-u]{inputenc}
+\usepackage{graphicx}
+\usepackage{verbatim}
+
+
+\bibliographystyle{plain} 
+
+\title{ Grad-Soft ptrs: Programmers Guide  
+       \newline
+       \small{DocumentId:GradSoft-PR-e-07.02.2002}
+      }
+
+% $Id: ProgrammingGuide_eng.tex,v 1.6 2002-03-19 05:51:24 rssh Exp $
+
+\begin{document}
+
+\maketitle{}
+
+\tableofcontents
+
+\section{ Introduction }
+
+ Package {\bf ptrs-s } is devoted for advanced techniques of memory
+ management in C++. 
+ It includes set of smart pointers templates. Whith help of this
+ templates developers can greatly reduce cost of attention to
+  memory management issues
+  during application development.
+
+ For reading of this document base knoweldge of C++  and memory management
+ is required; for introductory matherial you can look
+ at 
+ \cite{CPP-std}, \cite{Harvey}
+
+\subsection{ About this package }
+
+ This software is prodused by GradSoft company, Kiev, Ukraine.
+Last version of this package is aviable on GradSoft Web site
+\verb|http://www.gradsoft.com.ua/eng/|.
+
+ You can free use this package and redistribute it with you programs,
+according to license, which situated in file \verb|docs/LICENSE| inside
+distributive of GradSoft C++ ToolBox.
+
+ Commercial support of this package is aviable: call us for details.
+
+\subsection{ About this document }
+
+ This manual is writen for 1.5.0 version of GradSoft C++ ToolBox.
+ Using ptr-s API from programmers point of view is described.
+ Compilation and installation issues described in \cite{AD}
+
+\section{ Class Hierarchy Description }
+
+\subsection{ Common Place }
+
+ If you familiar with concepts of \verb|smart pointers|, than you know, that
+\verb|smart pointer| is a C++ class, which keep plain pointer, maybe
+some infrastructure data and overload pointer dereferencing operators:
+\verb|*, ->, ->*|.
+
+ In addition  method \verb|get()| returning pointer itself is
+provided for all types of smart pointer templates.
+
+\subsection{ Exceptions }
+
+ Package ptr-s introduce one exception into standart C++ exceptions
+hierarchy. This is \verb|NullPointerExceptions|, which is raised when we
+try to access to null pointer via \verb|operator->| or \verb|operator*| 
+throught so-called {\bf safe} pointer classes.
+
+Hierarchy:
+\begin{verbatim}
+ std::runtime_exception
+   |
+   *--->NullPointerException
+\end{verbatim}
+
+\subsection{ safe\_ptr }
+
+ \verb|safe_ptr| is just wrapper arround pointer, which during applying
+of accessors throw exception \verb|NullPointerException| instead switching
+program to undefined behaviour.
+ Typical pattern of usage is keep in \verb|safe_ptr| pointers to data,
+owned by other subsystems. 
+
+Example:
+\begin{verbatim}
+void myFun(Something* x) throw (std::exception)
+{
+ safe_ptr<Something> sx(x);
+ sx->do();
+}
+\end{verbatim}
+can be used instead:
+\begin{verbatim}
+void myFun(Something* x) throw (std::exception)
+{
+ if (x==NULL) throw std::runtime_exception(string("x is null"));
+ x->do();
+}
+\end{verbatim}
+
+\subsection{ safe\_auto\_ptr }
+
+ This is full analog of \verb|std::auto_ptr| with one change: 
+throw \verb|NullPointerException| during dereferencing of NULL pointer.
+
+Note: we does not include ANSII C++ template methods for \verb|std::auto_ptr|,
+since luck of compiler support for this language feature. 
+
+\subsection{ owned\_ptr }
+
+As you can guess from name of template, \verb|owned_ptr| is a pointer which
+'owned' by some entity. What this mean: in \verb|owned_ptr| we hold pointer
+itself and boolean flag which indicate 'ownity'. If ownity set to true,
+than destructor of holded class is called during \verb|owned_ptr| destruction.
+
+Safety of \verb|owned_ptr| are denoted by second template parameter, which
+must be one of trait structures \verb|ptr::safe| or \verb|ptr::unsafe|.
+\begin{itemize}
+ \item \verb|owned_ptr<T,ptr::safe>| - for safe owned pointer.
+ \item \verb|owned_ptr<T,ptr::unsafe>| - for unsafe owned pointer.
+\end{itemize}
+
+Unlike other pointer templates, owned pointer have no overloaded
+\verb|operator=| , instead we have method set with to parameters: one is
+pointer to set, other - boolean flag, which indicate passing of ownership.
+
+Examples:
+\begin{verbatim}
+ MyClass* px = new MyClass();
+ owned_ptr<MyClass,ptr::safe> a(px,true);
+ MyClass* py = new MyClass();
+ owned_ptr<MyClass,ptr::safe> b(py,true);
+ a.set(b,true); 
+\end{verbatim}
+ \verb|py| now owned by \verb|a|, \verb|b| point to \verb|py| but can be 
+destructed without affecting of \verb|py|. \verb|px| is destructed.
+
+\begin{verbatim}
+ owned_ptr<MyClass,ptr::safe> a;
+ MyClass* px = new MyClass();
+ owned_ptr<MyClass,ptr::safe> b(px, true);
+ a.set(b,false); 
+\end{verbatim}
+ \verb|a| now point to \verb|px|, but \verb|px| is still owned by \verb|b|. 
+
+\begin{verbatim}
+ owned_ptr<MyClass,ptr::safe> a;
+ MyClass* px = new MyClass();
+ owned_ptr<MyClass,ptr::safe> b(px, false);
+ a.set(b,false); 
+\end{verbatim}
+ \verb|a| and \verb|b| now points to \verb|px|, but \verb|px| is not owned
+by anything. 
+
+\begin{verbatim}
+ MyClass* px = new MyClass();
+ owned_ptr<MyClass,ptr::safe> a(px,false);
+ MyClass* py = new MyClass();
+ a.set(py,false); 
+\end{verbatim}
+ \verb|px| is leaked.
+
+\subsection{ counted\_ptr }
+
+\subsubsection{ Theory }
+
+ \verb|counted_ptr| incapsulate well-known idiom of reference counting: 
+object is living while it's pointed, so:
+\begin{itemize}
+ \item let's keep pair of object and counter value. 
+ \item when we create pointer to object let's increment counter.
+ \item when we desctruct pointer to object let's decrement counter.
+ \item when counter became zero, i. e. last pointer, which point to our object
+ was destructed, let's destruct object.
+\end{itemize}
+
+ This idiom greatly simplicified the task of memory management for acyclic 
+structures.
+
+\subsubsection{ Usage }
+
+ Our \verb|count_ptr| template have 2 template parameters: first is type of
+wrapped object, second - safety class, one of \verb|ptr::safe| or 
+\verb|ptr::unsafe|.
+
+ In addition to usial pointer operations, counted-ptr provide additonal
+method: \verb|counter_ptr<T,safety>::assign(T* new)|, which change value
+of internal shared pointer.
+
+examlple:
+\begin{verbatim}
+counted_ptr<MyClass,ptr::safe> a(pA);
+counted_ptr<MyClass,ptr::safe> b=a;
+b.assign(pB).
+\end{verbatim}
+ now \verb|*pA| is destroyed and both \verb|a| and |b| point to \verb|pB|.
+  
+
+\subsubsection{ Limitation }
+
+\begin{itemize}
+  \item our \verb|count_ptr| template is not thread-safe. 
+ We provide thread-safe counted pointer as \verb|count_mt_ptr| in 
+ Threading package.
+  \item reference counting work only for acyclic structures, for cyclic
+ memory objects you must use some garbage collection technique.
+\end{itemize}
+
+
+\section{ Changes }
+
+\begin{itemize}
+ \item 19.03.2002 - first english version complete.
+ \item 07.03.2002 - created.
+\end{itemize}
+
+ 
+\bibliography{Bib} 
+
+\end{document}

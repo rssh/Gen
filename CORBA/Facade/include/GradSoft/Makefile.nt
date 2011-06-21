@@ -1,0 +1,17 @@
+# $Id: Makefile.nt,v 1.2 2000-08-03 09:41:12 alik Exp $
+
+include ../../env_inc.nt.mak
+
+install: install-headers
+
+DIR=GradSoft
+GradSoft_INSTALL=\
+	PersistentServantBase \
+	PersistentServantBase.h \
+	CORBAFacade.h
+
+install-headers::
+	@if not exist $(PREFIX)\include mkdir $(PREFIX)\include
+	@if not exist $(PREFIX)\include\$(DIR) mkdir $(PREFIX)\include\$(DIR)
+	@for %i in ( $(GradSoft_INSTALL) ) do \
+		@$(INSTALL_DATA) %i $(PREFIX)\include\$(DIR)

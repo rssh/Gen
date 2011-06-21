@@ -1,0 +1,24 @@
+
+
+   <p> This is set of C++ components for automatization of common programmers
+    tasks. As now GradSoft C++ ToolBox include:
+	   <ul>
+	     <li>hight level handling of program options. (ProgOptions)</li>
+	     <li>logging (Logger)</li>
+	     <li>initialization of CORBA services (ServiceOptions)</p></li>
+	   </ul>                                                                                                      
+   <p>
+       Documentation: 
+           <ul>
+             <li> Administration Guide
+             <li> Programmers Guide:
+               <ul>
+                <li> ProgOptions (rus[pdf,html]/engl[pdf,html])[URL]
+                <ul> <li> API description [URL] </ul>
+                <li> ServiceOptions (rus/engl) [pdf,html][URL]
+                <ul> <li>  API description[URL] </ul>
+                <li> Logger (rus[pdf,html],engl[pdf,html])[URL]
+                <ul> <li>  API description [URL] </ul>
+               </ul>
+           </ul> 
+

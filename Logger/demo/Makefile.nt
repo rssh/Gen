@@ -1,0 +1,24 @@
+## Makefile for Windows NT: Logger usage sample compilation
+## $Id: Makefile.nt,v 1.2 2001-12-11 21:21:50 kav Exp $
+
+############################################
+!ifndef PROJECT_ROOT       #               #
+PROJECT_ROOT=$(MAKEDIR)\.. # debug entries #
+!endif                     #               #
+############################################
+
+include ..\..\config\Win32\environment.nt.mak
+include ..\config\common_settings.nt.mak
+
+OBJS=demo.obj
+EXEC=demo.exe
+
+default: build
+
+build: $(EXEC)
+
+$(EXEC): $(MUTABLE_LIBS) $(OBJS) ; $(LD) $(LDFLAGS) $(OBJS) 
+	
+.cpp.obj:: ; $(CPP) $< $(CPPFLAGS) 
+
+clean: ; @for %i in ( $(EXEC) $(OBJS) ) do @if exist %i $(REMOVE) %i

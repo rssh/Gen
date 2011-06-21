@@ -1,0 +1,29 @@
+#
+# Part of Testing Suite for GradSoft C++ ToolBox
+# $Id: Makefile.in,v 1.2 2001-06-05 10:09:36 rssh Exp $
+#
+PROJECT_ROOT=@project_root@
+include ../../config/entry.mak
+
+
+ORIGIN=../../../Threading/demo/ThreadServices/ThreadServiceDemo
+
+default: build
+
+build: ThreadServiceDemo
+
+check: build build-site.exp
+	(cd testsuite; runtest -de)
+
+build-site.exp:
+	echo "global toolexe"
+	echo "set toolexe `pwd`/ThreadServiceDemo"
+
+clean:
+	-rm *.o ThreadServiceDemo
+	-rm -rf Templates.DB
+
+ThreadServiceDemo: $(ORIGIN)
+	cp $(ORIGIN) .
+
+

@@ -1,0 +1,24 @@
+
+
+   <p>Это набор компонент на C++, предназначенный для автоматизации часто
+	возникающих программистких задач, включающий в себя:
+	   <ul>
+	     <li>высокоуровневую обработку командной строки. (ProgOptions)</li>
+	     <li>запись журнала событий (Logger)</li>
+	     <li>загрузку CORBA сервисов. (ServiceOptions)</p></li>
+	   </ul>                                                                                                      
+   <p>
+       Документация: 
+           <ul>
+             <li> Руководство администратора
+             <li> Руководство программиста:
+               <ul>
+                <li> ProgOptions (rus[pdf,html]/engl[pdf,html])[URL]
+                <ul> <li> Описание API [URL] </ul>
+                <li> ServiceOptions (rus/engl) [pdf,html][URL]
+                <ul> <li> Описание API [URL] </ul>
+                <li> Logger (rus[pdf,html],engl[pdf,html])[URL]
+                <ul> <li> Описание API [URL] </ul>
+               </ul>
+           </ul> 
+

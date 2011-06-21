@@ -1,0 +1,18 @@
+PROJECT_ROOT=@PROJECT_ROOT@
+include $(PROJECT_ROOT)/config/entry.mak
+
+demo: demo.o
+	$(CXX) -o demo demo.o -L../src -lSignaling
+	
+demo.o: demo.cpp
+	$(CXX) $(CXXFLAGS) -c demo.cpp
+
+default:
+
+build: demo
+
+install:
+uninstall:
+
+clean:
+	-rm -f *.o demo

@@ -1,0 +1,82 @@
+#ifndef __GradSoft_PersistentServantBase_h
+#define __GradSoft_PersistentServantBase_h
+
+/**
+ * GradSoft/PersistentServantBase
+ *  component for standart set of CORBA service options.
+ *  not for alone use, only for use as a base class
+ * (C) GradSoft, 2000
+ * writeln by: Alik Rivkind, <Alik@Rivkind.Kiev.UA>
+ * $Id: PersistentServantBase,v 1.3 2000-08-10 17:20:57 rssh Exp $
+ **/
+
+#ifndef __importCORBA_h
+#include <importCORBA.h>
+#endif
+
+
+#ifndef __GradSoft_ProgOptions
+#include <GradSoft/ProgOptions>
+#endif
+
+#ifdef HAVE_NAMESPACES
+namespace GradSoft {
+#endif
+
+
+class PersistentServantBase : 
+                   virtual public PortableServer::RefCountServantBase
+
+{
+
+protected:
+
+#ifdef CORBA_HAVE_POA
+    PortableServer::POA_var defaultPOA_;
+#else
+    BOA_var boa_;
+#endif
+    ORB_var orb_;
+
+
+public:
+
+#ifdef CORBA_HAVE_POA
+   /**
+    * POA_name must be unique and is derived from the child class constructor
+    */
+    PersistentServantBase( const char* POA_name, ORB_ptr orb );
+    PersistentServantBase( PortableServer::POA_ptr defaultPOA, ORB_ptr orb );
+#else
+    PersistentServantBase( ORB_ptr orb, BOA_ptr boa );
+#endif
+
+
+protected:
+
+    void create_user_persistent_POA(const char* POAname);
+
+public:
+
+#ifdef CORBA_HAVE_POA
+
+    char* get_POA_name()
+    { return defaultPOA_->the_name(); }
+
+    PortableServer::POA_ptr _default_POA()
+    { return PortableServer::POA::_duplicate( defaultPOA_ ); }
+
+#else
+    BOA_ptr getBOA_()  { return boa_.in(); }
+#endif
+    ORB_ptr getORB_()  { return orb_.in(); }
+
+};
+
+
+#ifdef HAVE_NAMESPACES
+}
+#endif
+
+#endif
+

@@ -1,0 +1,19 @@
+PROJECT_ROOT=@project_root@
+include $(PROJECT_ROOT)/../config/entry.mak
+
+demo: demo.o
+	$(CXX) $(CXXFLAGS) -o demo demo.o  $(LIBS)
+	
+demo.o: demo.cpp
+	$(CXX) $(CXXFLAGS) -c demo.cpp
+
+default: build
+
+build: demo
+
+install:
+uninstall:
+
+clean:
+	-rm *.o demo
+	-rm -rf Templates.DB

@@ -1,0 +1,18 @@
+## Makefile for Windows NT: Threading usage sample compilation
+## $Id: makefile.nt,v 1.2 2003-10-10 15:34:38 rssh Exp $
+
+###############################################
+!ifndef PROJECT_ROOT          #               #
+PROJECT_ROOT=$(MAKEDIR)\..\.. # debug entries #
+!endif                        #               #
+###############################################
+
+include ..\..\config\common_settings.nt.mak
+
+build: ThreadContextChecker.exe
+
+ThreadContextChecker.exe: $(THREADING_LIBS) ThreadContextChecker.obj ;
+
+  $(LD) ThreadContextChecker.obj $(LDFLAGS)  $(THREADING_LIBS)
+
+clean: ; @for %i in ( ThreadContextChecker.exe ThreadContextChecker.obj ) do @if exist %i $(REMOVE) %i

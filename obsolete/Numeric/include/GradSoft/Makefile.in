@@ -1,0 +1,23 @@
+PROJECT_ROOT=@project_root@
+include $(PROJECT_ROOT)/config/entry.mak
+
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+
+INSTALL_INCLUDES=FixedBigNumber FixedBigNumber.h 
+INSTALL_INCLUDES_DIR=$(prefix)/include/GradSoft
+
+
+build:
+install:
+	if test ! -d $(INSTALL_INCLUDES_DIR); then \
+          mkdir $(INSTALL_INCLUDES_DIR); fi
+	for i in $(INSTALL_INCLUDES); do \
+	 $(INSTALL_DATA) $$i $(INSTALL_INCLUDES_DIR);\
+	done
+
+uninstall:
+	for i in $(INSTALL_INCLUDES); do \
+	 rm $(INSTALL_INCLUDES_DIR)/$$i;
+	done
+

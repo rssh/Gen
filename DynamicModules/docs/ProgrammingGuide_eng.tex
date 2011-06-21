@@ -1,0 +1,400 @@
+
+\documentclass[10pt]{article}
+%\usepackage{tex4ht}
+\usepackage[OT1,T2A]{fontenc}
+\usepackage[koi8-u]{inputenc}
+\usepackage{graphicx}
+\usepackage{verbatim}
+
+%\Contribute{TITLE}{\def\LaTeX{LaTeX}}
+\title{ DynamicModules: Programmer Guide
+        \newline
+        \small{DocumentId:GradSoft-PR-r-01.11.2001-v1.0.0}
+}
+\author{ Ruslan Shevchenko }
+
+% $Id: ProgrammingGuide_eng.tex,v 1.5 2003-09-23 09:42:22 qwerty Exp $
+
+\begin{document}
+
+\maketitle{}
+
+\tableofcontents
+
+\section{ Introduction }
+
+ {\bf DynamicModules}  is cross-platform component written in C++,
+ designed for shared libraries dynamic loading 
+ (\verb|.so| for UNIX or \verb|.dll| for Windows )
+
+ Package {\bf DynamicModules} is designed and supported by GradSoft company
+ and supplied in source code.
+ Developer home webpage is http://www.gradsoft.kiev.ua/
+
+% This document is informal package description. Full specification you can
+% find in API description (www.gradsoft.kiev.ua/common/Products/Toolbox/DirectoryContainer/API).
+
+\section{ Common information }
+
+   DynamicModules package allows to organize program building as set consisting of  
+head module and shared libraries loading while execution.  
+ 
+ Loadable module developer just supplies the module and set of header
+ files.
+
+ There is must be static object in the module body, inherited  from 
+ \verb|DynamicModule| class or \ verb|DynamicModuleTag| class. 
+
+ Program, which is using shared libraries should be compiled with
+ \verb|[lib]DynamicModules.{a,so,lib}| library and should use \verb|DynamicModules|
+ class  methods (load, unload, getModule) described in the library.
+
+\section{ Trivial example }
+
+ \subsection{Components}
+
+ Trivial example described here consist of followins components:
+ \begin{enumerate}
+ \item common header file HelloInterface.h,
+       including DynamicModules.h header file in one's turn
+ \item loadable module HelloModule.cpp
+ \item head programm Main.cpp
+ \end{enumerate}
+
+ \subsection{Common Header File}
+
+ This file contains data used by both library and client:
+ \begin{enumerate}
+ \item class HelloInterface - this is interface through which head programm
+       will operate for its specific purpose.
+ \item class HelloModule - this is interface through which head programm
+       will call to root object of the service 
+ \end{enumerate}
+
+\begin{verbatim}
+#include <GradSoft/DynamicModules.h>
+
+/**
+ * Interface for direct work of programm:
+ **/
+ class HelloInterface
+ {
+ public:
+   virtual ~HelloInterface() {}
+   virtual void hello() = 0;
+ };
+
+/**
+ * Interface for call to root object of the service:
+ **/
+ class HelloModule: public GradSoft::DynamicModule
+ {
+ public:
+  /**
+   * return reference to HelloInterface instance:
+   **/
+   virtual HelloInterface* create(const char* name) = 0;
+ };
+\end{verbatim}
+
+\subsection{Loadable module}
+
+This file contains realisation for HelloModule and HelloInterface:
+  
+\begin{verbatim}
+
+#include <HelloInterface.h>  
+#include <iostream>
+
+// realize direct functionality:
+
+class Hello: public HelloInterface
+{
+public:
+
+  Hello(const char* x) {}
+  virtual ~Hello() {}
+  virtual void hello() 
+  {
+    std::cerr << "Hi! I'm Hello" << std::endl;
+  }
+};
+
+// realize root object (or the Factory):
+
+class Hello1Module: public HelloModule
+{
+public:
+
+////  
+// overload next methods of DynamicModule parent class:
+////
+   
+  // service name
+  const char* name() const { return "Hello"; }
+
+  // version information
+  int versionMajor() const { return 1; }
+  int versionMinor() const { return 0; }
+  int versionSubMinor() const { return 0; }
+
+  // author
+  const char* author() const { return "Grad-Soft LTD"; }
+
+////
+// realize specific method of HelloModule:
+////
+
+  HelloInterface* create(const char* args)
+  {
+    return new Hello(args);
+  }
+
+};
+
+// create module:
+Hello1Module tagHelloModule;
+
+// export object:
+EXPORT_OBJECT(tagHelloModule)
+
+\end{verbatim}
+
+\subsection{Head programm}
+
+\begin{verbatim}
+#include <HelloInterface.h>
+#include <memory>
+#include <iostream>
+
+using namespace GradSoft;
+
+int main()
+{
+ try {
+
+  // loading Hello module from current directory
+  DynamicModule& dmHello = DynamicModules::load("tagHelloModule","./Hello");
+
+  // casting to type HelloModule in order to call HelloModule::create
+
+  // We need firstly to check type manually, because static_cast doesn't provide the check 
+  // Certainly, to use dynamic_cast is more elegant way, but dynamic_cast doesn't work
+  // with shared libraries linked with gcc 3 and later (in GCC FAQ has bringed up
+  // a way to work around the problem, but it hardly work in our case).
+
+  std::string s=typeid(dmHello).name();
+  if (s.find("Hello1Module")==std::string::npos) {
+     throw std::bad_typeid();
+  }
+  HelloModule& helloModule = static_cast<HelloModule&>(dmHello);
+
+  // using
+  {
+   std::auto_ptr<HelloInterface> h1 ( helloModule.create("xxx") );
+   h1->hello();
+  }
+
+  // unloading
+  DynamicModules::unload("tagHelloModule");
+
+ }catch(const DynamicModules::Error& ex){
+
+  // error notification
+  std::cerr << "Error during loading DynamicModule" << std::endl;
+  std::cerr << ex.what() << std::endl;
+  return 1;
+ }catch (std::bad_typeid) {
+   std::cerr << "Wrong type in dynamic module" << std::endl;
+ }
+ return 0;
+}
+\end{verbatim}
+
+\subsection{Puting Everything Together}
+
+To obtain executable file, make following:
+\begin{enumerate}
+
+  \item Compile \verb|Hello.{so,dll}| library using command like this:
+   \begin{enumerate}
+    \item For UNIX with GCC compiler:
+\begin{verbatim}
+    g++ -shared -o Hello.so HelloModule.cpp
+\end{verbatim}
+    \item For Windows NT:
+\begin{verbatim}
+    cl Hello1Module.cpp /MD /GR /GX /D "WIN32" [...] /link -DLL /out:Hello.dll
+\end{verbatim}
+    (Note: /MD /GR /D "WIN32" flags must be used obviously)
+   \end{enumerate}
+
+  \item Compile Main.cpp using \verb|libDynamicModules.{a,so}| for UNIX
+        or \verb|DynamicModules.lib| for Windows NT:
+   \begin{enumerate}
+    \item For Linux with GCC compiler:
+\begin{verbatim}
+    g++ Main.cpp -ldl [...] libDynamicModules.a
+\end{verbatim}
+    \item For Windows NT:
+\begin{verbatim}
+    cl Main.cpp /MD /GR /GX /D "WIN32" [...] /link DynamicModules.lib 
+\end{verbatim}
+   \end{enumerate}
+
+\end{enumerate}
+Executing obtained programm, you can read from standard output:
+\begin{verbatim}
+Hi! I'm Hello
+\end{verbatim}
+
+
+
+\section{ API DynamicModule }
+
+\subsection{ DynamicModule Class}
+
+ DynamicModule is abstract C++ class, and certain instance of the class
+must be defined in the shared library.
+
+ Programmer has to overload next methods of the class:
+\begin{itemize}
+ \item \verb|const char* name() const| - returns module name.
+ \item \verb|const char* author() const| - returns module athor's name.
+ \item \verb|int versionMajor() const| - returns main version number.
+ \item \verb|int versionMinor() const| - returns second number version.
+ \item \verb|int versionSubMinor() const| -returns third number version.
+\end{itemize}
+ 
+ Several words about version numeration: in our products we use
+three-digit version number with the next  sense of digits:
+\begin{itemize}
+ \item[1] - main version number. It is changed if we change programmer API 
+   incompatibly.
+ \item[2] - second version number. It is changed if we change binary
+   representation or data transmission protocol (in net case).  
+ \item[3] - third version number. Third number alteration should retain 
+   binary compatibility.
+\end{itemize}
+
+  Note, class sizes influence binary compatibility in shared libraries
+ case, so if you added internal variable in an interface class
+ you should change {\em second version number }.
+ Therefore we recommend to include only abstract classes into shared 
+ interface headers or to use \verb|Pimpl| idiom.
+ 
+\subsection{ Library Tag }
+
+ One of C++ library modules should define global variable with module type
+ and unique name may being constracted such as \verb|tag<ModuleName>| or \verb|<moduleName>Tag|. 
+
+ As you could see in above examples we write then
+\begin{verbatim}
+EXPORT_OBJECT(tag<ModuleName>)
+\end{verbatim}
+
+ It is syntactic sugar to conceal Windows API features (in which 
+you should use special key word to export library functionality)
+
+ One feature: the definition should be {\em outside} any 
+ C++ namespace.
+
+I. Е. your file with module definition should look like underlying:
+\begin{verbatim}
+ ... includes ..
+
+namespace MyCompany {
+
+....
+
+class MyModule: public DynamicModule
+{
+ ...
+};
+                            
+} // end of namespace (MyCompany)
+
+MyCompany::MyModule tagMyModule;
+
+
+\end{verbatim}
+
+By the way, it makes sense to add namespaces names to module
+names.
+
+I. Е. it's better to do next:
+\begin{verbatim}
+MyCompany::MyModule tagMyCompany_MyModule;
+\end{verbatim}
+
+\subsection{ DynamicModules Class }
+
+ DynamicModules class is singleton, which provides library management.
+
+ Main methods are:
+
+\begin{verbatim}
+DynamicModules::load(const char* moduleName, const char* fname);
+\end{verbatim}
+
+ - loads \verb|<fname>.so| module for UNIX, or \verb|<fname>.dll| for Windows NT,
+ and sets \verb|moduleName| as name for the module
+ (note, for UNIX \verb|moduleName| must be the same as variable name
+ having been exported via \verb|EXPORT_OBJECT| macro).
+
+\begin{verbatim}
+DynamicModules::unload(const char* moduleName);
+\end{verbatim}
+
+ - decrements internal reference counter and unloads module, if the 
+ reference counter comes to zero.
+
+ After module unloading,
+ reference to the module, returned by \verb|load|, becomes invalid and
+ reference use leads to the undefined behavior of the program.
+
+\begin{verbatim}
+DynamicModules::get(const char* moduleName);
+\end{verbatim}
+
+ - the same as \verb|load| except for if module is loaded already 
+ reference counter doesn't change.
+
+\section{ Error Processing } 
+
+ DynamicModules methods can generate exception of
+ \verb|DynamicModules::Error| type.
+
+ As usually , what() method returns string - error description.
+ Concrete list of possible messages depends on operational 
+ system.
+
+\section{ Final Notes} 
+
+ The library gives facility to use weakly connected C++ components 
+ model. It is more convenient than COM or XPCOM to implement
+ plugin functionality in consequence of it's simplicity, on the other hand
+ it doesn't make any limitations to a programmer in other component models use or
+ implementing - you may combine instead of choosing.
+
+ By the way, one of the library application fields is choice realization between 
+ two technologies [in standard \verb|GradSoft| services architecture
+ you may choose  underlying упM or CORBA service, just by definition
+ one of two libraries-layers in the system].
+
+\section{ Changes List }
+
+ \begin{itemize}
+   \item[24-01-2002] \begin{enumerate}
+                     \item trivial example:
+                           \begin{enumerate}
+                           \item placed in personal section;
+                           \item simplified;
+                           \item maked compilable;
+                           \end{enumerate}
+                     \item some misfit in API description removed.
+                     \end{enumerate}
+   \item[01-11-2001] created.
+ \end{itemize}
+
+\end{document}

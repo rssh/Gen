@@ -1,0 +1,464 @@
+
+\documentclass[10pt]{article}
+%\usepackage{tex4ht}
+\usepackage[OT1,T2A]{fontenc}
+\usepackage[koi8-u]{inputenc}
+\usepackage{graphicx}
+\usepackage{verbatim}
+
+\title{ ProgOptions: Руководство программиста  
+        \newline
+        \small{DocumentId:GradSoft-PR-r-26.09.2000-v1.0.3}
+      }
+
+% $Id: ProgrammingGuide_rus.tex,v 1.30 2002-08-22 08:18:44 rin Exp $
+
+\begin{document}
+
+\maketitle{}
+
+\tableofcontents
+
+\section{ Введение }
+
+ ProgOptions представляет собой компоненту для обработки опций командной строки.
+
+ Используя ProgOptions можно легко и быстро сделать следующие вещи: 
+ \begin{enumerate}
+    \item установить факт наличия в полученной Вами командной строке
+          определенных (описанных) опций;
+    \item выделить аргументы опций ( - при этом ProgOptions понимает несколько вариантов синтаксиса,
+          например
+\begin{verbatim}
+                  --a Ох! 
+\end{verbatim}
+
+          распознается как опция "a" с аргументом "Ох!", также как
+\begin{verbatim}
+                  --a="Say Ох!"
+\end{verbatim}
+
+          распознается как опция "a" с аргументом "Say Ох!" );
+    \item как только факт наличия какой-либо опции установлен, автоматически выполнить некоторые
+          связанные с ней действия.
+ \end{enumerate}
+
+ Этот документ представляет собой неформальное описание, полная спецификация
+ пакета приводится в API reference \\
+ (\verb|www.gradsoft.kiev.ua/common/ToolBox/ProgOptions/API/index.html|).
+
+\section{ Общее описание механизма работы }
+
+\subsection{ Базовый способ использования }
+\label{base}
+
+ Базовый способ использования ProgOptions предполагает, что командная строка, с которой
+ запущена Ваша программа, уже разобрана на слова и передана Вам в виде пары (argc,argv), где
+ argc (типа int) - количество аргументов в командной строке, argv (типа char** ) -
+ массив аргументов. В этом случае ProgOptions можно использовать так:
+
+ \begin{itemize}
+   \item Создать объект ProgOptions, при необходимости передавая конструктору класса
+         следующие параметры:
+
+   \begin{enumerate}
+     \item const char* optPrefix - подстрока, с которой должны начинаться все различаемые
+           объектом опции (по умолчанию "\verb|--|");
+     \item const char* pkgPrefix - дополнительная подстрока, которую должны содержать предопределенные
+           опции help и config (о них см.ниже). По умолчанию "";
+     \item bool allowUnknownOptions - решение пользователя относительно того, что делать если интерпретация
+           какой-либо опции невозможна: продолжать интерпретацию других опций (true) или прекратить работу 
+           (false). По умолчанию false.
+   \end{enumerate}
+
+   \item Описать интерпретируемые опции, их действие, а также дополнительные help-сообщения
+         при помощи методов ProgOptions::put() и ProgOptions::setAdditionalHelp
+   \item Получить набор опций в виде char** из внешего мира (например из аргументов main), после чего вызвать метод paзбора опций
+         ProgOptions::parse(int,char**); после вызова parse(int,char**) аргументы командной строки
+         будут разобранны во внутренние структуры ProgOptions и, если это было задано,
+         будут вызваны callback - функции пользователя.
+   \item После этого, используя \verb|ProgOptions::is_set("option")| можно узнать 
+         установлена ли опция "option", а для опций с аргументом - узнать
+         значения аргументов, используя метод ProgOptions::argument("option")
+ \end{itemize}
+
+Пример:
+
+\begin{verbatim}
+
+#include <GradSoft/ProgOptions.h>  // самое главное
+
+GradSoft::ProgOptions options;   // создать объект с параметрами по умолчанию: 
+
+void init()
+{
+ options.put("qqq", "qqq option", false );           // описать опцию qqq
+                                                     // (false - опция без аргумента)
+ options.put("zzz", "option with argument", true );  // описать опцию zzz
+                                                     // (true - опция c аргументом)
+
+ options.setAdditionalHelp(true,                     // 
+   "This program illustate usage of GradSoft library"// определить дополнительные
+ );                                                  // help-сообщения 
+ options.setAdditionalHelp(false,                    // 
+   "and this is shown at the end of usage screen"    // 
+ );                                                  //
+};
+
+int main(int argc, char** argv)                      
+{
+ init();                                       // все подготовить (см.выше)    
+
+ if (!options.parse(argc,argv)) return 1;      // разобрать опции, доступные через argv
+
+ if (options.is_set("qqq")) {      // проверить, установлена ли опция --qqq
+   cout << "qqq is set" << endl;
+ }
+                                   // проверить, установлена ли опция --zzz,
+                                   // и если да - получить ее аргумент
+ if (options.is_set("zzz")) {
+   cout << "zzz is set with argument:" << options.argument("zzz") << endl;
+ }
+ return 0;
+}
+
+\end{verbatim}
+
+Запуск данной программы с командной строкой:
+\begin{verbatim}
+ --qqq --zzz zz-arg
+\end{verbatim}
+приведет к следующему результату:
+\begin{verbatim}
+qqq is set
+zzz is set with argument:zz-arg
+\end{verbatim}
+
+Альтернативный запуск с опцией:
+\begin{verbatim}
+ --"Пошел ты!"
+\end{verbatim}
+приведет к сообщению об ошибке:
+\begin{verbatim}
+<executable>:unknown option
+\end{verbatim}
+где <executable> - имя программы
+
+
+\subsection{ Предопределенные опции help и config}
+
+  В дополнение к описанному программистом набору опций, ProgOptions идентифицирует
+предопределенные опции \verb|<optPrefix><pkgPrefix>help| и \verb|<optPrefix><pkgPrefix>config|. 
+Результатом запуска с опцией \verb|<optPrefix><pkgPrefix>help| является вывод в стандартный поток сообщений
+об ошибках предопределенного help-а (который суть перечень опций с их описаниями, заданными на этапе вызова put()),
+а также дополнительной информации, заданной с помощью метода ProgOptions::setAdditionalHelp(). 
+Результатом запуска с опцией \verb|<optPrefix><pkgPrefix>config <fname>| является разбор 
+дополнительного набора опций, заданных в файле конфигурации \verb|fname|
+(подробнее о файле конфигурации см. в разделе \ref{add-poss})
+ 
+Пример:
+
+Запустим описанную программу с опицией \verb|--help| (UNIX):
+\begin{verbatim}
+./a.out --help
+This program illustate usage of ProgOptions library
+  --qqq         qqq option
+  --zzz <argument>  option with argument
+and this is shown at the end of usage screen
+\end{verbatim}
+
+\noindent {\bf Внимание:} 
+Использование предопределенной опции \verb|--config <filename>|
+требует некоторой поддержки со стороны программиста в том случае,
+если разбором опций занимается кто-нибудь кроме него 
+(например, это может быть функция ORB, ORB\_init()).
+Дело в том, что метод ProgOptions::parse(argc,argv) копирует опции,
+полученные в виде argv, и опции, полученные в файле <filename>,
+в отдельный, специально для этого созданный, вектор аргументов,
+ссылку на который можно получить при помощи метода argv(),
+и далее использует его.
+Первоначальный же вектор argv не меняется,
+и если Вы передадите его, скажем, функции ORB\_init(),
+то опции, переданные в файле, естественно туда не попадут.
+Поэтому, если Вы хотите, чтобы при помощи \verb|--config <filename>|
+можно было устанавливать опции командной строки, распознаваемые внешним ПО, Вы должны 
+\begin{enumerate}
+\item разобрать вектор аргументов при помощи parse(argc,argv);
+\item передать внешнему ПО тот вектор аргументов (и его длину),
+который возник в результате выполнения метода ProgOptions::parse().
+\end{enumerate}
+При этом, поскольку внешее ПО может удалять распознанные им опции,
+наиболее правильно передавать ему {\bf копию} вектора аргументов,
+для чего можно использовать wrapper-класс ProgOptions::ArgsHolder:
+\begin{verbatim}
+ProgOptions options("--","",true);
+if (!options.parse(argc,argv)) return 1;
+
+ProgOptions::ArgsHolder argsHolder;
+argsHolder.takeArgv(options);
+
+CORBA::ORB_var orb = CORBA::ORB_init(argsHolder.argc,argsHolder.argv);
+\end{verbatim}
+Cкопированный при помощи argsHolder::takeArgv(const ProgOptions\&)
+вектор аргументов будет автоматически уничтожен в деструкторе argsHolder.
+
+\noindent {\bf Внимание:} на сегодняшний день передать имя конфигурационного файла
+при помощи знака присваивания нельзя, т.е. синтаксис \verb|--config=<config file>| не работает.
+Используйте только \verb|--config <config file>|. \\
+
+  Теоретически, опции help и config можно переопределить при помощи метода ProgOptions::put,
+и тогда они станут обычными, ничем не отличающимися от других, опциями. 
+
+
+\section{ callback функции  }
+
+  Еще один механизм обработки опций, предоставляемый ProgOptions, - это callback функции.
+Свою callback функцию можно связать с каждой определенной пользователем опцией, и она будет
+автоматически вызваться во время parse как только опция будет обнаружена. 
+
+Осуществить связь можно при помощи параметра |callback| метода \verb|ProgOptions::put|.
+Например, добавим в нашей программе следующий код:
+
+\begin{verbatim}
+
+bool zz1Callback(const GradSoft::ProgOptions* options, const char* argument,
+                 void* )
+{
+ cout << "zz1:callback called with argument " << 
+            ((!argument) ? "NULL" : argument) << endl;
+ return true;
+}
+
+void init()
+{
+ .....
+ options.put("zz1", "option with argument and callback", true, zz1Callback );
+};
+
+\end{verbatim}
+
+Теперь попробуем вызвать программу с опцией "zz1":
+
+\begin{verbatim}
+/a.out --zz1 xx
+zz1:callback called with argument xx
+\end{verbatim}
+
+Отметим, что callback-функция вызывается при каждом нахождении связанной с ней опции, поэтому
+с помощью callback можно организовать обработку нескольких одинаковых опций с разными аргументами: 
+
+\begin{verbatim}
+/a.out --zz1 xx --zz1 yy
+zz1:callback called with argument xx
+zz1:callback called with argument yy
+\end{verbatim}
+
+
+
+\section{ Дополнительные возможности }
+\label{add-poss}
+
+\subsection{ Установка свойств ProgOptions }
+
+ \begin{itemize}
+  \item optPrefix, pkgPrefix (char*)-- опции, различаемые ProgOptions должны 
+   иметь вид \verb|<optPrefix><pkgPrefix><optionName>|.
+   \begin{itemize}
+     \item Значение по умолчанию: \verb|--| и пустая строка, соответственно
+     \item Способ задания: параметры конструктора.
+   \end{itemize}
+  \item allowUnknownOptions (bool) -- если это свойство установленно в true,
+   то ProgOptions игнорирует те элементы командной строки, которые не 
+   соответствуют синтаксису опций, либо соответствую синтаксису, но не
+   заданны в put. Если это свойство установлнно в false, то ProgOptions::parse
+   в этом случае возвращает false.
+   \begin{itemize}
+     \item Значение по умолчанию: false
+     \item Способ задания: 
+     \begin{itemize}
+       \item Параметр конструктора  
+       \item \verb|ProgOptions::setAllowUnknownOptions(bool);|
+     \end{itemize}
+     \item чтение: \verb|bool ProgOptions::getAllowUnknownOptions()|
+   \end{itemize}
+ \end{itemize}
+
+
+\subsection { Использование файла конфигурации }
+
+  Как было описано выше, использование ProgOptions::parse приводит к тому, что набор опций
+будет считан из файла конфигурации, если конечный пользователь употребит предопределенную опцию
+командной строки \verb|--config <filename>| где <filename> - полное имя файла конфигурации.
+
+Дополнительная возможность состоит в том, что config-файл можно прочитать независимо от решения
+конечного пользователя - т.е. по собственному решению программиста, - используя метод
+ProgOptions::parseFile(const char* configFname, const char* executable="unspecified"),
+где configFname - имя файла. Например, 
+\begin{verbatim}
+        parseFile("D:\Demo\config.ini");
+\end{verbatim}
+разберет текст, найденный в файле \verb|D:\Demo\config.ini|, и то, что он посчитает за опции,
+интерпретирует так же, как это бы сделал метод ProgOption::parse(argc,argv) с подходящим argv.
+(Второй параметр метода, executable, это имя выполняемого файла, которое надо задать,
+если вызов ProgOptions::parseFile не предупреждается вызовом ProgOptions::parse.)
+
+Еще одна возможность состоит в том, что опции, которые были проанализированы при помощи методов 
+ProgOptions::parse, ProgOptions::parseFile и ProgOptions::parseString (см.ниже) можно объединить
+и сохранить для последующего использования при помощи метода \verb|ProgOptions::saveToFile|.
+В частности, вызов
+\begin{verbatim}
+        parse(argc,argv);
+        ...
+        parseFile("D:\Demo\config.ini");
+        ...
+        saveToFile("D:\Demo\config1.ini");
+\end{verbatim}
+приведет к тому, что все опции, полученные через argv и считанные из файла \verb|D:\Demo\config.ini|
+(как распознаные, так и не распознанные) будут записаны в форматированный файл \verb|D:\Demo\config1.ini|
+который можно будет снова прочесть при помощи ProgOptions::parseFile.
+
+{\sf ВАЖНО: }
+
+  Оба метода для работы с файлами, ProgOptions::parseFile и ProgOptions::saveToFile, возращают
+булевское значение, говорящее успешности или неуспешности операции. В случае ProgOptions::saveToFile
+возврат false означает, что произошла системная ошибка, информация о которой доступна в переменной
+среды errno. Следовательно, рекомендуемый способ записи опций выглядит так:
+
+\begin{verbatim}
+ ProgOptioins options;
+   ...
+ if (!options.saveToFile(configFname)) {
+   perror(options.argv(0));
+   ...
+ }
+\end{verbatim}
+
+ В случае ProgOptions::parseFile использовать подобный способ действий не следует, т.к. указанный
+метод с необходимостью возвращает false в трех разных случаях:
+\begin{enumerate}
+ \item произошла системная ошибка при чтении файла, 
+ \item формат файла неправильный,
+ \item разбор прочитанных опций невозможен.
+\end{enumerate}
+При этом в случае системной ошибки или неправильного формата файла ProgOptions::parseFile
+самостоятельно сигнализирует о сбое, выводя сообщение на стандартный поток
+сообщений об ошибках программы.
+
+
+\subsection { Формат файла конфигурации }
+\label{format}
+
+  Формат файла конфигурации не является обременительным, однако, все-таки, не произволен.
+
+\begin{enumerate}
+ \item Файл состоит из слов (=опций), символов-разделителей и комментариев.
+ \item Словом считается:
+   \begin{enumerate}
+    \item непрерывная последовательность "видимых" символов;
+    \item любая последовательность видимых символов, пробелов и символов табуляции, заключенная в кавычки
+      (при интерпретации кавычки игнорируются);
+    \item непрерывная последовательность таких последовательностей.
+   \end{enumerate}
+Пример:
+\begin{verbatim}
+
+   aaa_bbb "aaa bbb" aaa" bbb ccc"
+
+\end{verbatim}
+- три разных слова, которые будут интерпретированы как \verb|'aaa_bbb'|, \verb|'aaa bbb'|, \verb|'aaa bbb ccc'|
+
+  \item К комментариям относятся:
+   \begin{enumerate}
+     \item маркеры \verb|'/*'|, \verb|'*/'| и все, что стоит между ними;
+     \item маркер \verb|'//'| и часть строки после него;
+     \item строка, начинающаяся с символа \verb|'#'|.
+   \end{enumerate}
+
+Примеры:
+\begin{verbatim}
+# This string will be ignored
+
+  aaa /* This part of string will be ignored */ bbb
+
+  ccc // This part of string will be ignored too
+\end{verbatim}
+
+  \item Первое слово файла должно находиться среди первых 10000 символов первой строки и в "чистом" виде
+   должно представлять собой маркер \verb|'@ProgOptions Config File'|. Таким образом, оно может быть задано 
+   одним из следующих способов:
+
+\begin{verbatim}
+@"ProgOptions Config File"
+
+"@ProgOptions Config File"
+\end{verbatim}
+
+   или каким-то другим.
+
+  \item Эффекты:
+   \begin{enumerate}
+    \item если кавычки открыты и не закрыты, границей слова считается конец строки;
+    \item если символ кавычек должен быть членом слова, его можно вставить как '\verb|\"|',
+      при этом косая черта игнорируется;
+   \end{enumerate}
+\end{enumerate}
+
+\subsection {Пример файла конфигурации}
+
+Пример файла конфигурации:
+
+\label{example-config-file}
+
+\begin{verbatim}
+
+@"ProgOptions config file"
+
+# The list of options: 
+
+    --a          /* single option */
+    --b c        // option with argument 
+    --d="a b c"  // another option with argument
+
+\end{verbatim}
+
+\subsection { Метод ProgOptions::parseString }
+
+  Еще одна возможность ProgOptions - это способность разобрать строку, заданную в виде массива символов.
+  Метод ProgOptions::parseString(const char* item, const char* executable="unspecified") разбирает строку так же, как метод
+  ProgOptions::parseFile разбирает файл за исключением того, что:
+\begin{enumerate}
+  \item не нужен маркер файла '@ProgOptions config file';
+  \item символ \verb|'#'| не имеет никакого специального значения.
+\end{enumerate}
+
+
+\section{ Требования к программному окружению }
+\label{environment}
+
+Если Вы работаете под управлением Windows NT, Вам необходимо:
+\begin{enumerate}
+  \item определить макрос WIN32 перед включением файла ProgOptions.h  
+  \item использовать "новые" библиотеки и, соответственно, заголовочные файлы iostream, fstream и т.п.
+        вместо аналогичных iostream.h, fstream.h и т.п.
+\end{enumerate}
+
+\section{ Перечень изменений }
+
+\begin{itemize}
+  \item[31.01.2002] - описанa поддержка опции \verb|--config <filename>|
+  \item[24.01.2002] - добавлено предупреждение о том, что синтаксис \verb|--config=<filename>|
+                      не работает
+  \item[03.01.2002] - изменены:
+                      \begin{enumerate}
+                      \item пример использования (раздел \ref{base}):
+                            заголовочный файл \verb|GradSoft/ProgOptions| больше не используется;
+                      \item описание порядка разбора конфигурационного файла (раздел \ref{format}):
+                            конструкции '//','/*','*/' можно использовать в тексте опций;
+                      \item требования к программному окружению (раздел \ref{environment}):
+                            "старые" библиотеки больше не используются;
+                      \end{enumerate}
+  \item[17.02.2001] - коррекция, добавлены формальные аттрибуты эксплуатационной документации, добавлена подглава о установках свойств.
+  \item[29.06.2000] - первая версия. 
+\end{itemize}
+
+\end{document}

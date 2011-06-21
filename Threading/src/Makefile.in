@@ -1,0 +1,57 @@
+#
+# part of GradSoft C++ ToolBox
+# http://www.gradsoft.com.ua
+# (C) GradSoft 2000,2001
+# $Id: Makefile.in,v 1.15 2002-07-11 15:53:50 rssh Exp $
+#
+
+PROJECT_ROOT=@project_root@
+include $(PROJECT_ROOT)/config/entry.mak
+
+include ThreadServices/mkThreadServices.mak
+
+SRCS=Thread.cpp RWLock.cpp ThreadEvent.cpp Mutex.cpp ThreadingExceptions.cpp \
+     ThreadService.cpp Runnable.cpp ThreadingUtils.cpp ThreadContext.cpp \
+     $(THREADSERVICES_SRCS)
+OBJS=Thread.o RWLock.o ThreadEvent.o Mutex.o ThreadingExceptions.o \
+     ThreadService.o Runnable.o ThreadingUtils.o ThreadContext.o \
+     $(THREADSERVICES_OBJS)
+SOBJS=Thread.so RWLock.so ThreadEvent.so Mutex.so ThreadingExceptions.so \
+     ThreadService.so Runnable.so ThreadingUtils.so ThreadContext.so \
+     $(THREADSERVICES_SOBJS)
+
+LIB=libThreading.a
+SLIB=libThreading.so
+
+build: $(LIB) $(SLIB)
+
+install: build
+	$(INSTALL_DATA) $(LIB) $(prefix)/lib
+	$(INSTALL_DATA) $(SLIB) $(prefix)/lib
+
+uninstall: 
+	-rm $(prefix)/lib/$(LIB)
+	-rm $(prefix)/lib/$(SLIB)
+
+clean:
+	-rm -f $(OBJS) $(SOBJS) $(LIB) $(SLIB)
+
+.SUFFIXES: .cpp .o .so
+
+.cpp.o:
+	$(CXX) $(CXXFLAGS) -c -o $*.o $<
+
+.cpp.so:
+	$(CXX) $(CXXSFLAGS) -c -o $*.o $<
+	mv $*.o $*.so
+
+$(LIB): $(OBJS)
+	$(AR) $(ARFLAGS) $(LIB) `$(LORDER) $(OBJS) | tsort`
+	$(RANLIB) $(LIB)
+
+$(SLIB): $(SOBJS)
+	for i in $(OBJS); do if test -f "$$i"; then mv $$i `dirname $$i`/`basename $$i .o`.oo; fi; done
+	for i in $(SOBJS); do cp $$i `dirname $$i`/`basename $$i .so`.o; done
+	$(LD) $(LD_CREATE_FLAGS) $(SLIB) `$(LORDER) $(SOBJS) | tsort`
+	for i in $(OBJS); do if test -f `dirname $$i`/`basename $$i .o`.oo; then mv `dirname $$i`/`basename $$i .o`.oo $$i; fi; done
+

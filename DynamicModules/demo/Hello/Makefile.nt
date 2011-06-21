@@ -1,0 +1,37 @@
+## Makefile for Windows NT: DinamicModules usage sample compilation
+## $Id: Makefile.nt,v 1.2 2001-12-27 16:02:15 kav Exp $
+
+###############################################
+!ifndef PROJECT_ROOT          #               #
+PROJECT_ROOT=$(MAKEDIR)\..\.. # debug entries #
+!endif                        #               #
+###############################################
+
+include ..\..\..\config\Win32\environment.nt.mak
+include ..\..\config\common_settings.nt.mak
+
+OBJS=Main.obj
+DLLS=Hello1.dll Hello2.dll
+EXEC=Hello.exe
+
+ROOTS=Hello1 Hello2
+
+build: $(EXEC)
+
+$(EXEC): $(MUTABLE_LIBS) $(OBJS) $(DLLS); $(EXE) $(EXEFLAGS) $(OBJS) 
+	
+Hello1.dll: Hello1.obj
+Hello2.dll: Hello2.obj
+
+.cpp.obj:: ; $(CPP) $< $(CPPFLAGS) 
+
+.obj.dll: ; $(DLL) $(DLLFLAGS) $<
+
+
+clean: 
+  @for %i in ( $(EXEC) $(OBJS) ) do @if exist %i $(REMOVE) %i
+  @for %i in ( $(ROOTS) ) do @if exist %i.obj $(REMOVE) %i.obj
+  @for %i in ( $(ROOTS) ) do @if exist %i.exp $(REMOVE) %i.exp
+  @for %i in ( $(ROOTS) ) do @if exist %i.dll $(REMOVE) %i.dll
+  @for %i in ( $(ROOTS) ) do @if exist %i.lib $(REMOVE) %i.lib
+

@@ -1,0 +1,150 @@
+\documentclass[10pt]{article}
+%\usepackage{tex4ht}
+\usepackage[OT1,T2A]{fontenc}
+\usepackage{graphicx}
+\usepackage{verbatim}
+
+%\Contribute{TITLE}{\def\LaTeX{LaTeX}}
+\title{ Socket: programmers guide  }
+
+\begin{document}
+
+\maketitle{}
+
+\tableofcontents
+
+\section{ Introduction }
+  Socket is a useful class which is a superstructure for standart BSD socket
+  API that simplifing work with communication.
+
+  This document is non-formal description of package, full specification are in
+  API reference. (www.gradsoft.kiev.ua/techdocs/Socket/API).
+\newpage
+\section{ Client's socket API }.
+ { For using client's part of Socket API file \verb|Client.h|
+   must be included. }
+  \begin{itemize}
+	\item {\bf void Socket(int domain,\ int type,\ int protocol)} \\ 
+           User creates an object \verb|Socket| with parameters \verb|domain| 
+           and \verb|type|.\\
+           Parameter \verb|domain| definds the  protocol family which will 
+           be used for communication.\\ 
+           Parameter \verb|type| specifies the communication semantics. \\
+           Parameter \verb|protocol| specifies a particular protocol 
+           to be used with the socket. 
+	\item {\bf void Socket::connect(const char* hostname,\ int port)}\\
+           Initiate a connection on a socket by calling 
+           \verb|Socket::connect()|.\\
+           Parameter \verb|hostname| identifies server in net. Parameter 
+           \verb|hostname| may be assign either by the ip-address 
+           or by the domain name.\\
+           Parameter \verb|port| specifies servers's port. 
+	\item {\bf void Socket::write(const char* buf,\ int len,\ int flag) }\\ 
+           For sending a message from a socket  method \verb|Socket::write()|
+           is called.\\
+           Parameter \verb|buf| specifies destination's address.\\
+           Parameter \verb|len| defines \verb|buf|'s length.\\
+           For parameter \verb|flag| see Socket API.
+        \item  {\bf void Socket::read(char* buf, int len, int flag)} \\
+           For receiving a message from a socket method 
+           \verb|Socket::read()| is called.\\
+           Parameter \verb|buf| specifies source's address.\\
+           Parameter \verb|len| defines \verb|buf|'s length.\\
+           For parameter \verb|flag| see Socket API.
+        \item { \bf const char* Socket::name()  }\\
+           Return machine's name, where application has been running.
+	\item {\bf void Socket::shutdown(int mode) } \\ 
+           Method \verb|Socket::shutdown()| shut down part 
+           of a full-duplex connection.\\
+           Parameter \verb|mode| assigns type of shut down.
+           (for reading, writing or both)
+  \end{itemize} 
+  { \sl (for more information see socket API). } \\
+\newpage
+\section{ Picture }
+  \vspace{2ex}
+  \begin{center}
+  { 
+    \begin{picture}(100,200)(10,10)
+        \put(50,200){\framebox(80,20)[c]{START}}
+        \put(90,200){\vector(0,-1){30}}
+        \put(50,150){\framebox(80,20)[c]{CONNECT}}
+        \put(90,150){\vector(0,-1){15}}
+        \put(45,135){\line(1,0){87}}
+        \put(45,135){\vector(0,-1){15}}
+        \put(132,135){\vector(0,-1){15}}
+        \put(5,100){\framebox(80,20)[c]{WRITE}}
+        \put(100,100){\framebox(80,20)[c]{READ}}
+        \put(45,85){\line(1,0){87}}
+        \put(45,85){\vector(0,1){15}}
+        \put(132,85){\vector(0,1){15}}
+        \put(90,85){\vector(0,-1){15}}
+        \put(50,50){\framebox(80,20)[c]{STOP}}
+    \end{picture}
+  } 
+  \end{center}
+\newpage
+\section{ Server's socket API. }
+ { For using server's part of Socket API file \verb|Server.h|
+    must be included. }
+  \begin{itemize}
+        \item {\bf void Socket(int domain,\ int type,\ int protocol)} \\
+              (see above).
+        \item { \bf void bind( int port ) } \\
+           Method \verb|bind()| binds a name to a socket.\\
+           Parameter \verb|port| defines a port to a socket.
+        \item {\bf void Socket::listen( int backlog ) } \\
+           Listen for connections on a socket.\\ 
+           Parameter \verb|backlog| defines the maximum length the queue 
+           of pending connections may grow to. 
+        \item  { \bf Socket Socket::accept() } \\
+           Accept a connection on a socket. Method returns Socket which
+           helps interoperating with a client.
+         \item { \bf void Socket::client\_info(char* hostnm,
+                    size\_t size, int\& port) } \\
+           Return client's hostname and port.\\
+           Parameter \verb|hostnm| assigns destination string.\\
+           Parameter \verb|size| defines \verb|hostnm|'s length.\\
+           Parameter \verb|port| returns client's port.
+                 \item Method \verb|Socket::name()| (see above).
+        \item Method \verb|Socket::shutdown()| (see above).
+        \item Method \verb|Socket::write()| (see above).
+        \item Method \verb|Socket::read()| (see above).
+  \end{itemize} 
+  { \sl (for more information see socket API). } \\
+\newpage
+\section{ Picture.}
+  \vspace{2ex}
+  \begin{center}
+  {
+    \begin{picture}(200,400)(10,10)
+        \put(50,400){\framebox(80,20)[c]{SOCKET}}
+        \put(90,400){\vector(0,-1){30}}
+        \put(50,350){\framebox(80,20)[c]{BIND}}
+        \put(90,350){\vector(0,-1){30}}
+        \put(50,300){\framebox(80,20)[c]{LISTEN}}
+        \put(90,300){\vector(0,-1){30}}
+        \put(90,285){\line(1,0){60}}
+        \put(150,285){\line(0,1){25}}
+        \put(150,310){\vector(-1,0){20}}
+        \put(50,250){\framebox(80,20)[c]{ACCEPT}}
+        \put(90,250){\vector(0,-1){15}}
+        \put(45,235){\line(1,0){87}}
+        \put(45,235){\vector(0,-1){15}}
+        \put(132,235){\vector(0,-1){15}}
+        \put(5,200){\framebox(80,20)[c]{WRITE}}
+        \put(100,200){\framebox(80,20)[c]{READ}}
+        \put(45,185){\line(1,0){87}}
+        \put(45,185){\vector(0,1){15}}
+        \put(132,185){\vector(0,1){15}}
+        \put(90,185){\vector(0,-1){15}}
+        \put(50,150){\framebox(80,20)[c]{SHUTDOWN}}
+    \end{picture}
+  }
+  \end{center}
+\newpage
+\section{Changes}
+  \begin{itemize}
+     \item 13.06.2001 Add server side.
+  \end{itemize}
+\end{document}

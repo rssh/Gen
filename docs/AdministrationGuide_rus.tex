@@ -1,0 +1,521 @@
+\documentclass[10pt]{article}
+\usepackage[OT1,T2A]{fontenc}
+\usepackage[koi8-u]{inputenc}
+\usepackage{graphicx}
+%\usepackage{verbatim}
+
+\title{ GradC++ ToolBox: Руководство администратора  
+        \newline
+        \small{DocumentId:GradSoft-PR-r-09.04.2000-v1.2.0}
+      }
+
+% $Id: AdministrationGuide_rus.tex,v 1.37 2004-03-13 09:53:30 rssh Exp $
+
+\newcommand{\version}{1.6.4}
+
+\begin{document}
+
+\maketitle{}
+
+\tableofcontents
+
+\section{ Общие сведения }
+
+\subsection{ Состав и назначение пакета }
+
+Пакет GradC++ToolBox - это набор из нескольких кроссплатформенных компонент на C++,
+каждая из которых предназначена для решения простой, но часто возникающей задачи:
+\begin{list} {-} {}
+\item реализации шаблонов умных указателей;
+\item организации многопоточности;
+\item обработки командной стороки;
+\item записи информационных и отладочных сообщений;
+\item чтения директории;
+\item создания потоков управления и т.п.
+\end{list}
+Мы можем предложить пакет тем разработчикам ПО на С++,
+которые, c одной стороны, хотели бы освободить себя от части рутинной работы,
+с другой - хотят писать переносимый код для UNIX и для Windows NT.
+Данное руководство описывает порядок получения, инсталляции и использования пакета GradC++ToolBox версии 1.6.0
+Пакет GradC++ToolBox 1.6.0 включает следующие компоненты:
+\begin{enumerate}
+  \item {\bf ptrs } - набор шаблонов умных указателей;
+  \item {\bf Threading} - набор классов для организации мультипотоковых программ;
+  \item {\bf ProgOptions} - класс для обработки опций командной строки;
+  \item {\bf Logger} - класс для записи информационных и отладочных сообщений;
+  \item {\bf DirectoryContainer} - набор классов для чтения списков файлов,
+        поддерживаемых операционной системой компьютера;
+  \item {\bf DynamicModules} -компонета для динамической загрузки разделяемых библиотек.
+  \item {\bf ServiceOptions} - специализация ProgOptions для CORBA сервисов;
+\end{enumerate}
+Вы можете установить у себя все перечисленные компоненты,
+либо, как вариант, все не связанные с CORBA компоненты пакета
+(т.е. ptrs, Threading, ProgOptions, Logger, DirectoryContainer и DynamicModules)
+в одном процессе инсталляции, "одним движением руки" - и так рекомендуется.
+Кроме того, взявшись учитывать связи между отдельными компонентами пакета,
+разные компоненты можно устанавливать отдельно.
+
+\subsection{ Где взять }
+
+Последняя версия пакета GradC++ToolBox всегда доступна на сайте разработчика по адресу http://www.gradsoft.com.ua \\
+
+\noindent
+При условии соблюдения лицензии (файл LICENSE.rus из комплекта поставки) пакет GradC++ToolBox распространяется бесплатно.
+
+\subsection{ Авторская группа }
+
+Пакет GradC++ToolBox разработан компанией GradSoft, домашняя страничка GradSoft http://www.gradsoft.com.ua
+
+
+\section{ Порядок инсталляции пакета }
+
+\subsection{ Общие сведения }
+
+Пакет GradC++ToolBox распространяется в исходных кодах, его установка включает следующие действия:
+\begin{enumerate}
+\item компиляцию исходного кода в окружении пользователя; 
+\item копирование заголовочных файлов и созданных при компиляции библиотек
+      в указанные пользователем каталоги.
+\end{enumerate}
+В процессе работы Вы можете: 
+\begin{enumerate}
+\item откомпилировать пакет;
+\item переписать ("инсталлировать") файлы;
+\item удалить объекты, созданные в процессе компиляции;
+\item удалить переписанные файлы
+\end{enumerate}
+при помощи команды make с нужными опциями (см. ниже).
+
+
+\subsection{ Необходимое ПО }
+
+\begin{enumerate}
+ \item Компилятор C++ : 
+  \begin{itemize} 
+   \item Unix:  gcc-2.95.2 или выше, SunPro 6.2
+   \item Windows NT: Microsoft Visual C версии 6.0 или выше.
+  \end{itemize}
+ \item make:
+  \begin{itemize} 
+   \item Unix: необходим gnu make
+   \item WindowsNT: nmake из поставки MSVC++
+  \end{itemize}
+ \item CORBA ORB (не требуется, если вы не используете ServiceOptions): 
+  \begin{itemize} 
+    \item Unix: omniORB-3.0 или выше, TAO-1.2, ORBacus 4.0.1 или выше, MICO-2.3.9 или выше.
+    \item WindowsNT: omniORB-3.0.4, ORBacus 4.0.1 или выше, TAO-1.2 или выше,  MICO-2.3.9 или выше.
+  \end{itemize}
+\end{enumerate}
+
+\subsection{ Порядок инсталляции под UNIX}
+
+\begin{enumerate}
+ \item Убедиться, что необходимое ПО установленно и работатет.
+ \item Развернуть архив Gen-1.6.3.tar.gz либо Gen-1.6.3.zip в избранном Вами каталоге
+       (в дальнейшем этот каталог мы будем называть "корневым каталогом проекта",
+       и обозначать \verb|<project_root>|).
+ \item Перейти в этот каталог.
+ \item Запустить configure командой \verb|./configure| с нужными опциями 
+ (список опций выводтися при запуске \verb|./configure| с опцией \verb|--help|;
+ в частности, можно задать опцию \verb|--prefix=<smth>| для назначения каталога инсталляции
+ либо опцию \verb|--with-corba=<yes/no>| для того, чтобы указать объем компиляции/инсталляции)
+ \item Запустить компиляцию, с помощью команды \verb|gmake|
+ \item Перейти в root режим с помощью команды \verb|su| 
+ \item Запустить инсталляцию с помощью команды \verb|gmake install| 
+ \item Для деинсталяции пакета можно воспользоваться командой gmake uninstall 
+\end{enumerate}
+
+\paragraph{ Замечание: }
+
+\begin{itemize}
+ \item Проверьте, работает ли в вашем операционном окружении генерирование
+  исключений из разделяемых библиотек. В основном это касается старых
+  дистрибутивов Linux систем 
+\begin{verbatim}
+  http://gcc.gnu.org/cgi-bin/pr/gnatsweb.pl?cmd=view&pr=1497&database=gcc  
+\end{verbatim}
+  При этом учтите, что для создание разделяемых библиотек надо использовать
+  \verb|g++|, а не \verb|ld|
+ \item Также если вы используете \verb|g++|, не помещайте операторы работы с 
+   исключениями в inline функции.
+\end{itemize}
+ 
+
+\subsection{ Порядок инсталляции под Windows NT }
+
+\begin{enumerate}
+ \item Убедиться, что необходимое ПО установленно и работатет.
+       В настоящее время для работы с MSVC требуется, чтобы:
+       \begin{enumerate}
+       \item переменные среды пользователя INCLUDE и LIB были определены
+             и содержали пути к включаемым файлам и библиотекам MSVC соответственно.
+       \item пути к утилитам {\bf nmake}, {\bf cl}, {\bf link}
+             были прописаны в переменной среды пользователя \verb|PATH|.
+       \end{enumerate}
+ \item Развернуть архив Gen-\version.tar.gz либо Gen-\version.zip
+       в избранном Вами каталоге (пусть его имя будет \verb|<project_root>|),
+       отредактировать файл {\bf environment.nt.mak} в подкаталоге
+       \verb|<project_root>\config\Win32|,
+       а также одноименный файл {\bf environment.nt.mak}
+       в подкаталоге  \verb|<project_root>\CORBA\config\Win32|
+       в том случае, если Вы собираетесь использовать ServiceOptions.
+       При редактировании установить значения следующих nmake-переменных:
+
+       \paragraph{I.} \verb|<project_root>\config\Win32\environment.nt.mak|:
+
+       \begin{itemize}
+
+       \item INSTALL\_DIR (каталог инсталляции) - поставляемые нами
+             библиотеки будут размещены в подкаталоге {\bf lib},
+             заголовочные файлы - в подкаталоге {\bf include\verb|\|GradSoft} данного каталога.
+
+       \item USE\_DEBUG\_LIB - установите эту переменную, если вы хотите
+             использовать отладочную версию бибилиотек MSVC.
+
+       \item USE\_DLL\_THREADING - установите эту переменную, если вы хотите использовать
+             динамическую версию Threading
+
+       \end{itemize}
+
+       \paragraph{II.} \verb|<project_root>\CORBA\config\Win32\environment.nt.mak|:
+
+       \begin{itemize}
+
+       \item ORB (условное имя ORB) - эта переменная должна принимать значения ORBacus,
+             либо OmniORB, либо TAO, либо MICO в зависимости от марки Вашего ORB
+
+       \item ACE\_ROOT - корневой каталог ACE (в том случае, если Вы используете TAO)
+       \item TAO\_ROOT - корневой каталог TAO (в том случае, если Вы используете TAO,
+             и TAO находится вне дерева каталогов ACE)
+       \item OMNI\_ROOT - корневой каталог omniORB (в том случае, если Вы используете omniORB)
+       \item OOC\_ROOT - корневой каталог ORBacus (в том случае, если Вы используете ORBacus)
+       \item MICO\_ROOT - корневой каталог MICO (в том случае, если Вы используете MICO)
+       \item PTHREADS\_ROOT - корневой каталог pthreads-win32 (в том случае, если Вы используете MICO)
+       \end{itemize}
+
+ \item Для компиляции пакета перейти в каталог \verb|<project_root>|
+       и воспользоваться командой \verb|make| ( \verb|make build| ),
+       если Вы НЕ собираетесь использовать ServiceOptions, 
+       либо командой \verb|make with-corba| (\verb|make with-corba build|,
+       \verb|make build with-corba| -- все равно), если собираетесь.
+
+ \item Для инсталляции пакета  перейти в каталог \verb|<project_root>|
+       и воспользоваться командой \verb|make install|,
+       если Вы НЕ собираетесь использовать ServiceOptions, 
+       либо \verb|make install with-corba|, если собираетесь.
+
+ \item Для удаления инсталлированных файлов перейти в каталог \verb|<project_root>|
+       и воспользоваться командой \verb|make uninstall|
+       либо \verb|make with-corba uninstall|
+       соответственно тому, используете ли Вы ServiceOptions.
+
+ \item Для для удаления файов, созданных в процессе компиляции
+       перейти в каталог \verb|<project_root>| и воспользоваться командой \verb|make clean|
+       либо \verb|make with-corba clean| соответственно.
+
+ \item Для компиляции, инсталляции, удаления инсталлированных файлов
+       и файлов, созданных в процессе компиляции в пределах одной отдельно взятой компоненты -
+       перейти в соответствующий ей каталог (один из:
+       \begin{list}{}{}
+       \item \verb|<project_root>\Threading|
+       \item \verb|<project_root>\CORBA\ServiceOptions|
+       \item \verb|<project_root>\ProgOptions|
+       \item \verb|<project_root>\Logger|
+       \item \verb|<project_root>\DirectoryContainer|
+       \item \verb|<project_root>\DynamicModules| )
+       \end{list}
+       и воспользоваться командой {\bf make}
+       с опциями {\bf build}, {\bf install}, {\bf uninstall} и {\bf clean} соответственно. 
+ \end{enumerate}
+
+\paragraph{Замечание:}
+Если вы скажете {\bf make install} без предварительной компиляции пакета (компонеты),
+компиляция будет запущена автоматически в объеме, достаточном для инсталляции пакета (компоненты),
+однако тестовые примеры компилироваться не будут.
+
+\section{ Тестирование }
+
+\subsection{ Общие сведения }
+
+Тестовые примеры, входящие в комплект поставки пакета GradC++ToolBox,
+соответствует примерам использования пакетов Threading, ProgOptions,
+ServiceOptions, Logger, DirectoryContainer и DynamicModules,
+приведенным в руководствах программиста для каждого пакета.
+Для того, чтобы было, что запускать, надо сначала откомпилировать пакет.
+
+\subsection{ Порядок тестирования }
+
+\subsubsection{ ProgOptions }
+
+\begin{itemize}
+ \item Прочитать руководство программиста в файле \newline
+ <project\_root>/ProgOption/docs/ProgrammingGuide\_rus.pdf
+ \item Перейти в каталог <project\_root>/ProgOptions/demo
+ \item Запустить ProgOptionsDemo поочередно
+  со следующими опциями:
+
+\begin{verbatim}
+  --help
+  --qqq
+  --zzz
+  --zzz <something>
+  --zz1 <something>
+  --zz3
+  <something>
+  --config config.ini
+\end{verbatim}
+
+ \item Убедиться, что вывод соответствуем ожиданиям
+\end{itemize}
+
+\subsubsection{ ServiceOptions }
+
+\begin{itemize}
+ \item Прочитать руководство программиста в файле
+       \newline <project\_root>/CORBA/ServiceOptions/docs/ProgrammingGuide\_rus.pdf
+ \item Перейти в каталог \verb|<project_root>/CORBA/ServiceOptions/demo|
+ \item Под UNIX: откомпилировать примеры, для чего:
+       \begin{enumerate}
+       \item запустить ./configure с нужными опциями;
+       \item воспользоваться командой {\bf gmake}.
+       \end{enumerate}
+ \item Запустить программу HelloWorldServer c опцией \verb|--help|
+ \item Прочитать help.
+ \item Запустить программу HelloWorldServer c опцией \verb|--ior-stdout|
+ \item Убедиться, что Interoperable Object Reference выведена на стандартный вывод.
+ \item Запустить программу HelloWorldServer c опциями \verb|--ior-file-HelloService hello.ref|.
+ \item Убедиться, что Interoperable Object Reference находится в файле hello.ref.
+ \item Запустить программу HelloWorldServer c опциями:
+       \begin{list}{}{}
+         \item \verb|-OAport 1100|, если вы используете ORBacus
+         \item \verb|-ORBport 1100|, если вы используете TAO-1.1
+         \item \verb|-ORBEndpoint iiop://:1100|, если вы используете TAO-1.2
+         \item \verb|-ORBpoa_iiop_port 1100|, если вы используете omniORB
+         \item \verb|-ORBIIOPAddr inet:<hostname>:1100|, если вы используете Mico
+       \end{list} 
+       (порт 1100 при этом не должен быть занят другим приложением;
+       естественно, вы можете указать любой другой номер порта).
+ \item Запустить программу HelloWorldClient c опциями
+       \begin{enumerate}
+          \item [(a)] \verb|-ORBInitRef HelloService=corbaloc::127.0.0.1:1100/HelloService| 
+                в том случае, если вы используете TAO-1.2, omniORB или ORBacus 4.X или Mico
+          \item [(b)] \verb|-ORBInitRef HelloService=iiop//:127.0.0.1:1100/HelloService| 
+                в том случае, если вы используете TAO-1.1.
+       \end{enumerate}
+ \item Убедиться, что строка "Hello World" выведена на стандартный вывод
+ \item Проверить правильность настройки NameService
+ \item Запустить программу HelloWorldServer c опцией \verb|--with-naming|
+ \item Запустить программу HelloWorldClient c опцией \verb|--with-naming|
+ \item Убедиться, что строка "Hello World" выведена на стандартный вывод
+\end{itemize}
+
+\subsubsection{ Logger }
+\begin{itemize}
+ \item Прочитать руководство программиста в файле
+       \newline \verb|<project_root>/Logger/docs/ProgrammingGuide_rus.pdf|
+ \item Перейти в каталог \verb|<project_root>/Logger/demo|
+ \item Запустить исполняемый файл
+ \item Убедиться, что файл file.log сгенерирован и его содержание отвечает описанному
+ в ProgrammingGuide\_rus.pdf порядку использования пакета
+\end{itemize}
+
+\subsubsection{ DirectoryContainer }
+\begin{itemize}
+ \item Прочитать руководство программиста в файле
+       \newline \verb|<project_root>/DirectoryContainer/docs/ProgrammingGuide_rus.pdf|
+ \item Перейти в каталог \verb|<project_root>/DirectoryContainer/demo|
+ \item Запустить исполняемый файл c опцией {\bf .} (точка)
+ \item Убедиться, что список файлов в текущей директории дважды ввыведен на экран
+\end{itemize}
+
+\subsubsection{ Threading }
+  Поочередно перейти в каталоги
+  \begin{itemize}
+  \item \verb|project_root/Threading/demo/Container|
+  \item \verb|project_root/Threading/demo/DeleteThis|
+  \item \verb|project_root/Threading/demo/Hairdresser|
+  \item \verb|project_root/Threading/demo/Philosophs|
+  \item \verb|project_root/Threading/demo/Stres|
+  \item \verb|project_root/Threading/demo/ThreadServices|
+  \end{itemize}
+  убедиться, что исполняемые файлы созданы и работают.
+
+\subsubsection{ DynamicModules }
+  \begin{itemize}
+  \item Прочитать руководство программиста в файле
+        \newline \verb|<project_root>/DynamicModules/docs/ProgrammingGuide_rus.pdf|
+  \item Перейти в каталог \verb|<project_root>/DynamicModules/demo|
+  \item Запустить исполняемый файл
+  \item Убедиться, что следующие строки выведены на стандартный вывод:
+
+\begin{verbatim}
+Hi! I'm Hello1
+Hi! I'm Hello2, name was xxx
+\end{verbatim}
+
+  \end{itemize}
+
+\section{ Использование }
+
+\paragraph{A.}
+Windows NT: переменная препроцессора WIN32 должна быть определена перед включением 
+любого из заголовочных файлов пакета GradC++ToolBox.
+
+
+\paragraph{B.}
+Программы, которые будут использовать возможности отдельных компонент GradC++ToolBox,
+должны компилироваться со следующими библиотеками:
+\newline
+\newline
+Для Unix:
+\newline
+
+\begin{tabular}{|l|l|}\hline
+
+  {\em компонента}
+& {\em статические библиотеки} \\ \cline{2-2}
+& {\em динамические библиотеки} \\ \hline
+
+  ProgOptions
+& libProgOptions.a \\ \cline{2-2}
+& libProgOptions.so \\ \hline
+
+  ServiceOptions
+& libServiceOptions.a, libProgOptions.a \\ \cline{2-2}
+& libServiceOptions.so, libProgOptions.so \\ \hline    
+
+  Threading
+& libThreading.a \\ \cline{2-2}
+& libThreading.so \\ \hline
+
+  Logger
+& libLogger.a, libThreading.a  \\ \cline{2-2}
+& libLogger.so, libThreading.so \\ \hline
+
+  DirectoryContainer
+& libDirectoryContainer.a, libThreading.a  \\ \cline{2-2}
+& libDirectoryContainer.so, libThreading.so \\ \hline
+
+  DynamicModules
+& libDynamicModules.a  \\ \cline{2-2}
+& libDynamicModules.so \\ \hline
+
+
+\end{tabular}
+\newline
+\newline
+\newline
+ Для Windows NT:
+\newline
+
+\begin{tabular}{|l|l|}\hline
+
+  {\em компонента}
+& {\em статические библиотеки}\\ \cline{2-2} 
+& {\em динамические библиотеки} \\ \hline
+
+
+  ProgOptions
+& ProgOptions.lib \\ \cline{2-2}
+&                 \\ \hline
+
+  ServiceOptions
+& ServiceOptions.lib, ProgOptions.lib \\ \cline{2-2}
+&                                     \\ \hline    
+
+  Threading
+& Threading.lib \\ \cline{2-2}
+& Threading.dll \\ \hline
+
+  Logger
+& Logger.lib, Threading.lib \\ \cline{2-2}
+& Logger.lib, Threading.dll \\ \hline
+
+  DirectoryContainer
+& DirectoryContainer.lib \\ \cline{2-2}
+&                        \\ \hline
+
+  DynamicModules
+& DynamicModules.lib \\ \cline{2-2}
+&                    \\ \hline
+
+\end{tabular}
+\newline
+\newline
+
+
+\section{ Зависимости }
+
+Если вы компилируете компоненты GradC++TooolBox по отдельности,
+Вы должны учитывать следующие связи между ними:
+
+\begin{itemize}
+\item Пакет ServiceOptions использует средства ProgOptions,
+и в полном объеме (с примерами) может быть
+скомпилирован при наличии библиотеки ProgOptions.lib для Windows NT
+либо libProgOptions.a (libProgOptions.so) для UNIX.
+Откомпилируйте ProgOptions перед ServiceOptions.
+
+\item Пакеты Logger и DirectoryContainer используют средства Threading,
+и в полном объеме (с примерами) могут быть
+скомпилированы при наличии библиотеки Threading.lib для Windows NT
+либо libThreading.a (libThreading.so) для UNIX.
+Откомпилируйте Threading перед Logger и DirectoryContainer.
+
+\item Threading использует пакет \verb|ptrs|, (который полностью размещается
+ в header-файлах и, таким образом, не определяет бибилиотеку).
+\end{itemize}
+
+Т. е. получающаяся диаграмма зависимостей: 
+\begin{verbatim}
+ ptrs                  ProgOptions
+  |                        |
+  *-- Threading            *--ServiceOptions
+         |
+         |
+         *--Logger
+         |
+         *--DirectoryContainer
+\end{verbatim}
+
+\section{ История документа }
+
+\begin{itemize}
+  \item[13.03.2004]
+    \begin{enumerate}
+      \item Описаны измнения, касающиеся построения DLL для С++.
+      \item изменен номер версии (1.6.3 -> 1.6.4 )
+    \end{enumerate} 
+  \item[11.03.2003]
+    \begin{enumerate}
+      \item Добавлено описание тестирования с Mico ORB.
+      \item изменен номер версии (1.6.0 -> 1.6.3)
+    \end{enumerate} 
+  \item[28.08.2002] 
+    \begin{enumerate}
+      \item изменен номер версии (1.5.0 -> 1.6.0)
+      \item изменен номер версии поддерживаемого компилятора Sun CC.
+    \end{enumerate}
+  \item[28.03.2002] 
+    \begin{enumerate}
+      \item изменен номер версии (1.4.2 -> 1.5.0)
+      \item добавлено описание компоненты ptrs
+      \item добавлена диаграмма зависимостей.
+    \end{enumerate}
+  \item[06.02.2002] - изменен номер версии (1.4.1 -> 1.4.2)
+  \item[24.01.2002] - изменен номер версии (1.4.0 -> 1.4.1)
+  \item[28.12.2001] - изменения, отражающие:
+                      \begin{enumerate}
+                      \item изменения в порядке компиляции пакета под Windows NT;
+                      \item добавление возможности использовать omniORB и TAO под Windows NT;
+                      \item добавление новой компоненты пакета DynamicModules.
+                      \end{enumerate}
+  \item[17.09.2001] - оптимизация ;)
+  \item[16.09.2001] - добавлено описание компоненты DirectoryContainer
+  \item[04.07.2001] - изменен номер порта для запуска тестового примера из пакета ServiceOptions (1100 вместо 1025).
+  \item[29.04.2001] - исправлено несколько опечаток
+  \item[14.02.2001] - добавлена информация о параметрах ORB в разделе "тестирование ServiceOptions"
+  \item[09.04.2000] - создан
+\end{itemize}
+
+\end{document}

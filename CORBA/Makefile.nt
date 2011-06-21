@@ -1,0 +1,23 @@
+# Main Makefile for CORBA projects  for WinNT
+# $Id: Makefile.nt,v 1.6 2001-12-11 21:01:51 kav Exp $
+
+
+SUBDIRS=$(MAKEDIR)\ServiceOptions
+
+default: build
+
+build:
+	@for %i in ( $(SUBDIRS) ) do \
+		@cd %i && $(MAKE) /F Makefile.nt build
+
+install:
+	@for %i in ( $(SUBDIRS) ) do \
+		@cd %i && $(MAKE) /F Makefile.nt install
+
+uninstall:
+	@for %i in ( $(SUBDIRS) ) do \
+		@cd %i && $(MAKE) /F Makefile.nt uninstall
+
+clean:
+	@for %i in ( $(SUBDIRS) ) do \
+		@cd %i && $(MAKE) /F Makefile.nt clean

@@ -1,0 +1,40 @@
+#!/bin/sh
+#
+# Makefile.in
+# part of implementation of Grad C++ Toolbox
+# (C) Ruslan Shevchenko <Ruslan@Shevchenko.Kiev.UA>, 1998, 1999, 2000
+# $Id: Makefile.in,v 1.2 2000-08-29 17:36:20 rssh Exp $
+#
+PROJECT_ROOT=@project_root@
+include $(PROJECT_ROOT)/config/entry.mak
+#
+SUBDIRS=include src tests
+CONFIG_SUBDIRS=tests
+#
+
+default: build
+all: build
+
+
+build: 
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) build) ; done	
+
+install: build
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) install) ; done
+
+uninstall: 
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) uninstall) ; done
+
+clean:
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) clean) ; done	
+	-rm -rf Templates.DB
+
+docs: documentation
+documentation:
+	(cd docs; $(MAKE) );
+
+reconfigure:
+	autoconf -l ../../config
+	for i in $(CONFIG_SUBDIRS); do (cd $$i; autoconf -l $(PROJECT_ROOT)/../../config ); done
+
+

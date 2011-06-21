@@ -1,0 +1,43 @@
+PROJECT_ROOT=@project_root@
+include $(PROJECT_ROOT)/config/entry.mak
+
+SRCS=DynamicModules.cpp
+OBJS=DynamicModules.o
+SOBJS=DynamicModules.so 
+
+LIB=libDynamicModules.a
+SLIB=libDynamicModules.so
+
+build: $(LIB) $(SLIB)
+
+install: build
+	$(INSTALL_DATA) $(LIB) $(prefix)/lib
+	$(INSTALL_DATA) $(SLIB) $(prefix)/lib
+
+uninstall: 
+	-rm $(prefix)/lib/$(LIB)
+	-rm $(prefix)/lib/$(SLIB)
+
+clean:
+	-rm -f *.o *.so $(LIB) $(SLIB)
+
+.SUFFIXES: .cpp .o .so
+
+.cpp.o:
+	$(CXX) $(CXXFLAGS) -c -o $*.o $<
+
+.cpp.so:
+	$(CXX) $(CXXSFLAGS) -c -o $*.o $<
+	mv $*.o $*.so
+
+$(LIB): $(OBJS)
+	$(AR) $(ARFLAGS) $(LIB) $(OBJS)
+
+
+$(SLIB): $(SOBJS)
+	for i in $(OBJS); do if test -f "$$i"; then mv $$i `basename $$i .o`.oo; fi; done
+	for i in $(SOBJS); do cp $$i `basename $$i .so`.o; done
+	$(LD) $(LD_CREATE_FLAGS) $(SLIB) $(OBJS)
+	for i in $(OBJS); do if test -f `basename $$i .o`.oo; then mv `basename $$i .o`.oo $$i; fi; done
+
+

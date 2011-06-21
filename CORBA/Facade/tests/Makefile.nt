@@ -1,0 +1,28 @@
+# $Id: Makefile.nt,v 1.1 2000-08-02 09:07:18 alik Exp $
+
+SUBDIRS=1
+
+default: build
+default-build: build
+build-generated: build
+build-idl: build
+build-client: build
+install-client:
+
+
+build:
+	@for %i in ( $(SUBDIRS) ) do \
+		@cd %i && $(MAKE) /F Makefile.nt build
+
+idl:
+	@for %i in ( $(SUBDIRS) ) do \
+		@cd %i && $(MAKE) /F Makefile.nt idl
+
+generate:
+	@for %i in ( $(SUBDIRS) ) do \
+		@cd %i && $(MAKE) /F Makefile.nt generate
+
+clean:
+	@for %i in ( $(SUBDIRS) ) do \
+		@cd %i && $(MAKE) /F Makefile.nt clean
+

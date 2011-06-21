@@ -1,0 +1,9 @@
+# $Id: Makefile.nt,v 1.1 2000-08-02 09:05:58 alik Exp $
+
+include ../env_inc.nt.mak
+
+DIRS=GradSoft
+
+install:
+	@for %i in ( $(DIRS) ) do \
+		@cd %i & $(MAKE) /F Makefile.nt install

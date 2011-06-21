@@ -1,0 +1,11 @@
+// $Id: Test1.idl,v 1.2 2000-08-03 09:41:13 alik Exp $
+
+module Tests {
+
+interface Test1
+{
+  void hello_CORBA();
+  void destroy();
+};
+
+};

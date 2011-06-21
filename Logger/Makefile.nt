@@ -1,0 +1,24 @@
+## Main Makefile for Logger project for Windows NT
+## $Id: Makefile.nt,v 1.2 2001-12-11 21:21:48 kav Exp $
+
+SUBDIRS_COMPILE=$(MAKEDIR)\src $(MAKEDIR)\demo
+SUBDIRS_INSTALL=$(MAKEDIR)\src $(MAKEDIR)\include
+
+default: build
+
+build:
+	@for %i in ( $(SUBDIRS_COMPILE) ) do \
+		@cd %i && $(MAKE) /F Makefile.nt PROJECT_ROOT="$(MAKEDIR)" build
+
+install:
+	@for %i in ( $(SUBDIRS_INSTALL) ) do \
+		@cd %i && $(MAKE) /F Makefile.nt install
+
+uninstall: 
+	@for %i in ( $(SUBDIRS_INSTALL) ) do \
+		@cd %i && $(MAKE) /F Makefile.nt uninstall
+
+clean:
+	@for %i in ($(SUBDIRS_COMPILE)) do \
+		@cd %i && $(MAKE) /F Makefile.nt clean
+

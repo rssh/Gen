@@ -1,0 +1,50 @@
+# Makefile for Threading project for WinNT: source code compilation
+# part ogf GradSoft C++ ToolBox
+# (C) GradSoft 2000, 2001
+# http://www.gradsoft.com.ua
+# $Id: Makefile.nt,v 1.17 2004-03-13 15:07:34 kav Exp $
+
+############################################
+!ifndef PROJECT_ROOT       #               #
+PROJECT_ROOT=$(MAKEDIR)\.. # debug entries #
+!endif                     #               #
+############################################
+
+include ..\..\config\Win32\environment.nt.mak
+include ..\config\common_settings.nt.mak
+include ThreadServices\mkThreadServices.nt.mak 
+
+OBJS=$(THREADSERVICES_OBJS) \
+Mutex.obj Runnable.obj RWLock.obj Thread.obj ThreadEvent.obj ThreadingExceptions.obj ThreadingUtils.obj ThreadService.obj ThreadContext.obj 
+
+LIBS=$(SLIB)
+SHARED_LIBS=$(SSLIB)
+
+default: build
+
+install: makedir build ; $(INSTALL) $(SLIB) $(INSTALL_LIB_DIR)
+
+install-shared: makedir build-shared; $(INSTALL) $(SSLIB) $(INSTALL_LIB_DIR)
+
+makedir: ; @if not exist $(INSTALL_LIB_DIR) mkdir $(INSTALL_LIB_DIR)
+
+!ifdef USE_DLL_THREADING
+build: build-shared
+!else
+build: $(LIBS)
+!endif
+
+build-shared: $(SHARED_LIBS)
+
+$(LIBS): $(OBJS) ; $(AR) $(ARFLAGS) $(OBJS)
+$(SHARED_LIBS): $(OBJS) ; $(LD) /DLL $(LDFLAGS) $(OBJS)
+
+uninstall: ;
+
+   @for %i in ( $(LIBS) ) do @if exist $(INSTALL_LIB_DIR)\%i $(REMOVE) $(INSTALL_LIB_DIR)\%i
+
+clean: ; @for %i in ( $(LIBS) $(SHARED_LIBS) $(OBJS) ) do @if exist %i $(REMOVE) %i
+
+.cpp.obj:: ; $(CPP) $< $(CPPFLAGS) 
+
+{ThreadServices}.cpp{ThreadServices}.obj:: ; $(CPP) -FoThreadServices\ $< $(CPPFLAGS) 
